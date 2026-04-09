@@ -8,7 +8,6 @@ import { useAccount } from 'wagmi';
 import { useUser } from '@/lib/UserContext';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
 import { useDisconnect } from 'wagmi';
-import TunnelBackground from '@/components/TunnelBackground';
 
 const mono  = "'JetBrains Mono',monospace";
 const serif = "'Cormorant Garamond',serif";
@@ -54,7 +53,6 @@ export default function Home() {
         }
       `}</style>
 
-      <div className="tunnel-reveal"><TunnelBackground dimOpacity={0.35} /></div>
 
       {/* Meander bar */}
       <div style={{ height: 2, background: MEANDER, position: 'relative', zIndex: 10 }} />

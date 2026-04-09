@@ -42,8 +42,6 @@ const LEADERS = [
   { rank: 5, user: 'anon_95410276', karma: 3840,  posts: 23  },
 ];
 
-import TunnelBackground from '@/components/TunnelBackground';
-
 // ─── Logo ─────────────────────────────────────────────────────────────────────
 function KataLogo({ size = 'nav' }: { size?: 'nav' | 'large' }) {
   const isLarge = size === 'large';
@@ -1008,7 +1006,6 @@ export default function DashboardPage() {
 
       <div style={{ minHeight: '100vh', background: '#04050C', color: 'rgba(190,208,238,0.68)', fontFamily: mono, fontSize: 11, opacity: ready ? 1 : 0, transition: 'opacity 0.4s' }}>
 
-        <TunnelBackground dimOpacity={0.88} />
 
         {/* Depth meter */}
         <div style={{ position: 'fixed', bottom: 14, right: 16, zIndex: 50, fontFamily: mono, fontSize: 8, color: 'rgba(107,159,212,0.18)', letterSpacing: '0.1em' }}>

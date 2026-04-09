@@ -9,6 +9,16 @@ const ProvidersInner = dynamic(
   { ssr: false, loading: () => null }
 );
 
+const TunnelLayer = dynamic(
+  () => import('@/components/TunnelLayer'),
+  { ssr: false, loading: () => null }
+);
+
 export function ClientLayout({ children }: { children: ReactNode }) {
-  return <ProvidersInner>{children}</ProvidersInner>;
+  return (
+    <ProvidersInner>
+      <TunnelLayer />
+      {children}
+    </ProvidersInner>
+  );
 }

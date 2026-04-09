@@ -2,6 +2,12 @@
 
 import { useEffect, useRef } from 'react';
 
+// Module-level texture cache — computed once per session, reused on remount
+const TW = 1024, TH = 1024;
+let _texR: Uint8Array | null = null;
+let _texG: Uint8Array | null = null;
+let _texB: Uint8Array | null = null;
+
 export default function TunnelBackground({ dimOpacity = 0.72 }: { dimOpacity?: number }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -12,12 +18,13 @@ export default function TunnelBackground({ dimOpacity = 0.72 }: { dimOpacity?: n
     if (!ctx) return;
 
     const SCALE = 2;
-    const TW = 1024, TH = 1024;
     const TW1 = TW - 1, TH1 = TH - 1;
 
-    const texR = new Uint8Array(TW * TH);
-    const texG = new Uint8Array(TW * TH);
-    const texB = new Uint8Array(TW * TH);
+    // Use cached texture if available — skip the expensive generation
+    const texR = _texR ?? new Uint8Array(TW * TH);
+    const texG = _texG ?? new Uint8Array(TW * TH);
+    const texB = _texB ?? new Uint8Array(TW * TH);
+    const needsBuild = !_texR;
 
     function h(n: number) { const v = Math.sin(n * 127.1 + 311.7) * 43758.5453; return v - Math.floor(v); }
     function vnoise(x: number, y: number) {
@@ -43,8 +50,8 @@ export default function TunnelBackground({ dimOpacity = 0.72 }: { dimOpacity?: n
       return v;
     }
 
-    // Hard rock face texture
-    for (let y = 0; y < TH; y++) {
+    // Hard rock face texture — only compute if not cached
+    if (needsBuild) for (let y = 0; y < TH; y++) {
       for (let x = 0; x < TW; x++) {
         const u = x / TW * 7.0;
         const v = y / TH * 7.0;
@@ -81,6 +88,9 @@ export default function TunnelBackground({ dimOpacity = 0.72 }: { dimOpacity?: n
         texR[i] = r; texG[i] = g; texB[i] = b;
       }
     }
+
+    // Store in module cache for instant reuse on remount
+    if (needsBuild) { _texR = texR; _texG = texG; _texB = texB; }
 
     let angleLUT: Float32Array, distLUT: Float32Array, RW = 0, RH = 0;
 
