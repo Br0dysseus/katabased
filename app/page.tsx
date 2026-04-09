@@ -19,7 +19,7 @@ const MEANDER = 'repeating-linear-gradient(90deg,rgba(107,159,212,0.2) 0,rgba(10
 
 export default function Home() {
   const { isConnected } = useAccount();
-  const { user, loading, signingIn, refetchUser } = useUser();
+  const { user, loading, signingIn, authError, refetchUser } = useUser();
   const router = useRouter();
   const { openConnectModal } = useConnectModal();
   const { disconnect } = useDisconnect();
@@ -172,6 +172,11 @@ export default function Home() {
           <div style={{ fontFamily: mono, fontSize: 7, color: signingIn ? 'rgba(107,159,212,0.5)' : 'rgba(74,222,128,0.25)', letterSpacing: '0.08em', marginTop: 2 }}>
             {signingIn ? '// waiting for signature...' : isConnected && !user ? '// click to retry sign-in' : isConnected && user ? '// WALLET_CONNECTED' : '// wallet address is never stored'}
           </div>
+          {authError && (
+            <div style={{ fontFamily: mono, fontSize: 8, color: 'rgba(212,90,90,0.75)', letterSpacing: '0.04em', maxWidth: 320, textAlign: 'center', lineHeight: 1.6, padding: '8px 12px', border: '1px solid rgba(212,90,90,0.2)', borderRadius: 2, background: 'rgba(212,90,90,0.04)' }}>
+              {'// '}{authError}
+            </div>
+          )}
         </div>
 
       </div>

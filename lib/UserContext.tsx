@@ -10,6 +10,7 @@ type UserContextType = {
   user: User | null;
   loading: boolean;
   signingIn: boolean;
+  authError: string | null;
   refetchUser: () => Promise<void>;
   changeUsername: (newUsername: string) => Promise<void>;
 };
@@ -18,6 +19,7 @@ const UserContext = createContext<UserContextType>({
   user: null,
   loading: true,
   signingIn: false,
+  authError: null,
   refetchUser: async () => {},
   changeUsername: async () => {},
 });
@@ -29,6 +31,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const [user,      setUser]      = useState<User | null>(null);
   const [loading,   setLoading]   = useState(true);
   const [signingIn, setSigningIn] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
 
   // Track which address we've already authenticated this session
   // so we don't re-prompt on every re-render.
@@ -52,6 +55,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
     try {
       setLoading(true);
       setSigningIn(true);
+      setAuthError(null);
 
       const message = buildSignMessage(address);
       const signature = await signMessageAsync({ message });
@@ -63,6 +67,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
       console.error('Sign-in failed:', error);
       setUser(null);
       authedAddress.current = null;
+      const msg = error instanceof Error ? error.message : String(error);
+      setAuthError(msg);
     } finally {
       setLoading(false);
       setSigningIn(false);
@@ -81,7 +87,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
   }, [address, isConnected]);
 
   return (
-    <UserContext.Provider value={{ user, loading, signingIn, refetchUser: loadUser, changeUsername }}>
+    <UserContext.Provider value={{ user, loading, signingIn, authError, refetchUser: loadUser, changeUsername }}>
       {children}
     </UserContext.Provider>
   );
