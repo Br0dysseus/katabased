@@ -1035,9 +1035,8 @@ export default function DashboardPage() {
               <span style={{ color: 'rgba(107,159,212,0.18)' }}>{'//'}</span>
               <span>ANON_MODE</span>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontFamily: mono, fontSize: 8, color: 'rgba(212,132,90,0.55)', letterSpacing: '0.1em', fontWeight: 400 }}>
-              <div style={{ width: 5, height: 5, borderRadius: '50%', background: terra, boxShadow: '0 0 5px rgba(212,132,90,0.4)', animation: 'pd 2s ease infinite', flexShrink: 0 }} />
-              <span>REC</span>
+            <div style={{ fontFamily: mono, fontSize: 8, color: 'rgba(107,159,212,0.22)', letterSpacing: '0.1em', fontWeight: 400 }}>
+              37.9°N · 23.7°E
             </div>
           </div>
 
