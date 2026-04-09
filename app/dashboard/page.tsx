@@ -1005,7 +1005,7 @@ export default function DashboardPage() {
 
       <div style={{ minHeight: '100vh', background: '#04050C', color: 'rgba(190,208,238,0.68)', fontFamily: mono, fontSize: 11, opacity: ready ? 1 : 0, transition: 'opacity 0.4s' }}>
 
-        <TunnelBackground />
+        <TunnelBackground dimOpacity={0.88} />
 
         {/* Depth meter */}
         <div style={{ position: 'fixed', bottom: 14, right: 16, zIndex: 50, fontFamily: mono, fontSize: 8, color: 'rgba(107,159,212,0.18)', letterSpacing: '0.1em' }}>
