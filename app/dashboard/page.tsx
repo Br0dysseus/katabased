@@ -70,7 +70,7 @@ function KeyboardIcon() {
 // ─── Section heading ──────────────────────────────────────────────────────────
 function SecHead({ label, mb = 20 }: { label: string; mb?: number }) {
   return (
-    <div style={{ fontSize: 8, fontWeight: 600, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(107,159,212,0.7)', marginBottom: mb, display: 'flex', alignItems: 'center', gap: 10 }}>
+    <div style={{ fontSize: 14, fontWeight: 600, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(107,159,212,0.7)', marginBottom: mb, display: 'flex', alignItems: 'center', gap: 10 }}>
       <span style={{ color: 'rgba(107,159,212,0.28)', fontWeight: 400 }}>{'// '}</span>
       {label}
       <div style={{ flex: 1, height: 1, background: 'linear-gradient(90deg, rgba(107,159,212,0.14) 0%, transparent 100%)' }} />
@@ -91,13 +91,13 @@ function SignalBtn({ count, confirm, active, onClick }: { count: number; confirm
         border: `1px solid ${active ? colFull + '0.45)' : 'rgba(190,208,238,0.07)'}`,
         background: active ? colFull + '0.07)' : 'transparent',
         color: active ? col : 'rgba(190,208,238,0.2)',
-        fontSize: 8, fontFamily: mono, fontWeight: active ? 600 : 400, cursor: 'pointer',
+        fontSize: 14, fontFamily: mono, fontWeight: active ? 600 : 400, cursor: 'pointer',
         transition: 'all 0.18s', letterSpacing: '0.1em',
       }}
       onMouseEnter={e => { if (!active) { (e.currentTarget as HTMLElement).style.borderColor = colFull + '0.25)'; (e.currentTarget as HTMLElement).style.color = colFull + '0.6)'; } }}
       onMouseLeave={e => { if (!active) { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(190,208,238,0.07)'; (e.currentTarget as HTMLElement).style.color = 'rgba(190,208,238,0.2)'; } }}
     >
-      <span style={{ fontSize: 7 }}>{confirm ? '◆' : '◈'}</span>
+      <span style={{ fontSize: 13 }}>{confirm ? '◆' : '◈'}</span>
       {confirm ? 'CONFIRM' : 'DISPUTE'}
       <span style={{ opacity: 0.7 }}>{count}</span>
     </button>
@@ -127,7 +127,7 @@ function FeedPage({ feed, votes, vote, onCompose, selectedEntity, onClearEntity,
           {selectedEntity && (
             <button
               onClick={onClearEntity}
-              style={{ padding: '4px 10px', borderRadius: 2, border: '1px solid rgba(212,132,90,0.2)', background: 'rgba(212,132,90,0.06)', color: 'rgba(212,132,90,0.6)', fontSize: 8, fontFamily: mono, cursor: 'pointer', letterSpacing: '0.1em', transition: 'all 0.18s' }}
+              style={{ padding: '4px 10px', borderRadius: 2, border: '1px solid rgba(212,132,90,0.2)', background: 'rgba(212,132,90,0.06)', color: 'rgba(212,132,90,0.6)', fontSize: 14, fontFamily: mono, cursor: 'pointer', letterSpacing: '0.1em', transition: 'all 0.18s' }}
               onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(212,132,90,0.4)'; (e.currentTarget as HTMLElement).style.color = 'rgba(212,132,90,0.9)'; }}
               onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(212,132,90,0.2)'; (e.currentTarget as HTMLElement).style.color = 'rgba(212,132,90,0.6)'; }}
             >
@@ -158,20 +158,20 @@ function FeedPage({ feed, votes, vote, onCompose, selectedEntity, onClearEntity,
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <div style={{ width: 6, height: 6, borderRadius: '50%', background: blue, boxShadow: '0 0 6px rgba(107,159,212,0.5)', animation: 'pd 2s ease infinite', flexShrink: 0 }} />
-          <span style={{ fontFamily: mono, fontSize: 10, color: 'rgba(190,208,238,0.32)', letterSpacing: '0.1em', fontWeight: 400 }}>{'// DROP_A_TRANSMISSION'}</span>
+          <span style={{ fontFamily: mono, fontSize: 14, color: 'rgba(190,208,238,0.32)', letterSpacing: '0.1em', fontWeight: 400 }}>{'// DROP_A_TRANSMISSION'}</span>
         </div>
-        <span style={{ fontFamily: mono, fontSize: 8, color: 'rgba(107,159,212,0.35)', letterSpacing: '0.08em', border: '1px solid rgba(107,159,212,0.18)', padding: '2px 6px', borderRadius: 1 }}>[⌘K / ctrl+K]</span>
+        <span style={{ fontFamily: mono, fontSize: 14, color: 'rgba(107,159,212,0.35)', letterSpacing: '0.08em', border: '1px solid rgba(107,159,212,0.18)', padding: '2px 6px', borderRadius: 1 }}>[⌘K / ctrl+K]</span>
       </div>
 
       <div>
         {loading && (
-          <div style={{ fontFamily: mono, fontSize: 10, color: 'rgba(107,159,212,0.28)', padding: '24px 0', letterSpacing: '0.06em', animation: 'pd 2s ease infinite' }}>{'// fetching transmissions...'}</div>
+          <div style={{ fontFamily: mono, fontSize: 14, color: 'rgba(107,159,212,0.28)', padding: '24px 0', letterSpacing: '0.06em', animation: 'pd 2s ease infinite' }}>{'// fetching transmissions...'}</div>
         )}
         {!loading && error && (
-          <div style={{ fontFamily: mono, fontSize: 10, color: 'rgba(212,90,90,0.45)', padding: '24px 0', letterSpacing: '0.06em' }}>{'// signal lost — could not reach the archive'}</div>
+          <div style={{ fontFamily: mono, fontSize: 14, color: 'rgba(212,90,90,0.45)', padding: '24px 0', letterSpacing: '0.06em' }}>{'// signal lost — could not reach the archive'}</div>
         )}
         {!loading && !error && displayFeed.length === 0 && (
-          <div style={{ fontFamily: mono, fontSize: 10, color: 'rgba(190,208,238,0.2)', padding: '24px 0', letterSpacing: '0.06em' }}>{'// no transmissions found for this entity'}</div>
+          <div style={{ fontFamily: mono, fontSize: 14, color: 'rgba(190,208,238,0.2)', padding: '24px 0', letterSpacing: '0.06em' }}>{'// no transmissions found for this entity'}</div>
         )}
         {displayFeed.map((p, i) => {
           const signalHigh = p.confirms > 300;
@@ -187,23 +187,23 @@ function FeedPage({ feed, votes, vote, onCompose, selectedEntity, onClearEntity,
             >
               {/* Meta row */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 9, flexWrap: 'wrap' }}>
-                <span style={{ fontFamily: mono, fontSize: 9, color: 'rgba(107,159,212,0.6)', letterSpacing: '0.05em' }}>[{p.author}]</span>
+                <span style={{ fontFamily: mono, fontSize: 13, color: 'rgba(107,159,212,0.6)', letterSpacing: '0.05em' }}>[{p.author}]</span>
                 {p.entity && p.entity !== '—' && (
-                  <span style={{ fontFamily: mono, fontSize: 7, fontWeight: 600, color: terra, letterSpacing: '0.12em', textTransform: 'uppercase', border: '1px solid rgba(212,132,90,0.28)', padding: '1px 6px', borderRadius: 1, background: 'rgba(212,132,90,0.05)' }}>{p.entity}</span>
+                  <span style={{ fontFamily: mono, fontSize: 13, fontWeight: 600, color: terra, letterSpacing: '0.12em', textTransform: 'uppercase', border: '1px solid rgba(212,132,90,0.28)', padding: '1px 6px', borderRadius: 1, background: 'rgba(212,132,90,0.05)' }}>{p.entity}</span>
                 )}
-                <span style={{ fontFamily: mono, fontSize: 8, color: 'rgba(190,208,238,0.18)', letterSpacing: '0.04em' }}>{p.time}</span>
-                <span style={{ fontFamily: mono, fontSize: 7, color: 'rgba(107,159,212,0.38)', border: '1px solid rgba(107,159,212,0.14)', padding: '1px 5px', borderRadius: 1, letterSpacing: '0.08em' }}>ON-CHAIN</span>
+                <span style={{ fontFamily: mono, fontSize: 14, color: 'rgba(190,208,238,0.18)', letterSpacing: '0.04em' }}>{p.time}</span>
+                <span style={{ fontFamily: mono, fontSize: 13, color: 'rgba(107,159,212,0.38)', border: '1px solid rgba(107,159,212,0.14)', padding: '1px 5px', borderRadius: 1, letterSpacing: '0.08em' }}>ON-CHAIN</span>
               </div>
               {/* Title */}
               <div style={{ fontFamily: mono, fontSize: 16, fontWeight: 600, color: 'rgba(240,245,255,1.0)', marginBottom: 8, lineHeight: 1.32, letterSpacing: '-0.02em' }}>{p.title}</div>
               {/* Body */}
-              <div style={{ fontFamily: mono, fontSize: 12, lineHeight: 1.8, color: 'rgba(210,222,242,0.82)', fontWeight: 400, marginBottom: 12, letterSpacing: '0.01em' }}>{p.content}</div>
+              <div style={{ fontFamily: mono, fontSize: 14, lineHeight: 1.8, color: 'rgba(210,222,242,0.82)', fontWeight: 400, marginBottom: 12, letterSpacing: '0.01em' }}>{p.content}</div>
               {/* Footer */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 <SignalBtn count={p.confirms + (votes[String(p.id)] === 'confirm' ? 1 : 0)} confirm={true}  active={votes[String(p.id)] === 'confirm'} onClick={() => vote(String(p.id), 'confirm')} />
                 <SignalBtn count={p.disputes + (votes[String(p.id)] === 'dispute' ? 1 : 0)} confirm={false} active={votes[String(p.id)] === 'dispute'} onClick={() => vote(String(p.id), 'dispute')} />
-                {p.replies > 0 && <span style={{ marginLeft: 4, fontFamily: mono, fontSize: 8, color: 'rgba(190,208,238,0.2)', letterSpacing: '0.07em' }}>{p.replies} replies</span>}
-                <span style={{ marginLeft: 'auto', fontFamily: mono, fontSize: 8, letterSpacing: '0.08em', color: signalHigh ? blue : signalMed ? 'rgba(107,159,212,0.45)' : 'rgba(190,208,238,0.2)' }}>
+                {p.replies > 0 && <span style={{ marginLeft: 4, fontFamily: mono, fontSize: 14, color: 'rgba(190,208,238,0.2)', letterSpacing: '0.07em' }}>{p.replies} replies</span>}
+                <span style={{ marginLeft: 'auto', fontFamily: mono, fontSize: 14, letterSpacing: '0.08em', color: signalHigh ? blue : signalMed ? 'rgba(107,159,212,0.45)' : 'rgba(190,208,238,0.2)' }}>
                   {signalHigh ? '◆ HIGH_SIGNAL' : signalMed ? '◈ MED_SIGNAL' : '◻ LOW_SIGNAL'}
                 </span>
               </div>
@@ -238,7 +238,7 @@ function ExplorePage({ entities, search, setSearch, onSelectEntity }: { entities
         value={search}
         onChange={e => setSearch((e.target as HTMLInputElement).value)}
         placeholder="> search entities..."
-        style={{ width: '100%', padding: '7px 10px', borderRadius: 2, border: '1px solid rgba(107,159,212,0.1)', background: 'rgba(107,159,212,0.03)', color: 'rgba(190,208,238,0.65)', fontSize: 10, fontFamily: mono, outline: 'none', marginTop: 14, marginBottom: 14, transition: 'border-color 0.15s', letterSpacing: '0.04em' }}
+        style={{ width: '100%', padding: '7px 10px', borderRadius: 2, border: '1px solid rgba(107,159,212,0.1)', background: 'rgba(107,159,212,0.03)', color: 'rgba(190,208,238,0.65)', fontSize: 14, fontFamily: mono, outline: 'none', marginTop: 14, marginBottom: 14, transition: 'border-color 0.15s', letterSpacing: '0.04em' }}
         onFocus={e => { (e.target as HTMLInputElement).style.borderColor = 'rgba(107,159,212,0.3)'; (e.target as HTMLInputElement).style.background = 'rgba(107,159,212,0.06)'; }}
         onBlur={e  => { (e.target as HTMLInputElement).style.borderColor = 'rgba(107,159,212,0.1)'; (e.target as HTMLInputElement).style.background = 'rgba(107,159,212,0.03)'; }}
       />
@@ -261,8 +261,8 @@ function ExplorePage({ entities, search, setSearch, onSelectEntity }: { entities
                 <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 10 }}>
                   <div style={{ fontFamily: mono, fontSize: 13, fontWeight: 600, color: 'rgba(240,245,255,0.9)', letterSpacing: '0.01em' }}>{c.name}</div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
-                    <span style={{ fontFamily: mono, fontSize: 8, color: 'rgba(190,208,238,0.22)', letterSpacing: '0.06em' }}>{c.count} {c.count === 1 ? 'TRANSMISSION' : 'TRANSMISSIONS'}</span>
-                    <span style={{ fontFamily: mono, fontSize: 11, fontWeight: 600, color: barCol, letterSpacing: '-0.01em' }}>{pct}<span style={{ fontSize: 8, fontWeight: 400, marginLeft: 1 }}>%</span></span>
+                    <span style={{ fontFamily: mono, fontSize: 14, color: 'rgba(190,208,238,0.22)', letterSpacing: '0.06em' }}>{c.count} {c.count === 1 ? 'TRANSMISSION' : 'TRANSMISSIONS'}</span>
+                    <span style={{ fontFamily: mono, fontSize: 13, fontWeight: 600, color: barCol, letterSpacing: '-0.01em' }}>{pct}<span style={{ fontSize: 14, fontWeight: 400, marginLeft: 1 }}>%</span></span>
                   </div>
                 </div>
                 {/* Two-tone sentiment bar: blue=positive left, terra=negative right */}
@@ -271,8 +271,8 @@ function ExplorePage({ entities, search, setSearch, onSelectEntity }: { entities
                   <div style={{ flex: 1, height: '100%', background: 'rgba(212,132,90,0.4)' }} />
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <div style={{ fontFamily: mono, fontSize: 7, color: barCol, opacity: 0.65, letterSpacing: '0.1em' }}>{signalLabel}</div>
-                  <div style={{ fontFamily: mono, fontSize: 7, color: 'rgba(190,208,238,0.3)', letterSpacing: '0.1em' }}>VIEW_TRANSMISSIONS →</div>
+                  <div style={{ fontFamily: mono, fontSize: 13, color: barCol, opacity: 0.65, letterSpacing: '0.1em' }}>{signalLabel}</div>
+                  <div style={{ fontFamily: mono, fontSize: 13, color: 'rgba(190,208,238,0.3)', letterSpacing: '0.1em' }}>VIEW_TRANSMISSIONS →</div>
                 </div>
               </div>
               {i < filt.length - 1 && <div style={{ height: 1, background: 'linear-gradient(90deg, rgba(107,159,212,0.1) 0%, transparent 100%)' }} />}
@@ -295,16 +295,16 @@ function RanksPage({ leaders, username }: { leaders: LeaderRow[]; username: stri
           return (
             <div key={e.rank} className="fi" style={{ animationDelay: `${40 + i * 60}ms` }}>
               <div style={{ display: 'flex', alignItems: 'center', padding: '9px 0', paddingLeft: me ? 8 : 0, background: me ? 'rgba(107,159,212,0.06)' : 'transparent', borderLeft: me ? '3px solid rgba(107,159,212,0.5)' : '2px solid transparent', boxShadow: me ? 'inset 0 0 8px rgba(107,159,212,0.08)' : 'none' }}>
-                <span style={{ fontFamily: mono, width: 22, fontSize: 10, fontWeight: 600, letterSpacing: '0.04em', color: e.rank <= 3 ? 'rgba(218,228,248,0.7)' : 'rgba(190,208,238,0.18)' }}>
+                <span style={{ fontFamily: mono, width: 22, fontSize: 14, fontWeight: 600, letterSpacing: '0.04em', color: e.rank <= 3 ? 'rgba(218,228,248,0.7)' : 'rgba(190,208,238,0.18)' }}>
                   {String(e.rank).padStart(2, '0')}
                 </span>
                 <div style={{ flex: 1, marginLeft: 10 }}>
-                  <div style={{ fontFamily: mono, fontSize: 9, color: blue, letterSpacing: '0.04em' }}>
-                    [{e.user}]{me && <span style={{ marginLeft: 5, fontSize: 7, color: 'rgba(212,132,90,0.6)', letterSpacing: '0.08em' }}>YOU</span>}
+                  <div style={{ fontFamily: mono, fontSize: 13, color: blue, letterSpacing: '0.04em' }}>
+                    [{e.user}]{me && <span style={{ marginLeft: 5, fontSize: 13, color: 'rgba(212,132,90,0.6)', letterSpacing: '0.08em' }}>YOU</span>}
                   </div>
-                  <div style={{ fontFamily: mono, fontSize: 8, color: 'rgba(190,208,238,0.15)', marginTop: 2, letterSpacing: '0.04em' }}>{e.posts} posts</div>
+                  <div style={{ fontFamily: mono, fontSize: 14, color: 'rgba(190,208,238,0.15)', marginTop: 2, letterSpacing: '0.04em' }}>{e.posts} posts</div>
                 </div>
-                <div style={{ fontFamily: mono, fontSize: 11, fontWeight: 500, letterSpacing: '0.02em', color: me ? 'rgba(218,228,248,0.8)' : 'rgba(190,208,238,0.22)' }}>{e.karma.toLocaleString()}</div>
+                <div style={{ fontFamily: mono, fontSize: 13, fontWeight: 500, letterSpacing: '0.02em', color: me ? 'rgba(218,228,248,0.8)' : 'rgba(190,208,238,0.22)' }}>{e.karma.toLocaleString()}</div>
               </div>
               {i < leaders.length - 1 && <div style={{ height: 1, background: 'linear-gradient(90deg, rgba(107,159,212,0.1) 0%, transparent 100%)' }} />}
             </div>
@@ -314,8 +314,8 @@ function RanksPage({ leaders, username }: { leaders: LeaderRow[]; username: stri
 
       {/* OPSEC note */}
       <div style={{ marginTop: 28, padding: '10px 14px', border: '1px solid rgba(212,132,90,0.08)', borderRadius: 2, background: 'rgba(212,132,90,0.02)' }}>
-        <div style={{ fontFamily: mono, fontSize: 8, fontWeight: 500, letterSpacing: '0.14em', color: 'rgba(212,132,90,0.35)', marginBottom: 5 }}>{'// OPSEC_NOTE'}</div>
-        <div style={{ fontFamily: mono, fontSize: 9, lineHeight: 1.7, color: 'rgba(190,208,238,0.25)', fontWeight: 300, letterSpacing: '0.01em' }}>
+        <div style={{ fontFamily: mono, fontSize: 14, fontWeight: 500, letterSpacing: '0.14em', color: 'rgba(212,132,90,0.35)', marginBottom: 5 }}>{'// OPSEC_NOTE'}</div>
+        <div style={{ fontFamily: mono, fontSize: 13, lineHeight: 1.7, color: 'rgba(190,208,238,0.25)', fontWeight: 300, letterSpacing: '0.01em' }}>
           Public post counts and karma can narrow your identity. A high rank combined with known posting patterns is an attack surface. Read the <span style={{ color: 'rgba(107,159,212,0.45)', cursor: 'default' }}>[OPSEC]</span> guide before accumulating a visible profile.
         </div>
       </div>
@@ -366,9 +366,9 @@ function ComposerModal({ userId, onPostCreated, onClose }: { userId: string; onP
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 28 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{ width: 6, height: 6, borderRadius: '50%', background: blue, boxShadow: `0 0 8px ${blue}`, animation: 'pd 2s ease infinite', flexShrink: 0 }} />
-            <div style={{ fontFamily: mono, fontSize: 8, fontWeight: 600, letterSpacing: '0.2em', color: 'rgba(107,159,212,0.7)' }}>{'// NEW_TRANSMISSION'}</div>
+            <div style={{ fontFamily: mono, fontSize: 14, fontWeight: 600, letterSpacing: '0.2em', color: 'rgba(107,159,212,0.7)' }}>{'// NEW_TRANSMISSION'}</div>
           </div>
-          <button onClick={onClose} style={{ background: 'none', border: '1px solid rgba(190,208,238,0.08)', borderRadius: 2, cursor: 'pointer', fontFamily: mono, fontSize: 9, color: 'rgba(190,208,238,0.25)', padding: '3px 8px', letterSpacing: '0.08em', transition: 'all 0.18s' }}
+          <button onClick={onClose} style={{ background: 'none', border: '1px solid rgba(190,208,238,0.08)', borderRadius: 2, cursor: 'pointer', fontFamily: mono, fontSize: 13, color: 'rgba(190,208,238,0.25)', padding: '3px 8px', letterSpacing: '0.08em', transition: 'all 0.18s' }}
             onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(190,208,238,0.2)'; (e.currentTarget as HTMLElement).style.color = 'rgba(190,208,238,0.55)'; }}
             onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(190,208,238,0.08)'; (e.currentTarget as HTMLElement).style.color = 'rgba(190,208,238,0.25)'; }}
           >✕</button>
@@ -380,14 +380,14 @@ function ComposerModal({ userId, onPostCreated, onClose }: { userId: string; onP
         {/* TARGET_ENTITY — optional */}
         <div style={{ marginBottom: 20 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
-            <span style={{ fontFamily: mono, fontSize: 7, letterSpacing: '0.16em', color: 'rgba(107,159,212,0.4)' }}>TARGET_ENTITY</span>
-            <span style={{ fontFamily: mono, fontSize: 7, color: 'rgba(190,208,238,0.18)', letterSpacing: '0.1em' }}>optional</span>
+            <span style={{ fontFamily: mono, fontSize: 13, letterSpacing: '0.16em', color: 'rgba(107,159,212,0.4)' }}>TARGET_ENTITY</span>
+            <span style={{ fontFamily: mono, fontSize: 13, color: 'rgba(190,208,238,0.18)', letterSpacing: '0.1em' }}>optional</span>
           </div>
           <input
             value={company}
             onChange={e => setCompany((e.target as HTMLInputElement).value)}
             placeholder="e.g. Coinbase, Dept. of State, City Hall..."
-            style={inputStyle({ padding: '10px 12px', fontSize: 11 })}
+            style={inputStyle({ padding: '10px 12px', fontSize: 13 })}
             onFocus={e => { (e.target as HTMLInputElement).style.borderColor = 'rgba(107,159,212,0.4)'; (e.target as HTMLInputElement).style.background = 'rgba(107,159,212,0.06)'; }}
             onBlur={e  => { (e.target as HTMLInputElement).style.borderColor = 'rgba(107,159,212,0.18)'; (e.target as HTMLInputElement).style.background = 'rgba(107,159,212,0.04)'; }}
           />
@@ -397,10 +397,10 @@ function ComposerModal({ userId, onPostCreated, onClose }: { userId: string; onP
         <div style={{ marginBottom: 20 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-              <span style={{ fontFamily: mono, fontSize: 7, letterSpacing: '0.16em', color: 'rgba(107,159,212,0.55)' }}>HEADER</span>
-              <span style={{ fontFamily: mono, fontSize: 8, color: 'rgba(212,132,90,0.6)', lineHeight: 1 }}>*</span>
+              <span style={{ fontFamily: mono, fontSize: 13, letterSpacing: '0.16em', color: 'rgba(107,159,212,0.55)' }}>HEADER</span>
+              <span style={{ fontFamily: mono, fontSize: 14, color: 'rgba(212,132,90,0.6)', lineHeight: 1 }}>*</span>
             </div>
-            <span style={{ fontFamily: mono, fontSize: 7, color: title.length > TITLE_MAX * 0.85 ? 'rgba(212,90,90,0.6)' : 'rgba(190,208,238,0.18)', letterSpacing: '0.04em' }}>{title.length}/{TITLE_MAX}</span>
+            <span style={{ fontFamily: mono, fontSize: 13, color: title.length > TITLE_MAX * 0.85 ? 'rgba(212,90,90,0.6)' : 'rgba(190,208,238,0.18)', letterSpacing: '0.04em' }}>{title.length}/{TITLE_MAX}</span>
           </div>
           <input
             value={title}
@@ -416,17 +416,17 @@ function ComposerModal({ userId, onPostCreated, onClose }: { userId: string; onP
         <div style={{ marginBottom: 24 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-              <span style={{ fontFamily: mono, fontSize: 7, letterSpacing: '0.16em', color: 'rgba(107,159,212,0.55)' }}>TRANSMISSION</span>
-              <span style={{ fontFamily: mono, fontSize: 8, color: 'rgba(212,132,90,0.6)', lineHeight: 1 }}>*</span>
+              <span style={{ fontFamily: mono, fontSize: 13, letterSpacing: '0.16em', color: 'rgba(107,159,212,0.55)' }}>TRANSMISSION</span>
+              <span style={{ fontFamily: mono, fontSize: 14, color: 'rgba(212,132,90,0.6)', lineHeight: 1 }}>*</span>
             </div>
-            <span style={{ fontFamily: mono, fontSize: 7, color: body.length > BODY_MAX * 0.9 ? 'rgba(212,90,90,0.6)' : 'rgba(190,208,238,0.18)', letterSpacing: '0.04em' }}>{body.length}/{BODY_MAX}</span>
+            <span style={{ fontFamily: mono, fontSize: 13, color: body.length > BODY_MAX * 0.9 ? 'rgba(212,90,90,0.6)' : 'rgba(190,208,238,0.18)', letterSpacing: '0.04em' }}>{body.length}/{BODY_MAX}</span>
           </div>
           <textarea
             value={body}
             onChange={e => { if (e.target.value.length <= BODY_MAX) setBody(e.target.value); }}
             placeholder="What it's actually like on the inside..."
             rows={8}
-            style={inputStyle({ padding: '12px', fontSize: 12, resize: 'vertical', lineHeight: 1.8, fontWeight: 300, letterSpacing: '0.01em', color: 'rgba(190,208,238,0.78)' })}
+            style={inputStyle({ padding: '12px', fontSize: 14, resize: 'vertical', lineHeight: 1.8, fontWeight: 300, letterSpacing: '0.01em', color: 'rgba(190,208,238,0.78)' })}
             onFocus={e => { (e.target as HTMLTextAreaElement).style.borderColor = 'rgba(107,159,212,0.4)'; (e.target as HTMLTextAreaElement).style.background = 'rgba(107,159,212,0.06)'; }}
             onBlur={e  => { (e.target as HTMLTextAreaElement).style.borderColor = 'rgba(107,159,212,0.18)'; (e.target as HTMLTextAreaElement).style.background = 'rgba(107,159,212,0.04)'; }}
           />
@@ -434,21 +434,21 @@ function ComposerModal({ userId, onPostCreated, onClose }: { userId: string; onP
 
         {/* Error */}
         {error && (
-          <div style={{ marginBottom: 20, padding: '8px 12px', borderLeft: '2px solid rgba(212,90,90,0.5)', background: 'rgba(212,90,90,0.04)', fontFamily: mono, fontSize: 9, color: 'rgba(212,90,90,0.8)', letterSpacing: '0.06em' }}>
+          <div style={{ marginBottom: 20, padding: '8px 12px', borderLeft: '2px solid rgba(212,90,90,0.5)', background: 'rgba(212,90,90,0.04)', fontFamily: mono, fontSize: 13, color: 'rgba(212,90,90,0.8)', letterSpacing: '0.06em' }}>
             !! {error}
           </div>
         )}
 
         {/* Actions */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div style={{ fontFamily: mono, fontSize: 8, color: 'rgba(190,208,238,0.2)', letterSpacing: '0.06em' }}>
+          <div style={{ fontFamily: mono, fontSize: 14, color: 'rgba(190,208,238,0.2)', letterSpacing: '0.06em' }}>
             identity: anon · hash: on-chain · payload: encrypted
           </div>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             <button
               onClick={onClose}
               disabled={submitting}
-              style={{ padding: '8px 18px', borderRadius: 2, border: '1px solid rgba(190,208,238,0.1)', background: 'none', color: 'rgba(190,208,238,0.3)', fontSize: 9, fontFamily: mono, cursor: 'pointer', letterSpacing: '0.12em', transition: 'all 0.18s' }}
+              style={{ padding: '8px 18px', borderRadius: 2, border: '1px solid rgba(190,208,238,0.1)', background: 'none', color: 'rgba(190,208,238,0.3)', fontSize: 13, fontFamily: mono, cursor: 'pointer', letterSpacing: '0.12em', transition: 'all 0.18s' }}
               onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(190,208,238,0.22)'; (e.currentTarget as HTMLElement).style.color = 'rgba(190,208,238,0.55)'; }}
               onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(190,208,238,0.1)'; (e.currentTarget as HTMLElement).style.color = 'rgba(190,208,238,0.3)'; }}
             >
@@ -457,11 +457,11 @@ function ComposerModal({ userId, onPostCreated, onClose }: { userId: string; onP
             <button
               onClick={submit}
               disabled={submitting}
-              style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 22px', borderRadius: 2, border: `1px solid ${submitting ? 'rgba(107,159,212,0.2)' : 'rgba(107,159,212,0.55)'}`, background: submitting ? 'rgba(107,159,212,0.04)' : 'rgba(107,159,212,0.12)', color: submitting ? 'rgba(218,228,248,0.35)' : 'rgba(218,228,248,0.9)', fontSize: 9, fontFamily: mono, fontWeight: 600, cursor: submitting ? 'not-allowed' : 'pointer', letterSpacing: '0.14em', transition: 'all 0.18s' }}
+              style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 22px', borderRadius: 2, border: `1px solid ${submitting ? 'rgba(107,159,212,0.2)' : 'rgba(107,159,212,0.55)'}`, background: submitting ? 'rgba(107,159,212,0.04)' : 'rgba(107,159,212,0.12)', color: submitting ? 'rgba(218,228,248,0.35)' : 'rgba(218,228,248,0.9)', fontSize: 13, fontFamily: mono, fontWeight: 600, cursor: submitting ? 'not-allowed' : 'pointer', letterSpacing: '0.14em', transition: 'all 0.18s' }}
               onMouseEnter={e => { if (!submitting) { (e.currentTarget as HTMLElement).style.background = 'rgba(107,159,212,0.2)'; (e.currentTarget as HTMLElement).style.borderColor = 'rgba(107,159,212,0.7)'; } }}
               onMouseLeave={e => { if (!submitting) { (e.currentTarget as HTMLElement).style.background = 'rgba(107,159,212,0.12)'; (e.currentTarget as HTMLElement).style.borderColor = 'rgba(107,159,212,0.55)'; } }}
             >
-              {submitting && <span style={{ animation: 'pd 0.8s ease infinite', fontSize: 10 }}>◆</span>}
+              {submitting && <span style={{ animation: 'pd 0.8s ease infinite', fontSize: 14 }}>◆</span>}
               {submitting ? 'BROADCASTING...' : 'BROADCAST'}
             </button>
           </div>
@@ -604,15 +604,15 @@ function OpsecPage() {
           onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.opacity = '1'; }}
           onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.opacity = '0.6'; }}
         >
-          <span style={{ fontFamily: mono, fontSize: 9, color: 'rgba(190,208,238,0.55)', letterSpacing: '0.1em' }}>←</span>
-          <span style={{ fontFamily: mono, fontSize: 9, color: 'rgba(190,208,238,0.55)', letterSpacing: '0.12em' }}>[GUIDE]</span>
+          <span style={{ fontFamily: mono, fontSize: 13, color: 'rgba(190,208,238,0.55)', letterSpacing: '0.1em' }}>←</span>
+          <span style={{ fontFamily: mono, fontSize: 13, color: 'rgba(190,208,238,0.55)', letterSpacing: '0.12em' }}>[GUIDE]</span>
         </button>
 
         {/* Progress indicator */}
         {(() => {
           const idx = TIERS.findIndex(t => t.id === tier.id);
           return (
-            <div style={{ fontFamily: mono, fontSize: 8, color: 'rgba(190,208,238,0.22)', letterSpacing: '0.12em', marginBottom: 18 }}>
+            <div style={{ fontFamily: mono, fontSize: 14, color: 'rgba(190,208,238,0.22)', letterSpacing: '0.12em', marginBottom: 18 }}>
               {'// TIER '}{idx + 1}{' / '}{TIERS.length}{' — '}{tier.threat}
             </div>
           );
@@ -623,24 +623,24 @@ function OpsecPage() {
           <div style={{ fontFamily: mono, fontSize: 20, color: tier.col, opacity: 0.55, lineHeight: 1, flexShrink: 0 }}>
             {tier.icon}
           </div>
-          <div style={{ fontFamily: mono, fontSize: 8, fontWeight: 600, letterSpacing: '0.18em', color: tier.col, border: `1px solid ${tier.col}`, padding: '2px 8px', borderRadius: 1, flexShrink: 0 }}>
+          <div style={{ fontFamily: mono, fontSize: 14, fontWeight: 600, letterSpacing: '0.18em', color: tier.col, border: `1px solid ${tier.col}`, padding: '2px 8px', borderRadius: 1, flexShrink: 0 }}>
             {tier.id}
           </div>
-          <div style={{ fontFamily: mono, fontSize: 11, fontWeight: 500, letterSpacing: '0.1em', color: 'rgba(218,228,248,0.85)' }}>
+          <div style={{ fontFamily: mono, fontSize: 13, fontWeight: 500, letterSpacing: '0.1em', color: 'rgba(218,228,248,0.85)' }}>
             {tier.label}
           </div>
-          <div style={{ fontFamily: mono, fontSize: 8, color: 'rgba(190,208,238,0.22)', letterSpacing: '0.08em', marginLeft: 4 }}>
+          <div style={{ fontFamily: mono, fontSize: 14, color: 'rgba(190,208,238,0.22)', letterSpacing: '0.08em', marginLeft: 4 }}>
             EST_EFFORT: {tier.time}
           </div>
         </div>
-        <div style={{ fontFamily: mono, fontSize: 9, color: 'rgba(190,208,238,0.28)', letterSpacing: '0.06em', fontStyle: 'italic', marginBottom: 28 }}>
+        <div style={{ fontFamily: mono, fontSize: 13, color: 'rgba(190,208,238,0.28)', letterSpacing: '0.06em', fontStyle: 'italic', marginBottom: 28 }}>
           {tier.sub}
         </div>
 
         {/* Jurisdiction warning for T3/T4 */}
         {(tier.id === 'T3' || tier.id === 'T4') && (
           <div style={{ marginBottom: 20, padding: '8px 12px', border: '1px solid rgba(212,90,90,0.2)', borderRadius: 1, background: 'rgba(212,90,90,0.03)' }}>
-            <div style={{ fontFamily: mono, fontSize: 8, fontWeight: 600, letterSpacing: '0.14em', color: 'rgba(212,90,90,0.6)' }}>
+            <div style={{ fontFamily: mono, fontSize: 14, fontWeight: 600, letterSpacing: '0.14em', color: 'rgba(212,90,90,0.6)' }}>
               ⚠ JURISDICTION_DEPENDENT — verify tool legality in your country before proceeding
             </div>
           </div>
@@ -655,10 +655,10 @@ function OpsecPage() {
             const isAntiPattern = /^Never |^Do not /.test(step);
             return (
               <div key={si} style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
-                <span style={{ fontFamily: mono, fontSize: 8, color: isAntiPattern ? 'rgba(212,90,90,0.7)' : tier.col, letterSpacing: '0.06em', flexShrink: 0, marginTop: 3, opacity: 0.9 }}>
+                <span style={{ fontFamily: mono, fontSize: 14, color: isAntiPattern ? 'rgba(212,90,90,0.7)' : tier.col, letterSpacing: '0.06em', flexShrink: 0, marginTop: 3, opacity: 0.9 }}>
                   {isAntiPattern ? '✗' : String(si + 1).padStart(2, '0')}
                 </span>
-                <span style={{ fontFamily: mono, fontSize: 11, lineHeight: 1.65, color: isAntiPattern ? 'rgba(212,160,160,0.6)' : 'rgba(190,208,238,0.65)', fontWeight: 300, letterSpacing: '0.01em' }}>
+                <span style={{ fontFamily: mono, fontSize: 13, lineHeight: 1.65, color: isAntiPattern ? 'rgba(212,160,160,0.6)' : 'rgba(190,208,238,0.65)', fontWeight: 300, letterSpacing: '0.01em' }}>
                   {step}
                 </span>
               </div>
@@ -680,8 +680,8 @@ function OpsecPage() {
                       onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.opacity = '1'; }}
                       onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.opacity = '0.65'; }}
                     >
-                      <span style={{ fontFamily: mono, fontSize: 8, color: 'rgba(190,208,238,0.4)', letterSpacing: '0.1em' }}>← PREV</span>
-                      <span style={{ fontFamily: mono, fontSize: 9, color: prev.col, letterSpacing: '0.12em' }}>[{prev.id}] {prev.label}</span>
+                      <span style={{ fontFamily: mono, fontSize: 14, color: 'rgba(190,208,238,0.4)', letterSpacing: '0.1em' }}>← PREV</span>
+                      <span style={{ fontFamily: mono, fontSize: 13, color: prev.col, letterSpacing: '0.12em' }}>[{prev.id}] {prev.label}</span>
                     </button>
                   )}
                 </div>
@@ -691,8 +691,8 @@ function OpsecPage() {
                       onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.opacity = '1'; }}
                       onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.opacity = '0.65'; }}
                     >
-                      <span style={{ fontFamily: mono, fontSize: 8, color: 'rgba(190,208,238,0.4)', letterSpacing: '0.1em' }}>NEXT →</span>
-                      <span style={{ fontFamily: mono, fontSize: 9, color: next.col, letterSpacing: '0.12em' }}>[{next.id}] {next.label}</span>
+                      <span style={{ fontFamily: mono, fontSize: 14, color: 'rgba(190,208,238,0.4)', letterSpacing: '0.1em' }}>NEXT →</span>
+                      <span style={{ fontFamily: mono, fontSize: 13, color: next.col, letterSpacing: '0.12em' }}>[{next.id}] {next.label}</span>
                     </button>
                   )}
                 </div>
@@ -711,25 +711,25 @@ function OpsecPage() {
       <SecHead label="OPSEC_GUIDE" />
 
       {/* κατάβασις motto */}
-      <div style={{ fontFamily: mono, fontSize: 9, color: 'rgba(107,159,212,0.3)', letterSpacing: '0.12em', marginBottom: 10, fontStyle: 'italic' }}>
+      <div style={{ fontFamily: mono, fontSize: 13, color: 'rgba(107,159,212,0.3)', letterSpacing: '0.12em', marginBottom: 10, fontStyle: 'italic' }}>
         {'// ΚΑΤΆΒΑΣΙΣ — descent into the shadows'}
       </div>
 
-      <div style={{ fontFamily: mono, fontSize: 10, lineHeight: 1.78, color: 'rgba(190,208,238,0.38)', marginBottom: 20, letterSpacing: '0.015em', fontWeight: 300 }}>
+      <div style={{ fontFamily: mono, fontSize: 14, lineHeight: 1.78, color: 'rgba(190,208,238,0.38)', marginBottom: 20, letterSpacing: '0.015em', fontWeight: 300 }}>
         Your anonymity is only as strong as your weakest step. Partial implementation creates a false sense of security — treat your identity as exposed unless each tier is covered.
       </div>
 
       {/* Threat model */}
       <div style={{ marginBottom: 28, padding: '12px 14px', border: '1px solid rgba(107,159,212,0.1)', borderRadius: 2, background: 'rgba(107,159,212,0.02)' }}>
-        <div style={{ fontFamily: mono, fontSize: 8, fontWeight: 600, letterSpacing: '0.16em', color: 'rgba(107,159,212,0.45)', marginBottom: 8 }}>{'// THREAT_MODEL'}</div>
-        <div style={{ fontFamily: mono, fontSize: 9, lineHeight: 1.78, color: 'rgba(190,208,238,0.3)', fontWeight: 300, letterSpacing: '0.01em' }}>
+        <div style={{ fontFamily: mono, fontSize: 14, fontWeight: 600, letterSpacing: '0.16em', color: 'rgba(107,159,212,0.45)', marginBottom: 8 }}>{'// THREAT_MODEL'}</div>
+        <div style={{ fontFamily: mono, fontSize: 13, lineHeight: 1.78, color: 'rgba(190,208,238,0.3)', fontWeight: 300, letterSpacing: '0.01em' }}>
           This guide assumes an adversary with: (1) access to KYC records from centralized exchanges, (2) blockchain analytics tools capable of tracing multi-hop fund flows, (3) IP-level traffic logging by ISPs or network operators, (4) employer-grade forensic capability on work devices and networks, and (5) stylometric analysis tools for writing-based deanonymization. Read tiers in order — each one builds on the previous.
         </div>
       </div>
 
       {/* Quick path */}
       <div style={{ marginBottom: 24, padding: '12px 14px', border: '1px solid rgba(107,159,212,0.18)', borderRadius: 2, background: 'rgba(107,159,212,0.04)' }}>
-        <div style={{ fontFamily: mono, fontSize: 8, fontWeight: 600, letterSpacing: '0.16em', color: 'rgba(107,159,212,0.45)', marginBottom: 10 }}>{'// QUICK_PATH'}</div>
+        <div style={{ fontFamily: mono, fontSize: 14, fontWeight: 600, letterSpacing: '0.16em', color: 'rgba(107,159,212,0.45)', marginBottom: 10 }}>{'// QUICK_PATH'}</div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
           {[
             { label: 'CASUAL_REVIEWER', path: 'T0 + T1', desc: 'Posting on a past employer, low personal risk' },
@@ -737,9 +737,9 @@ function OpsecPage() {
             { label: 'HOSTILE_ADVERSARY', path: 'T0 → T4 full stack', desc: 'Retaliation risk, legal exposure, or high-profile target' },
           ].map(r => (
             <div key={r.label} style={{ display: 'flex', gap: 10, alignItems: 'baseline' }}>
-              <span style={{ fontFamily: mono, fontSize: 7, fontWeight: 600, letterSpacing: '0.12em', color: 'rgba(107,159,212,0.4)', flexShrink: 0, width: 130 }}>{r.label}</span>
-              <span style={{ fontFamily: mono, fontSize: 8, color: 'rgba(107,159,212,0.7)', letterSpacing: '0.06em', flexShrink: 0 }}>{r.path}</span>
-              <span style={{ fontFamily: mono, fontSize: 8, color: 'rgba(190,208,238,0.2)', letterSpacing: '0.01em' }}>— {r.desc}</span>
+              <span style={{ fontFamily: mono, fontSize: 13, fontWeight: 600, letterSpacing: '0.12em', color: 'rgba(107,159,212,0.4)', flexShrink: 0, width: 130 }}>{r.label}</span>
+              <span style={{ fontFamily: mono, fontSize: 14, color: 'rgba(107,159,212,0.7)', letterSpacing: '0.06em', flexShrink: 0 }}>{r.path}</span>
+              <span style={{ fontFamily: mono, fontSize: 14, color: 'rgba(190,208,238,0.2)', letterSpacing: '0.01em' }}>— {r.desc}</span>
             </div>
           ))}
         </div>
@@ -748,8 +748,8 @@ function OpsecPage() {
       {/* Pre-post checklist */}
       <div style={{ marginBottom: 24, padding: '12px 14px', border: '1px solid rgba(107,159,212,0.1)', borderRadius: 2, background: 'rgba(107,159,212,0.02)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-          <div style={{ fontFamily: mono, fontSize: 8, fontWeight: 600, letterSpacing: '0.16em', color: 'rgba(107,159,212,0.45)' }}>{'// PRE_POST_CHECKLIST'}</div>
-          <div style={{ fontFamily: mono, fontSize: 7, color: checked.size === CHECKLIST.length ? 'rgba(107,212,159,0.7)' : 'rgba(190,208,238,0.2)', letterSpacing: '0.1em', transition: 'color 0.2s' }}>
+          <div style={{ fontFamily: mono, fontSize: 14, fontWeight: 600, letterSpacing: '0.16em', color: 'rgba(107,159,212,0.45)' }}>{'// PRE_POST_CHECKLIST'}</div>
+          <div style={{ fontFamily: mono, fontSize: 13, color: checked.size === CHECKLIST.length ? 'rgba(107,212,159,0.7)' : 'rgba(190,208,238,0.2)', letterSpacing: '0.1em', transition: 'color 0.2s' }}>
             {checked.size}/{CHECKLIST.length} VERIFIED
           </div>
         </div>
@@ -766,14 +766,14 @@ function OpsecPage() {
                 }}
                 style={{ display: 'flex', gap: 10, alignItems: 'flex-start', cursor: 'pointer', opacity: on ? 1 : 0.65, transition: 'opacity 0.12s' }}
               >
-                <span style={{ fontFamily: mono, fontSize: 9, color: on ? 'rgba(107,212,159,0.8)' : 'rgba(190,208,238,0.25)', flexShrink: 0, marginTop: 1, transition: 'color 0.12s' }}>{on ? '✓' : '○'}</span>
-                <span style={{ fontFamily: mono, fontSize: 9, lineHeight: 1.55, color: on ? 'rgba(190,208,238,0.5)' : 'rgba(190,208,238,0.32)', letterSpacing: '0.01em', textDecoration: on ? 'line-through' : 'none', textDecorationColor: 'rgba(190,208,238,0.18)', transition: 'color 0.12s' }}>{item}</span>
+                <span style={{ fontFamily: mono, fontSize: 13, color: on ? 'rgba(107,212,159,0.8)' : 'rgba(190,208,238,0.25)', flexShrink: 0, marginTop: 1, transition: 'color 0.12s' }}>{on ? '✓' : '○'}</span>
+                <span style={{ fontFamily: mono, fontSize: 13, lineHeight: 1.55, color: on ? 'rgba(190,208,238,0.5)' : 'rgba(190,208,238,0.32)', letterSpacing: '0.01em', textDecoration: on ? 'line-through' : 'none', textDecorationColor: 'rgba(190,208,238,0.18)', transition: 'color 0.12s' }}>{item}</span>
               </div>
             );
           })}
         </div>
         {checked.size === CHECKLIST.length && (
-          <div style={{ marginTop: 10, fontFamily: mono, fontSize: 8, color: 'rgba(107,212,159,0.5)', letterSpacing: '0.14em', textAlign: 'center', borderTop: '1px solid rgba(107,212,159,0.1)', paddingTop: 8 }}>
+          <div style={{ marginTop: 10, fontFamily: mono, fontSize: 14, color: 'rgba(107,212,159,0.5)', letterSpacing: '0.14em', textAlign: 'center', borderTop: '1px solid rgba(107,212,159,0.1)', paddingTop: 8 }}>
             {'// CLEARED_TO_POST'}
           </div>
         )}
@@ -806,16 +806,16 @@ function OpsecPage() {
             </div>
 
             {/* Tier badge */}
-            <div style={{ fontFamily: mono, fontSize: 8, fontWeight: 600, letterSpacing: '0.18em', color: t.col, border: `1px solid ${t.col}`, padding: '2px 7px', borderRadius: 1, flexShrink: 0 }}>
+            <div style={{ fontFamily: mono, fontSize: 14, fontWeight: 600, letterSpacing: '0.18em', color: t.col, border: `1px solid ${t.col}`, padding: '2px 7px', borderRadius: 1, flexShrink: 0 }}>
               {t.id}
             </div>
 
             {/* Label + sub */}
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontFamily: mono, fontSize: 10, fontWeight: 500, letterSpacing: '0.1em', color: 'rgba(218,228,248,0.8)', marginBottom: 3 }}>
+              <div style={{ fontFamily: mono, fontSize: 14, fontWeight: 500, letterSpacing: '0.1em', color: 'rgba(218,228,248,0.8)', marginBottom: 3 }}>
                 {t.label}
               </div>
-              <div style={{ fontFamily: mono, fontSize: 9, color: 'rgba(190,208,238,0.3)', letterSpacing: '0.06em', fontStyle: 'italic' }}>
+              <div style={{ fontFamily: mono, fontSize: 13, color: 'rgba(190,208,238,0.3)', letterSpacing: '0.06em', fontStyle: 'italic' }}>
                 {t.sub}
               </div>
             </div>
@@ -823,21 +823,21 @@ function OpsecPage() {
             {/* Threat badge + time + step count + arrow */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
               {(t.id === 'T3' || t.id === 'T4') && (
-                <div style={{ fontFamily: mono, fontSize: 8, color: 'rgba(212,90,90,0.65)', flexShrink: 0 }} title="Jurisdiction-dependent — verify tool legality before use">⚠</div>
+                <div style={{ fontFamily: mono, fontSize: 14, color: 'rgba(212,90,90,0.65)', flexShrink: 0 }} title="Jurisdiction-dependent — verify tool legality before use">⚠</div>
               )}
               {t.id === 'T0' && (
                 <div style={{ fontFamily: mono, fontSize: 6, fontWeight: 700, letterSpacing: '0.16em', color: 'rgba(190,208,238,0.55)', border: '1px solid rgba(190,208,238,0.2)', padding: '1px 5px', borderRadius: 1 }}>START_HERE</div>
               )}
-              <div style={{ fontFamily: mono, fontSize: 7, fontWeight: 600, letterSpacing: '0.14em', color: t.col, border: `1px solid ${t.col}55`, padding: '1px 5px', borderRadius: 1, opacity: 0.85 }}>
+              <div style={{ fontFamily: mono, fontSize: 13, fontWeight: 600, letterSpacing: '0.14em', color: t.col, border: `1px solid ${t.col}55`, padding: '1px 5px', borderRadius: 1, opacity: 0.85 }}>
                 {t.threat}
               </div>
-              <div style={{ fontFamily: mono, fontSize: 7, color: 'rgba(107,159,212,0.22)', letterSpacing: '0.08em' }}>
+              <div style={{ fontFamily: mono, fontSize: 13, color: 'rgba(107,159,212,0.22)', letterSpacing: '0.08em' }}>
                 {(ti * 12 + 8)}m
               </div>
-              <div style={{ fontFamily: mono, fontSize: 8, color: 'rgba(190,208,238,0.18)', letterSpacing: '0.06em' }}>
+              <div style={{ fontFamily: mono, fontSize: 14, color: 'rgba(190,208,238,0.18)', letterSpacing: '0.06em' }}>
                 {t.steps.length} steps · {t.time}
               </div>
-              <div style={{ fontFamily: mono, fontSize: 10, color: `${t.col}70` }}>›</div>
+              <div style={{ fontFamily: mono, fontSize: 14, color: `${t.col}70` }}>›</div>
             </div>
           </button>
         ))}
@@ -845,7 +845,7 @@ function OpsecPage() {
 
       {/* Tools reference */}
       <div style={{ marginTop: 28, padding: '12px 14px', border: '1px solid rgba(190,208,238,0.06)', borderRadius: 2 }}>
-        <div style={{ fontFamily: mono, fontSize: 8, fontWeight: 600, letterSpacing: '0.16em', color: 'rgba(190,208,238,0.3)', marginBottom: 12 }}>{'// TOOLS_REFERENCE'}</div>
+        <div style={{ fontFamily: mono, fontSize: 14, fontWeight: 600, letterSpacing: '0.16em', color: 'rgba(190,208,238,0.3)', marginBottom: 12 }}>{'// TOOLS_REFERENCE'}</div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {[
             { tier: 'T1', name: 'Mullvad VPN',      desc: 'No-log VPN. Accepts Monero + cash. No account required.',         cat: 'NETWORK'  },
@@ -859,10 +859,10 @@ function OpsecPage() {
             { tier: 'T4', name: 'GrapheneOS',        desc: 'Hardened Android. Only viable mobile option.',                    cat: 'OS'       },
           ].map(tool => (
             <div key={tool.name} style={{ display: 'flex', gap: 10, alignItems: 'baseline' }}>
-              <span style={{ fontFamily: mono, fontSize: 7, letterSpacing: '0.1em', color: 'rgba(190,208,238,0.18)', flexShrink: 0, width: 22 }}>{tool.tier}</span>
-              <span style={{ fontFamily: mono, fontSize: 7, fontWeight: 600, letterSpacing: '0.1em', color: 'rgba(190,208,238,0.25)', flexShrink: 0, width: 46, textAlign: 'right' }}>[{tool.cat}]</span>
-              <span style={{ fontFamily: mono, fontSize: 9, fontWeight: 500, color: 'rgba(190,208,238,0.55)', letterSpacing: '0.04em', flexShrink: 0, width: 130 }}>{tool.name}</span>
-              <span style={{ fontFamily: mono, fontSize: 8, color: 'rgba(190,208,238,0.2)', letterSpacing: '0.01em', lineHeight: 1.5 }}>{tool.desc}</span>
+              <span style={{ fontFamily: mono, fontSize: 13, letterSpacing: '0.1em', color: 'rgba(190,208,238,0.18)', flexShrink: 0, width: 22 }}>{tool.tier}</span>
+              <span style={{ fontFamily: mono, fontSize: 13, fontWeight: 600, letterSpacing: '0.1em', color: 'rgba(190,208,238,0.25)', flexShrink: 0, width: 46, textAlign: 'right' }}>[{tool.cat}]</span>
+              <span style={{ fontFamily: mono, fontSize: 13, fontWeight: 500, color: 'rgba(190,208,238,0.55)', letterSpacing: '0.04em', flexShrink: 0, width: 130 }}>{tool.name}</span>
+              <span style={{ fontFamily: mono, fontSize: 14, color: 'rgba(190,208,238,0.2)', letterSpacing: '0.01em', lineHeight: 1.5 }}>{tool.desc}</span>
             </div>
           ))}
         </div>
@@ -870,21 +870,21 @@ function OpsecPage() {
 
       {/* Failure modes */}
       <div style={{ marginTop: 28, padding: '12px 14px', border: '1px solid rgba(212,90,90,0.12)', borderRadius: 2 }}>
-        <div style={{ fontFamily: mono, fontSize: 8, fontWeight: 600, letterSpacing: '0.16em', color: 'rgba(212,90,90,0.38)', marginBottom: 4 }}>{'// FAILURE_MODES'}</div>
-        <div style={{ fontFamily: mono, fontSize: 9, color: 'rgba(190,208,238,0.2)', letterSpacing: '0.01em', marginBottom: 14, lineHeight: 1.5 }}>Common deanonymization vectors. Each has ended real-world opsec setups.</div>
+        <div style={{ fontFamily: mono, fontSize: 14, fontWeight: 600, letterSpacing: '0.16em', color: 'rgba(212,90,90,0.38)', marginBottom: 4 }}>{'// FAILURE_MODES'}</div>
+        <div style={{ fontFamily: mono, fontSize: 13, color: 'rgba(190,208,238,0.2)', letterSpacing: '0.01em', marginBottom: 14, lineHeight: 1.5 }}>Common deanonymization vectors. Each has ended real-world opsec setups.</div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
           {FAILURE_MODES.map((f, fi) => (
             <div key={f.mode} style={{ display: 'flex', gap: 12, alignItems: 'flex-start', padding: '10px 0', borderBottom: fi < FAILURE_MODES.length - 1 ? '1px solid rgba(212,90,90,0.12)' : 'none' }}>
               <div style={{ flexShrink: 0, width: 130 }}>
                 <div style={{
-                  fontFamily: mono, fontSize: 7, fontWeight: 700, letterSpacing: '0.12em', marginBottom: 4,
+                  fontFamily: mono, fontSize: 13, fontWeight: 700, letterSpacing: '0.12em', marginBottom: 4,
                   color: f.risk === 'CRITICAL' ? 'rgba(212,90,90,0.75)' : f.risk === 'HIGH' ? 'rgba(212,132,90,0.65)' : 'rgba(190,208,238,0.35)',
                   border: `1px solid ${f.risk === 'CRITICAL' ? 'rgba(212,90,90,0.3)' : f.risk === 'HIGH' ? 'rgba(212,132,90,0.25)' : 'rgba(190,208,238,0.15)'}`,
                   padding: '1px 5px', borderRadius: 1, display: 'inline-block',
                 }}>{f.risk}</div>
-                <div style={{ fontFamily: mono, fontSize: 7, letterSpacing: '0.07em', color: 'rgba(190,208,238,0.2)', lineHeight: 1.3 }}>{f.mode}</div>
+                <div style={{ fontFamily: mono, fontSize: 13, letterSpacing: '0.07em', color: 'rgba(190,208,238,0.2)', lineHeight: 1.3 }}>{f.mode}</div>
               </div>
-              <div style={{ fontFamily: mono, fontSize: 9, lineHeight: 1.65, color: 'rgba(190,208,238,0.28)', letterSpacing: '0.01em', fontWeight: 300 }}>{f.desc}</div>
+              <div style={{ fontFamily: mono, fontSize: 13, lineHeight: 1.65, color: 'rgba(190,208,238,0.28)', letterSpacing: '0.01em', fontWeight: 300 }}>{f.desc}</div>
             </div>
           ))}
         </div>
@@ -892,8 +892,8 @@ function OpsecPage() {
 
       {/* Disclaimer */}
       <div style={{ marginTop: 20, padding: '12px 16px', border: '1px solid rgba(212,132,90,0.08)', borderRadius: 2, background: 'rgba(212,132,90,0.02)' }}>
-        <div style={{ fontFamily: mono, fontSize: 8, fontWeight: 500, letterSpacing: '0.16em', color: 'rgba(212,132,90,0.38)', marginBottom: 6, textTransform: 'uppercase' }}>{'// DISCLAIMER'}</div>
-        <div style={{ fontFamily: mono, fontSize: 9, lineHeight: 1.72, color: 'rgba(190,208,238,0.25)', fontWeight: 300, letterSpacing: '0.01em' }}>
+        <div style={{ fontFamily: mono, fontSize: 14, fontWeight: 500, letterSpacing: '0.16em', color: 'rgba(212,132,90,0.38)', marginBottom: 6, textTransform: 'uppercase' }}>{'// DISCLAIMER'}</div>
+        <div style={{ fontFamily: mono, fontSize: 13, lineHeight: 1.72, color: 'rgba(190,208,238,0.25)', fontWeight: 300, letterSpacing: '0.01em' }}>
           This guide is for informational purposes only. Verify the current legal and regulatory status of any privacy tool in your jurisdiction before use. VPN legality varies by country. Monero is subject to ongoing regulatory scrutiny in some jurisdictions. kataBased does not endorse any specific third-party service.
         </div>
       </div>
@@ -1004,11 +1004,11 @@ export default function DashboardPage() {
         .fi { animation: fi 0.42s cubic-bezier(0.16,1,0.3,1) forwards; opacity: 0; }
       `}</style>
 
-      <div style={{ minHeight: '100vh', background: '#04050C', color: 'rgba(190,208,238,0.68)', fontFamily: mono, fontSize: 11, opacity: ready ? 1 : 0, transition: 'opacity 0.4s' }}>
+      <div style={{ minHeight: '100vh', background: '#04050C', color: 'rgba(190,208,238,0.68)', fontFamily: mono, fontSize: 13, opacity: ready ? 1 : 0, transition: 'opacity 0.4s' }}>
 
 
         {/* Depth meter */}
-        <div style={{ position: 'fixed', bottom: 14, right: 16, zIndex: 50, fontFamily: mono, fontSize: 8, color: 'rgba(107,159,212,0.18)', letterSpacing: '0.1em' }}>
+        <div style={{ position: 'fixed', bottom: 14, right: 16, zIndex: 50, fontFamily: mono, fontSize: 14, color: 'rgba(107,159,212,0.18)', letterSpacing: '0.1em' }}>
           βάθος: {Math.floor(scrollY * 0.4)}m
         </div>
 
@@ -1025,14 +1025,14 @@ export default function DashboardPage() {
           {/* Left: logo + session meta + rec dot */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <KataLogo />
-            <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontFamily: mono, fontSize: 9, letterSpacing: '0.07em', color: 'rgba(107,159,212,0.55)', fontWeight: 300 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontFamily: mono, fontSize: 13, letterSpacing: '0.07em', color: 'rgba(107,159,212,0.55)', fontWeight: 300 }}>
               <span>KATABASED</span>
               <span style={{ color: 'rgba(107,159,212,0.18)' }}>{'//'}</span>
               <span>v0.1</span>
               <span style={{ color: 'rgba(107,159,212,0.18)' }}>{'//'}</span>
               <span>ANON_MODE</span>
             </div>
-            <div style={{ fontFamily: mono, fontSize: 8, color: 'rgba(107,159,212,0.22)', letterSpacing: '0.1em', fontWeight: 400 }}>
+            <div style={{ fontFamily: mono, fontSize: 14, color: 'rgba(107,159,212,0.22)', letterSpacing: '0.1em', fontWeight: 400 }}>
               37.9°N · 23.7°E
             </div>
           </div>
@@ -1044,7 +1044,7 @@ export default function DashboardPage() {
                 key={t}
                 onClick={() => switchPage(t)}
                 style={{
-                  padding: '4px 11px', fontFamily: mono, fontSize: 9, fontWeight: 400,
+                  padding: '4px 11px', fontFamily: mono, fontSize: 13, fontWeight: 400,
                   border: `1px solid ${page === t ? 'rgba(107,159,212,0.35)' : 'transparent'}`,
                   borderRadius: 2, cursor: 'pointer', transition: 'all 0.18s',
                   background: page === t ? 'rgba(107,159,212,0.12)' : 'transparent',
@@ -1064,7 +1064,7 @@ export default function DashboardPage() {
             <div ref={wRef} style={{ position: 'relative' }}>
               <button
                 onClick={() => setWMenu(!wMenu)}
-                style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 10px', borderRadius: 2, border: '1px solid rgba(107,159,212,0.14)', background: 'rgba(107,159,212,0.04)', cursor: 'pointer', fontFamily: mono, fontSize: 8, color: 'rgba(190,208,238,0.28)', letterSpacing: '0.04em', transition: 'all 0.18s' }}
+                style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 10px', borderRadius: 2, border: '1px solid rgba(107,159,212,0.14)', background: 'rgba(107,159,212,0.04)', cursor: 'pointer', fontFamily: mono, fontSize: 14, color: 'rgba(190,208,238,0.28)', letterSpacing: '0.04em', transition: 'all 0.18s' }}
                 onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.borderColor = 'rgba(107,159,212,0.3)'; el.style.color = 'rgba(190,208,238,0.65)'; }}
                 onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.borderColor = 'rgba(107,159,212,0.14)'; el.style.color = 'rgba(190,208,238,0.4)'; }}
               >
@@ -1074,13 +1074,13 @@ export default function DashboardPage() {
               {wMenu && (
                 <div className="fi" style={{ ...dd, minWidth: 200 }}>
                   <div style={{ padding: '8px 10px' }}>
-                    <div style={{ fontFamily: mono, fontSize: 7, fontWeight: 500, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'rgba(107,159,212,0.32)', marginBottom: 8 }}>WALLET</div>
-                    <div style={{ fontFamily: mono, fontSize: 10, color: 'rgba(190,208,238,0.4)', letterSpacing: '0.04em' }}>{walletDisplay}</div>
+                    <div style={{ fontFamily: mono, fontSize: 13, fontWeight: 500, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'rgba(107,159,212,0.32)', marginBottom: 8 }}>WALLET</div>
+                    <div style={{ fontFamily: mono, fontSize: 14, color: 'rgba(190,208,238,0.4)', letterSpacing: '0.04em' }}>{walletDisplay}</div>
                   </div>
                   <div style={{ height: 1, background: 'rgba(107,159,212,0.07)', margin: '3px 6px' }} />
                   <button
                     onClick={() => { disconnect(); setWMenu(false); }}
-                    style={{ display: 'block', width: '100%', padding: '7px 10px', borderRadius: 2, fontFamily: mono, fontSize: 8, color: 'rgba(212,90,90,0.55)', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', letterSpacing: '0.08em', textTransform: 'uppercase', transition: 'background 0.15s' }}
+                    style={{ display: 'block', width: '100%', padding: '7px 10px', borderRadius: 2, fontFamily: mono, fontSize: 14, color: 'rgba(212,90,90,0.55)', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', letterSpacing: '0.08em', textTransform: 'uppercase', transition: 'background 0.15s' }}
                     onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(212,90,90,0.05)'; }}
                     onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'none'; }}
                   >
@@ -1098,13 +1098,13 @@ export default function DashboardPage() {
                 onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.borderColor = 'rgba(107,159,212,0.15)'; el.style.background = 'rgba(107,159,212,0.04)'; }}
                 onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.borderColor = 'rgba(255,255,255,0.05)'; el.style.background = 'transparent'; }}
               >
-                <div style={{ width: 18, height: 18, borderRadius: 2, background: 'rgba(107,159,212,0.1)', border: '1px solid rgba(107,159,212,0.22)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: serif, fontSize: 10, fontWeight: 700, fontStyle: 'italic', color: blue }}>κ</div>
-                <span style={{ fontFamily: mono, fontSize: 9, color: blue, letterSpacing: '0.05em' }}>{username}</span>
+                <div style={{ width: 18, height: 18, borderRadius: 2, background: 'rgba(107,159,212,0.1)', border: '1px solid rgba(107,159,212,0.22)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: serif, fontSize: 14, fontWeight: 700, fontStyle: 'italic', color: blue }}>κ</div>
+                <span style={{ fontFamily: mono, fontSize: 13, color: blue, letterSpacing: '0.05em' }}>{username}</span>
               </button>
               {uMenu && (
                 <div className="fi" style={{ ...dd, minWidth: 240 }}>
                   <div style={{ padding: 10 }}>
-                    <div style={{ fontFamily: mono, fontSize: 7, fontWeight: 500, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'rgba(107,159,212,0.32)', marginBottom: 8 }}>IDENTITY</div>
+                    <div style={{ fontFamily: mono, fontSize: 13, fontWeight: 500, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'rgba(107,159,212,0.32)', marginBottom: 8 }}>IDENTITY</div>
                     {editing ? (
                       <div>
                         <div style={{ display: 'flex', gap: 5 }}>
@@ -1114,16 +1114,16 @@ export default function DashboardPage() {
                             onKeyDown={e => { if (e.key === 'Enter' && draft.trim().length >= 3 && !isUpdating.current) { isUpdating.current = true; changeUsername(draft).then(() => { setEditing(false); setEditError(''); }).catch(err => setEditError(err.message ?? 'failed')).finally(() => { isUpdating.current = false; }); } }}
                             autoFocus
                             maxLength={24}
-                            style={{ flex: 1, padding: '6px 9px', borderRadius: 2, border: `1px solid ${editError ? 'rgba(212,90,90,0.4)' : 'rgba(107,159,212,0.35)'}`, background: 'rgba(255,255,255,0.03)', color: '#fff', fontSize: 10, fontFamily: mono, outline: 'none', letterSpacing: '0.04em' }}
+                            style={{ flex: 1, padding: '6px 9px', borderRadius: 2, border: `1px solid ${editError ? 'rgba(212,90,90,0.4)' : 'rgba(107,159,212,0.35)'}`, background: 'rgba(255,255,255,0.03)', color: '#fff', fontSize: 14, fontFamily: mono, outline: 'none', letterSpacing: '0.04em' }}
                           />
-                          <button onClick={() => { if (draft.trim().length >= 3 && !isUpdating.current) { isUpdating.current = true; changeUsername(draft).then(() => { setEditing(false); setEditError(''); }).catch(err => setEditError(err.message ?? 'failed')).finally(() => { isUpdating.current = false; }); } }} style={{ padding: '6px 12px', borderRadius: 2, border: 'none', background: blue, color: '#fff', fontSize: 9, fontWeight: 600, cursor: 'pointer', fontFamily: mono, letterSpacing: '0.06em' }}>SAVE</button>
+                          <button onClick={() => { if (draft.trim().length >= 3 && !isUpdating.current) { isUpdating.current = true; changeUsername(draft).then(() => { setEditing(false); setEditError(''); }).catch(err => setEditError(err.message ?? 'failed')).finally(() => { isUpdating.current = false; }); } }} style={{ padding: '6px 12px', borderRadius: 2, border: 'none', background: blue, color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: mono, letterSpacing: '0.06em' }}>SAVE</button>
                         </div>
-                        {editError && <div style={{ fontFamily: mono, fontSize: 8, color: 'rgba(212,90,90,0.7)', marginTop: 5, letterSpacing: '0.05em' }}>{editError}</div>}
+                        {editError && <div style={{ fontFamily: mono, fontSize: 14, color: 'rgba(212,90,90,0.7)', marginTop: 5, letterSpacing: '0.05em' }}>{editError}</div>}
                       </div>
                     ) : (
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <span style={{ fontFamily: mono, fontSize: 10, color: blue, letterSpacing: '0.05em' }}>[{username}]</span>
-                        <button onClick={() => { setDraft(username); setEditing(true); }} style={{ padding: '2px 7px', borderRadius: 2, border: '1px solid rgba(190,208,238,0.08)', background: 'none', color: 'rgba(190,208,238,0.3)', fontSize: 8, cursor: 'pointer', fontFamily: mono, letterSpacing: '0.08em' }}>EDIT</button>
+                        <span style={{ fontFamily: mono, fontSize: 14, color: blue, letterSpacing: '0.05em' }}>[{username}]</span>
+                        <button onClick={() => { setDraft(username); setEditing(true); }} style={{ padding: '2px 7px', borderRadius: 2, border: '1px solid rgba(190,208,238,0.08)', background: 'none', color: 'rgba(190,208,238,0.3)', fontSize: 14, cursor: 'pointer', fontFamily: mono, letterSpacing: '0.08em' }}>EDIT</button>
                       </div>
                     )}
                   </div>
@@ -1146,7 +1146,7 @@ export default function DashboardPage() {
               {page === 'about'   && (
                 <div className="fi" style={{ animationDelay: '0.06s' }}>
                   <SecHead label="ABOUT" />
-                  <div style={{ fontFamily: mono, fontSize: 11, lineHeight: 1.72, color: 'rgba(190,208,238,0.58)', fontWeight: 300, letterSpacing: '0.025em', marginBottom: 28 }}>
+                  <div style={{ fontFamily: mono, fontSize: 13, lineHeight: 1.72, color: 'rgba(190,208,238,0.58)', fontWeight: 300, letterSpacing: '0.025em', marginBottom: 28 }}>
                     <p style={{ marginBottom: 14 }}>κατάβασις — the descent. Anonymous intelligence from inside organizations. Corporations, government agencies, state departments, regulators, contractors — any entity that shapes the world but controls what&apos;s known about its interior. The surface is managed. The depths are not.</p>
                     <p style={{ marginBottom: 14 }}>Connect a wallet. Sign a message to prove ownership. Your public address is one-way hashed into an anonymous ID — the hash is on-chain, the wallet behind it is not. The entity you work for sees a pseudonym. We see the same.</p>
                     <p>This is a space for employees, contractors, whistleblowers, and insiders who want the truth known — about where they work, what they&apos;ve seen, and what the public deserves to hear. Nothing more.</p>
@@ -1154,28 +1154,28 @@ export default function DashboardPage() {
 
                   <div style={{ height: 1, background: 'repeating-linear-gradient(90deg,rgba(107,159,212,0.1) 0,rgba(107,159,212,0.1) 3px,transparent 3px,transparent 6px,rgba(107,159,212,0.1) 6px,rgba(107,159,212,0.1) 9px,transparent 9px,transparent 12px,rgba(107,159,212,0.06) 12px,rgba(107,159,212,0.06) 15px,transparent 15px,transparent 18px)', marginBottom: 28 }} />
                   <SecHead label="INFORMATION_ASYMMETRY" mb={14} />
-                  <div style={{ fontFamily: mono, fontSize: 11, lineHeight: 1.72, color: 'rgba(190,208,238,0.58)', fontWeight: 300, letterSpacing: '0.025em', marginBottom: 28 }}>
+                  <div style={{ fontFamily: mono, fontSize: 13, lineHeight: 1.72, color: 'rgba(190,208,238,0.58)', fontWeight: 300, letterSpacing: '0.025em', marginBottom: 28 }}>
                     <p style={{ marginBottom: 14 }}>Every organization produces two versions of itself. The public version — press releases, job postings, investor decks, PR. And the real version — what employees know, what contractors have seen, what the org chart doesn&apos;t show.</p>
                     <p style={{ marginBottom: 14 }}>That gap is information asymmetry. It advantages the institution over the individual, the employer over the candidate, the regulated over the regulator. kataBased exists to close it.</p>
-                    <p style={{ color: 'rgba(107,159,212,0.5)', fontSize: 10, letterSpacing: '0.04em' }}>{'// anonymous · verified · permanent · on-chain'}</p>
+                    <p style={{ color: 'rgba(107,159,212,0.5)', fontSize: 14, letterSpacing: '0.04em' }}>{'// anonymous · verified · permanent · on-chain'}</p>
                   </div>
 
                   <div style={{ height: 1, background: 'repeating-linear-gradient(90deg,rgba(107,159,212,0.1) 0,rgba(107,159,212,0.1) 3px,transparent 3px,transparent 6px,rgba(107,159,212,0.1) 6px,rgba(107,159,212,0.1) 9px,transparent 9px,transparent 12px,rgba(107,159,212,0.06) 12px,rgba(107,159,212,0.06) 15px,transparent 15px,transparent 18px)', marginBottom: 28 }} />
                   <SecHead label="DATA_API" mb={14} />
-                  <div style={{ fontFamily: mono, fontSize: 11, lineHeight: 1.72, color: 'rgba(190,208,238,0.58)', fontWeight: 300, letterSpacing: '0.025em', marginBottom: 28 }}>
+                  <div style={{ fontFamily: mono, fontSize: 13, lineHeight: 1.72, color: 'rgba(190,208,238,0.58)', fontWeight: 300, letterSpacing: '0.025em', marginBottom: 28 }}>
                     <p style={{ marginBottom: 14 }}>Aggregated company sentiment data — post volume, rolling sentiment scores, trending signals — is available via API for research, due diligence, and automated consumption.</p>
                     <p style={{ marginBottom: 14 }}>Access is tiered: delayed public data is free. Real-time feeds, webhooks, and raw historical data require a paid subscription key.</p>
-                    <p style={{ color: 'rgba(107,159,212,0.5)', fontSize: 10, letterSpacing: '0.04em' }}>{'// API access: contact via on-chain message to the kataBased treasury address. Details forthcoming at launch.'}</p>
+                    <p style={{ color: 'rgba(107,159,212,0.5)', fontSize: 14, letterSpacing: '0.04em' }}>{'// API access: contact via on-chain message to the kataBased treasury address. Details forthcoming at launch.'}</p>
                   </div>
 
                   <div style={{ height: 1, background: 'repeating-linear-gradient(90deg,rgba(107,159,212,0.1) 0,rgba(107,159,212,0.1) 3px,transparent 3px,transparent 6px,rgba(107,159,212,0.1) 6px,rgba(107,159,212,0.1) 9px,transparent 9px,transparent 12px,rgba(107,159,212,0.06) 12px,rgba(107,159,212,0.06) 15px,transparent 15px,transparent 18px)', marginBottom: 28 }} />
                   <SecHead label="PREDICTION_MARKETS" mb={14} />
-                  <div style={{ fontFamily: mono, fontSize: 11, lineHeight: 1.85, color: 'rgba(190,208,238,0.58)', fontWeight: 300, letterSpacing: '0.015em' }}>
+                  <div style={{ fontFamily: mono, fontSize: 13, lineHeight: 1.85, color: 'rgba(190,208,238,0.58)', fontWeight: 300, letterSpacing: '0.015em' }}>
                     <p style={{ marginBottom: 14 }}>The long-term vision: every post on kataBased is a signal. Signals should be priceable. Posts about an entity&apos;s internal health, leadership, or policy direction are leading indicators — the kind of information that moves before markets, elections, or investigations do.</p>
                     <p style={{ marginBottom: 14 }}>kataBased is designed to integrate with on-chain prediction markets. Verified insiders posting about their entity could anchor outcome resolution. Entity sentiment scores could seed market parameters. The intelligence becomes a bet, and the bet has consequence.</p>
                     <div style={{ marginTop: 18, padding: '14px 16px', border: '1px solid rgba(212,132,90,0.2)', background: 'rgba(212,132,90,0.03)', borderRadius: 2 }}>
                       <p style={{ fontFamily: mono, fontSize: 13, color: 'rgba(212,132,90,0.7)', letterSpacing: '0.01em', margin: 0, lineHeight: 1.6 }}>Every insider transmission is a leading indicator. Soon it will be priceable.</p>
-                      <p style={{ fontFamily: mono, fontSize: 9, color: 'rgba(212,132,90,0.35)', letterSpacing: '0.06em', margin: '8px 0 0', }}>{'// on the roadmap — data model built for this from day one'}</p>
+                      <p style={{ fontFamily: mono, fontSize: 13, color: 'rgba(212,132,90,0.35)', letterSpacing: '0.06em', margin: '8px 0 0', }}>{'// on the roadmap — data model built for this from day one'}</p>
                     </div>
                   </div>
                 </div>
@@ -1188,7 +1188,7 @@ export default function DashboardPage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
 
             {/* Coord label */}
-            <div style={{ fontFamily: mono, fontSize: 7, color: 'rgba(107,159,212,0.38)', letterSpacing: '0.1em', textAlign: 'center', marginBottom: 4 }}>
+            <div style={{ fontFamily: mono, fontSize: 13, color: 'rgba(107,159,212,0.38)', letterSpacing: '0.1em', textAlign: 'center', marginBottom: 4 }}>
               37.9°N · 23.7°E · ΕΛΛΆΔΑ
             </div>
 
@@ -1208,8 +1208,8 @@ export default function DashboardPage() {
                   );
                 })()}
                 <div>
-                  <div style={{ fontFamily: mono, fontSize: 9, color: blue, letterSpacing: '0.06em' }}>[{username}]</div>
-                  <div style={{ fontFamily: mono, fontSize: 8, color: 'rgba(190,208,238,0.18)', marginTop: 3, letterSpacing: '0.04em' }}>{joined} · {walletDisplay}</div>
+                  <div style={{ fontFamily: mono, fontSize: 13, color: blue, letterSpacing: '0.06em' }}>[{username}]</div>
+                  <div style={{ fontFamily: mono, fontSize: 14, color: 'rgba(190,208,238,0.18)', marginTop: 3, letterSpacing: '0.04em' }}>{joined} · {walletDisplay}</div>
                 </div>
               </div>
               <div style={{ height: 1, background: 'rgba(107,159,212,0.07)', marginBottom: 12 }} />
@@ -1217,7 +1217,7 @@ export default function DashboardPage() {
                 {[{ v: karma, l: 'KARMA' }, { v: postCount, l: 'POSTS' }, { v: '—', l: 'STREAK' }, { v: '—', l: 'RANK' }].map(s => (
                   <div key={s.l} style={{ textAlign: 'center', padding: '5px 0' }}>
                     <div style={{ fontFamily: mono, fontSize: 18, fontWeight: 600, color: 'rgba(218,228,248,0.95)', lineHeight: 1, letterSpacing: '-0.02em' }}>{s.v}</div>
-                    <div style={{ fontFamily: mono, fontSize: 7, fontWeight: 400, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(107,159,212,0.3)', marginTop: 4 }}>{s.l}</div>
+                    <div style={{ fontFamily: mono, fontSize: 13, fontWeight: 400, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(107,159,212,0.3)', marginTop: 4 }}>{s.l}</div>
                   </div>
                 ))}
               </div>
@@ -1236,8 +1236,8 @@ export default function DashboardPage() {
                   onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(107,159,212,0.06)'; el.style.borderColor = 'rgba(107,159,212,0.2)'; el.style.transform = 'translateY(-1px)'; }}
                   onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(4,5,12,0.45)'; el.style.borderColor = 'rgba(107,159,212,0.08)'; el.style.transform = 'none'; }}
                 >
-                  <div style={{ fontFamily: mono, fontSize: 9, fontWeight: 500, color: 'rgba(107,159,212,0.7)', marginBottom: 2, letterSpacing: '0.06em' }}>{l.label}</div>
-                  <div style={{ fontFamily: mono, fontSize: 8, color: 'rgba(190,208,238,0.32)', letterSpacing: '0.04em' }}>{l.desc}</div>
+                  <div style={{ fontFamily: mono, fontSize: 13, fontWeight: 500, color: 'rgba(107,159,212,0.7)', marginBottom: 2, letterSpacing: '0.06em' }}>{l.label}</div>
+                  <div style={{ fontFamily: mono, fontSize: 14, color: 'rgba(190,208,238,0.32)', letterSpacing: '0.04em' }}>{l.desc}</div>
                 </div>
               ))}
             </div>
@@ -1248,9 +1248,9 @@ export default function DashboardPage() {
                 onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(212,132,90,0.07)'; el.style.borderColor = 'rgba(212,132,90,0.22)'; }}
                 onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(212,132,90,0.03)'; el.style.borderColor = 'rgba(212,132,90,0.1)'; }}
               >
-                <div style={{ fontFamily: mono, fontSize: 7, fontWeight: 500, letterSpacing: '0.14em', color: 'rgba(212,132,90,0.45)', marginBottom: 4 }}>{'// COMING_SOON'}</div>
-                <div style={{ fontFamily: mono, fontSize: 9, fontWeight: 500, color: 'rgba(218,228,248,0.45)', marginBottom: 3, letterSpacing: '0.04em' }}>Prediction markets</div>
-                <div style={{ fontFamily: mono, fontSize: 8, color: 'rgba(190,208,238,0.18)', letterSpacing: '0.03em', lineHeight: 1.6 }}>Every transmission is a signal. Signals should be priceable.</div>
+                <div style={{ fontFamily: mono, fontSize: 13, fontWeight: 500, letterSpacing: '0.14em', color: 'rgba(212,132,90,0.45)', marginBottom: 4 }}>{'// COMING_SOON'}</div>
+                <div style={{ fontFamily: mono, fontSize: 13, fontWeight: 500, color: 'rgba(218,228,248,0.45)', marginBottom: 3, letterSpacing: '0.04em' }}>Prediction markets</div>
+                <div style={{ fontFamily: mono, fontSize: 14, color: 'rgba(190,208,238,0.18)', letterSpacing: '0.03em', lineHeight: 1.6 }}>Every transmission is a signal. Signals should be priceable.</div>
               </div>
             )}
 
@@ -1258,7 +1258,7 @@ export default function DashboardPage() {
             <div className="fi" style={{ marginTop: 20, padding: '12px 14px', border: '1px solid rgba(107,159,212,0.08)', borderRadius: 2, background: 'rgba(107,159,212,0.02)', animationDelay: '0.18s' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
                 <div style={{ width: 5, height: 5, borderRadius: '50%', background: blue, boxShadow: '0 0 5px rgba(107,159,212,0.5)', animation: 'pd 2s ease infinite', flexShrink: 0 }} />
-                <span style={{ fontFamily: mono, fontSize: 7, fontWeight: 500, letterSpacing: '0.18em', color: 'rgba(107,159,212,0.45)' }}>{'// LIVE_SIGNAL'}</span>
+                <span style={{ fontFamily: mono, fontSize: 13, fontWeight: 500, letterSpacing: '0.18em', color: 'rgba(107,159,212,0.45)' }}>{'// LIVE_SIGNAL'}</span>
               </div>
               {entities.slice(0, 3).map(c => {
                 const pct = Math.round(c.sent * 100);
@@ -1268,8 +1268,8 @@ export default function DashboardPage() {
                 return (
                   <div key={c.name} style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 7 }}>
                     <div style={{ width: 4, height: 4, borderRadius: '50%', background: col, opacity: 0.75, flexShrink: 0 }} />
-                    <span style={{ fontFamily: mono, fontSize: 8, color: 'rgba(218,228,248,0.55)', letterSpacing: '0.04em', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.name}</span>
-                    <span style={{ fontFamily: mono, fontSize: 8, fontWeight: 600, color: col, letterSpacing: '0.02em', flexShrink: 0 }}>{pct}%</span>
+                    <span style={{ fontFamily: mono, fontSize: 14, color: 'rgba(218,228,248,0.55)', letterSpacing: '0.04em', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.name}</span>
+                    <span style={{ fontFamily: mono, fontSize: 14, fontWeight: 600, color: col, letterSpacing: '0.02em', flexShrink: 0 }}>{pct}%</span>
                   </div>
                 );
               })}
@@ -1282,11 +1282,11 @@ export default function DashboardPage() {
       {signingIn && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 400, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(4,5,12,0.92)', backdropFilter: 'blur(12px)' }}>
           <div style={{ textAlign: 'center' }}>
-            <div style={{ fontFamily: mono, fontSize: 8, fontWeight: 600, letterSpacing: '0.22em', color: 'rgba(107,159,212,0.6)', marginBottom: 16 }}>{'// VERIFY_IDENTITY'}</div>
+            <div style={{ fontFamily: mono, fontSize: 14, fontWeight: 600, letterSpacing: '0.22em', color: 'rgba(107,159,212,0.6)', marginBottom: 16 }}>{'// VERIFY_IDENTITY'}</div>
             <div style={{ width: 8, height: 8, borderRadius: '50%', background: blue, boxShadow: `0 0 12px ${blue}`, animation: 'pd 1s ease infinite', margin: '0 auto 16px' }} />
-            <div style={{ fontFamily: mono, fontSize: 11, color: 'rgba(190,208,238,0.55)', letterSpacing: '0.04em', lineHeight: 1.7 }}>
+            <div style={{ fontFamily: mono, fontSize: 13, color: 'rgba(190,208,238,0.55)', letterSpacing: '0.04em', lineHeight: 1.7 }}>
               Check your wallet.<br />
-              <span style={{ color: 'rgba(190,208,238,0.28)', fontSize: 9 }}>Sign the message to prove ownership. No gas.</span>
+              <span style={{ color: 'rgba(190,208,238,0.28)', fontSize: 13 }}>Sign the message to prove ownership. No gas.</span>
             </div>
           </div>
         </div>

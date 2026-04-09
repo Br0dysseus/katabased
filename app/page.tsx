@@ -59,14 +59,14 @@ export default function Home() {
 
       {/* Top session bar */}
       <div style={{ position: 'relative', zIndex: 10, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 28px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontFamily: mono, fontSize: 9, letterSpacing: '0.07em', color: 'rgba(107,159,212,0.45)', fontWeight: 300 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontFamily: mono, fontSize: 13, letterSpacing: '0.07em', color: 'rgba(107,159,212,0.45)', fontWeight: 300 }}>
           <span>KATABASED</span>
           <span style={{ color: 'rgba(107,159,212,0.18)' }}>{'//'}</span>
           <span>v0.1</span>
           <span style={{ color: 'rgba(107,159,212,0.18)' }}>{'//'}</span>
           <span>ANON_MODE</span>
         </div>
-        <div style={{ fontFamily: mono, fontSize: 8, color: 'rgba(107,159,212,0.28)', letterSpacing: '0.1em' }}>
+        <div style={{ fontFamily: mono, fontSize: 14, color: 'rgba(107,159,212,0.28)', letterSpacing: '0.1em' }}>
           37.9°N · 23.7°E
         </div>
       </div>
@@ -101,7 +101,7 @@ export default function Home() {
         {/* Tagline */}
         <div
           className="lfi landing-copy"
-          style={{ fontFamily: mono, fontSize: 11, lineHeight: 1.95, color: 'rgba(190,208,238,0.78)', maxWidth: 400, marginBottom: 14, letterSpacing: '0.015em', fontWeight: 300, animationDelay: '0.26s' }}
+          style={{ fontFamily: mono, fontSize: 13, lineHeight: 1.95, color: 'rgba(190,208,238,0.78)', maxWidth: 400, marginBottom: 14, letterSpacing: '0.015em', fontWeight: 300, animationDelay: '0.26s' }}
         >
           Surface is managed. Depths are not.
         </div>
@@ -118,20 +118,20 @@ export default function Home() {
             animationDelay: '0.34s',
           }}
         >
-          <div style={{ fontFamily: mono, fontSize: 7, fontWeight: 500, letterSpacing: '0.18em', color: 'rgba(107,159,212,0.60)', marginBottom: 8, textTransform: 'uppercase' }}>{'// BEFORE_YOU_DESCEND'}</div>
+          <div style={{ fontFamily: mono, fontSize: 13, fontWeight: 500, letterSpacing: '0.18em', color: 'rgba(107,159,212,0.60)', marginBottom: 8, textTransform: 'uppercase' }}>{'// BEFORE_YOU_DESCEND'}</div>
           {[
             'Your wallet address will be one-way hashed.',
             'The hash anchors your identity on-chain.',
             'The wallet behind it is never stored.',
             'What you write here cannot be taken back.',
           ].map((line, i) => (
-            <div key={i} style={{ fontFamily: mono, fontSize: 10, lineHeight: 1.8, color: 'rgba(190,208,238,0.65)', letterSpacing: '0.01em', fontWeight: 300 }}>{line}</div>
+            <div key={i} style={{ fontFamily: mono, fontSize: 14, lineHeight: 1.8, color: 'rgba(190,208,238,0.65)', letterSpacing: '0.01em', fontWeight: 300 }}>{line}</div>
           ))}
         </div>
 
         {/* Connect section */}
         <div className="lfi" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14, animationDelay: '0.42s' }}>
-          <div style={{ fontFamily: mono, fontSize: 7, letterSpacing: '0.2em', color: 'rgba(107,159,212,0.55)', textTransform: 'uppercase' }}>
+          <div style={{ fontFamily: mono, fontSize: 13, letterSpacing: '0.2em', color: 'rgba(107,159,212,0.55)', textTransform: 'uppercase' }}>
             {signingIn ? '// SIGN_MESSAGE_IN_WALLET' : isConnected && !user ? '// SIGNATURE_NEEDED_TO_ENTER' : '// CONNECT_WALLET_TO_ENTER'}
           </div>
           <button
@@ -167,11 +167,11 @@ export default function Home() {
               </svg>
             )}
           </button>
-          <div style={{ fontFamily: mono, fontSize: 7, color: signingIn ? 'rgba(107,159,212,0.5)' : 'rgba(74,222,128,0.25)', letterSpacing: '0.08em', marginTop: 2 }}>
+          <div style={{ fontFamily: mono, fontSize: 13, color: signingIn ? 'rgba(107,159,212,0.5)' : 'rgba(74,222,128,0.25)', letterSpacing: '0.08em', marginTop: 2 }}>
             {signingIn ? '// waiting for signature...' : isConnected && !user ? '// click to retry sign-in' : isConnected && user ? '// WALLET_CONNECTED' : '// wallet address is never stored'}
           </div>
           {authError && (
-            <div style={{ fontFamily: mono, fontSize: 8, color: 'rgba(212,90,90,0.75)', letterSpacing: '0.04em', maxWidth: 320, textAlign: 'center', lineHeight: 1.6, padding: '8px 12px', border: '1px solid rgba(212,90,90,0.2)', borderRadius: 2, background: 'rgba(212,90,90,0.04)' }}>
+            <div style={{ fontFamily: mono, fontSize: 14, color: 'rgba(212,90,90,0.75)', letterSpacing: '0.04em', maxWidth: 320, textAlign: 'center', lineHeight: 1.6, padding: '8px 12px', border: '1px solid rgba(212,90,90,0.2)', borderRadius: 2, background: 'rgba(212,90,90,0.04)' }}>
               {'// '}{authError}
             </div>
           )}
@@ -180,10 +180,10 @@ export default function Home() {
       </div>
 
       {/* Fixed corner metadata */}
-      <div style={{ position: 'fixed', bottom: 14, left: 16, zIndex: 50, fontFamily: mono, fontSize: 8, color: 'rgba(107,159,212,0.22)', letterSpacing: '0.1em' }}>
+      <div style={{ position: 'fixed', bottom: 14, left: 16, zIndex: 50, fontFamily: mono, fontSize: 14, color: 'rgba(107,159,212,0.22)', letterSpacing: '0.1em' }}>
         βάθος: {Math.floor(scrollY * 0.4)}m
       </div>
-      <div style={{ position: 'fixed', bottom: 14, right: 16, zIndex: 50, fontFamily: mono, fontSize: 7, color: 'rgba(107,159,212,0.2)', letterSpacing: '0.1em' }}>
+      <div style={{ position: 'fixed', bottom: 14, right: 16, zIndex: 50, fontFamily: mono, fontSize: 13, color: 'rgba(107,159,212,0.2)', letterSpacing: '0.1em' }}>
         37.9°N · 23.7°E · ΕΛΛΆΔΑ
       </div>
     </div>
