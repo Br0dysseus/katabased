@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { useAccount } from 'wagmi';
 import { useUser } from '@/lib/UserContext';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
+import { useDisconnect } from 'wagmi';
 import TunnelBackground from '@/components/TunnelBackground';
 
 const mono  = "'JetBrains Mono',monospace";
@@ -18,9 +19,10 @@ const MEANDER = 'repeating-linear-gradient(90deg,rgba(107,159,212,0.2) 0,rgba(10
 
 export default function Home() {
   const { isConnected } = useAccount();
-  const { user, loading } = useUser();
+  const { user, loading, signingIn, refetchUser } = useUser();
   const router = useRouter();
   const { openConnectModal } = useConnectModal();
+  const { disconnect } = useDisconnect();
   const [scrollY, setScrollY] = useState(0);
 
   useEffect(() => {
@@ -66,9 +68,8 @@ export default function Home() {
           <span style={{ color: 'rgba(107,159,212,0.18)' }}>{'//'}</span>
           <span>ANON_MODE</span>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontFamily: mono, fontSize: 8, color: 'rgba(212,132,90,0.55)', letterSpacing: '0.1em' }}>
-          <div style={{ width: 5, height: 5, borderRadius: '50%', background: terra, boxShadow: `0 0 5px rgba(212,132,90,0.4)`, animation: 'pd 2.2s ease infinite', flexShrink: 0 }} />
-          <span>REC</span>
+        <div style={{ fontFamily: mono, fontSize: 8, color: 'rgba(107,159,212,0.28)', letterSpacing: '0.1em' }}>
+          37.9°N · 23.7°E
         </div>
       </div>
 
@@ -133,10 +134,13 @@ export default function Home() {
         {/* Connect section */}
         <div className="lfi" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14, animationDelay: '0.42s' }}>
           <div style={{ fontFamily: mono, fontSize: 7, letterSpacing: '0.2em', color: 'rgba(107,159,212,0.55)', textTransform: 'uppercase' }}>
-            {'// CONNECT_WALLET_TO_ENTER'}
+            {signingIn ? '// SIGN_MESSAGE_IN_WALLET' : isConnected && !user ? '// SIGNATURE_NEEDED_TO_ENTER' : '// CONNECT_WALLET_TO_ENTER'}
           </div>
           <button
-            onClick={() => { if (!isConnected && openConnectModal) openConnectModal(); }}
+            onClick={() => {
+              if (!isConnected && openConnectModal) openConnectModal();
+              else if (isConnected && !user && !loading) refetchUser();
+            }}
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -144,26 +148,29 @@ export default function Home() {
               width: 52,
               height: 52,
               borderRadius: 3,
-              border: isConnected ? '1px solid rgba(74,222,128,0.5)' : '1px solid rgba(74,222,128,0.25)',
-              background: isConnected ? 'rgba(74,222,128,0.12)' : 'rgba(74,222,128,0.05)',
-              cursor: isConnected ? 'default' : 'pointer',
+              border: signingIn ? '1px solid rgba(107,159,212,0.5)' : isConnected && user ? '1px solid rgba(74,222,128,0.5)' : '1px solid rgba(74,222,128,0.25)',
+              background: signingIn ? 'rgba(107,159,212,0.10)' : isConnected && user ? 'rgba(74,222,128,0.12)' : 'rgba(74,222,128,0.05)',
+              cursor: (isConnected && !!user) ? 'default' : 'pointer',
               transition: 'all 0.2s',
-              boxShadow: isConnected ? '0 0 18px rgba(74,222,128,0.25)' : '0 0 8px rgba(74,222,128,0.08)',
+              boxShadow: isConnected && user ? '0 0 18px rgba(74,222,128,0.25)' : '0 0 8px rgba(74,222,128,0.08)',
             }}
-            onMouseEnter={e => { if (!isConnected) { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(74,222,128,0.12)'; el.style.borderColor = 'rgba(74,222,128,0.5)'; el.style.boxShadow = '0 0 22px rgba(74,222,128,0.3)'; } }}
-            onMouseLeave={e => { if (!isConnected) { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(74,222,128,0.05)'; el.style.borderColor = 'rgba(74,222,128,0.25)'; el.style.boxShadow = '0 0 8px rgba(74,222,128,0.08)'; } }}
+            onMouseEnter={e => { if (!isConnected || (!user && !loading)) { const el = e.currentTarget as HTMLElement; el.style.background = signingIn ? 'rgba(107,159,212,0.14)' : 'rgba(74,222,128,0.12)'; el.style.borderColor = signingIn ? 'rgba(107,159,212,0.7)' : 'rgba(74,222,128,0.5)'; el.style.boxShadow = '0 0 22px rgba(74,222,128,0.3)'; } }}
+            onMouseLeave={e => { if (!isConnected || (!user && !loading)) { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(74,222,128,0.05)'; el.style.borderColor = 'rgba(74,222,128,0.25)'; el.style.boxShadow = '0 0 8px rgba(74,222,128,0.08)'; } }}
           >
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={isConnected ? 'rgba(74,222,128,0.9)' : 'rgba(74,222,128,0.6)'} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              {/* shovel handle */}
-              <line x1="12" y1="3" x2="12" y2="14" />
-              {/* blade */}
-              <path d="M8 14 Q8 20 12 20 Q16 20 16 14 Z" />
-              {/* crossbar */}
-              <line x1="9" y1="3" x2="15" y2="3" />
-            </svg>
+            {signingIn ? (
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(107,159,212,0.8)" strokeWidth="1.5" strokeLinecap="round">
+                <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+              </svg>
+            ) : (
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={isConnected && user ? 'rgba(74,222,128,0.9)' : 'rgba(74,222,128,0.6)'} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="12" y1="3" x2="12" y2="14" />
+                <path d="M8 14 Q8 20 12 20 Q16 20 16 14 Z" />
+                <line x1="9" y1="3" x2="15" y2="3" />
+              </svg>
+            )}
           </button>
-          <div style={{ fontFamily: mono, fontSize: 7, color: 'rgba(74,222,128,0.25)', letterSpacing: '0.08em', marginTop: 2 }}>
-            {isConnected ? '// WALLET_CONNECTED' : '// wallet address is never stored'}
+          <div style={{ fontFamily: mono, fontSize: 7, color: signingIn ? 'rgba(107,159,212,0.5)' : 'rgba(74,222,128,0.25)', letterSpacing: '0.08em', marginTop: 2 }}>
+            {signingIn ? '// waiting for signature...' : isConnected && !user ? '// click to retry sign-in' : isConnected && user ? '// WALLET_CONNECTED' : '// wallet address is never stored'}
           </div>
         </div>
 
