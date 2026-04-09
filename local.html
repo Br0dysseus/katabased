@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>kataBased — κατάβασις</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,700&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ── Reset ───────────────────────────────────────────────────── */
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100vh;background:#04050C;color:rgba(190,208,238,0.68);font-family:'JetBrains Mono',monospace;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;font-size:11px}
+::selection{background:rgba(107,159,212,0.22);color:#fff}
+::-webkit-scrollbar{width:2px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(107,159,212,0.1);border-radius:1px}
+
+/* ── Animations ──────────────────────────────────────────────── */
+@keyframes fi{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pd{0%,100%{opacity:1}50%{opacity:0.15}}
+.fi{animation:fi 0.42s cubic-bezier(0.16,1,0.3,1) forwards;opacity:0}
+
+/* ── Background layer ────────────────────────────────────────── */
+#bg{position:fixed;inset:0;pointer-events:none;z-index:0}
+#tunnel{position:absolute;inset:0;width:100%;height:100%;image-rendering:auto}
+/* Noise grain */
+#bg-grain{position:absolute;inset:0;opacity:0.028;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='5' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+/* Global dim — keeps tunnel as texture, not focal point */
+#bg-dim{position:absolute;inset:0;background:rgba(4,5,12,0.72)}
+/* Stronger dark center behind content */
+#bg-center{position:absolute;inset:0;background:radial-gradient(ellipse 60% 58% at 50% 48%,rgba(4,5,12,0.88) 0%,rgba(4,5,12,0.55) 60%,transparent 100%)}
+/* Vignette at very edges */
+#bg-vignette{position:absolute;inset:0;background:radial-gradient(ellipse 90% 90% at 50% 48%,transparent 50%,rgba(4,5,12,0.8) 100%)}
+#bg-top{position:absolute;top:0;left:0;right:0;height:14vh;background:linear-gradient(180deg,rgba(4,5,12,0.6) 0%,transparent 100%)}
+
+/* ── Meander accent ──────────────────────────────────────────── */
+.meander-bar{
+  height:2px;
+  background:repeating-linear-gradient(90deg,
+    rgba(107,159,212,0.2) 0,rgba(107,159,212,0.2) 3px,
+    transparent 3px,transparent 6px,
+    rgba(107,159,212,0.2) 6px,rgba(107,159,212,0.2) 9px,
+    transparent 9px,transparent 12px,
+    rgba(107,159,212,0.12) 12px,rgba(107,159,212,0.12) 15px,
+    transparent 15px,transparent 18px
+  );
+  position:relative;z-index:101;
+}
+
+/* ── Nav ─────────────────────────────────────────────────────── */
+nav{
+  position:sticky;top:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 24px;height:46px;
+  background:rgba(4,5,12,0.88);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(107,159,212,0.07);
+}
+.nav-left{display:flex;align-items:center;gap:16px}
+.nav-right{display:flex;align-items:center;gap:6px}
+
+.logo{
+  font-family:'Cormorant Garamond',serif;font-weight:700;font-style:italic;
+  font-size:22px;line-height:1;letter-spacing:-0.04em;user-select:none;
+  display:flex;align-items:baseline;
+}
+.logo .k{color:#6B9FD4}
+.logo .b{color:rgba(218,228,248,0.9);margin-left:1px}
+.logo-lg{font-size:38px}
+.logo-lg .b{margin-left:2px}
+
+.nav-meta{display:flex;align-items:center;gap:5px;font-size:9px;letter-spacing:0.07em;color:rgba(107,159,212,0.55);font-weight:300}
+.nav-sep{color:rgba(107,159,212,0.18)}
+.rec-indicator{display:flex;align-items:center;gap:5px;font-size:8px;color:rgba(212,132,90,0.55);letter-spacing:0.1em;font-weight:400}
+.rec-dot{width:5px;height:5px;border-radius:50%;background:#D4845A;box-shadow:0 0 5px rgba(212,132,90,0.4);animation:pd 2.2s ease infinite;flex-shrink:0}
+
+/* ── Tabs ────────────────────────────────────────────────────── */
+.tabs{display:flex;gap:1px}
+.tab{
+  padding:4px 11px;
+  font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:400;
+  border:1px solid transparent;border-radius:2px;
+  cursor:pointer;transition:all 0.15s;
+  background:transparent;color:rgba(190,208,238,0.28);letter-spacing:0.06em;
+}
+.tab::before{content:'[';color:rgba(107,159,212,0.18);transition:color 0.15s}
+.tab::after{content:']';color:rgba(107,159,212,0.18);transition:color 0.15s}
+.tab.active{background:rgba(107,159,212,0.08);border-color:rgba(107,159,212,0.22);color:rgba(218,228,248,0.88)}
+.tab.active::before,.tab.active::after{color:rgba(107,159,212,0.55)}
+.tab:hover:not(.active){color:rgba(190,208,238,0.5);border-color:rgba(107,159,212,0.1)}
+.tab:hover:not(.active)::before,.tab:hover:not(.active)::after{color:rgba(107,159,212,0.3)}
+
+/* ── Nav buttons ─────────────────────────────────────────────── */
+.btn-wallet{
+  display:flex;align-items:center;gap:6px;padding:4px 10px;
+  border-radius:2px;border:1px solid rgba(107,159,212,0.14);
+  background:rgba(107,159,212,0.04);cursor:pointer;
+  font-family:'JetBrains Mono',monospace;font-size:9px;
+  color:rgba(190,208,238,0.4);letter-spacing:0.04em;transition:all 0.15s;
+}
+.btn-wallet:hover{border-color:rgba(107,159,212,0.3);color:rgba(190,208,238,0.65)}
+.btn-user{
+  display:flex;align-items:center;gap:6px;padding:4px 10px;
+  border-radius:2px;border:1px solid rgba(255,255,255,0.05);
+  background:transparent;cursor:pointer;transition:all 0.15s;
+}
+.btn-user:hover{border-color:rgba(107,159,212,0.15);background:rgba(107,159,212,0.04)}
+.avatar{
+  width:18px;height:18px;border-radius:2px;
+  background:rgba(107,159,212,0.1);border:1px solid rgba(107,159,212,0.22);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Cormorant Garamond',serif;font-size:10px;font-weight:700;font-style:italic;color:#6B9FD4;
+}
+.username{font-size:9px;color:#6B9FD4;letter-spacing:0.05em}
+
+/* ── Layout ──────────────────────────────────────────────────── */
+.shell{max-width:1080px;margin:0 auto;padding:28px 24px 100px;display:grid;grid-template-columns:1fr 220px;gap:26px;position:relative;z-index:1}
+@media(max-width:720px){.shell{grid-template-columns:1fr}.sidebar{display:none}}
+
+/* ── Section heading ─────────────────────────────────────────── */
+.sec-head{
+  font-size:8px;font-weight:500;letter-spacing:0.18em;text-transform:uppercase;
+  color:rgba(107,159,212,0.65);margin-bottom:18px;display:flex;align-items:center;gap:10px;
+}
+.sec-head::before{content:'//';color:rgba(107,159,212,0.25);font-weight:400}
+.sec-line{flex:1;height:1px;background:rgba(107,159,212,0.07)}
+
+/* ── Feed ────────────────────────────────────────────────────── */
+.feed-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.post-item{
+  padding:14px 0 14px 12px;cursor:pointer;
+  border-left:2px solid transparent;transition:border-color 0.2s,background 0.15s;
+}
+.post-item:hover{border-left-color:rgba(107,159,212,0.3);background:rgba(107,159,212,0.015)}
+.post-meta{display:flex;align-items:center;gap:5px;margin-bottom:7px;flex-wrap:wrap}
+.post-author{font-size:9px;color:#6B9FD4;letter-spacing:0.05em}
+.post-author::before{content:'[';color:rgba(107,159,212,0.35)}
+.post-author::after{content:']';color:rgba(107,159,212,0.35)}
+.post-company{font-size:9px;font-weight:600;color:#D4845A;letter-spacing:0.1em;text-transform:uppercase}
+.post-time{font-size:8px;color:rgba(190,208,238,0.18);letter-spacing:0.04em}
+.post-dot{font-size:7px;color:rgba(190,208,238,0.1)}
+.post-verified{font-size:7px;color:rgba(107,159,212,0.45);border:1px solid rgba(107,159,212,0.18);padding:1px 4px;border-radius:1px;letter-spacing:0.08em}
+.post-title{font-size:13px;font-weight:500;color:rgba(218,228,248,0.95);margin-bottom:7px;line-height:1.38;letter-spacing:-0.01em}
+.post-body{font-size:11px;line-height:1.75;color:rgba(190,208,238,0.58);font-weight:300;margin-bottom:10px;letter-spacing:0.01em}
+.divider{height:1px;background:rgba(107,159,212,0.055);margin-left:12px}
+.post-actions{display:flex;align-items:center;gap:6px}
+.vote-btn{
+  display:inline-flex;align-items:center;gap:3px;padding:2px 8px;
+  border-radius:2px;border:1px solid rgba(190,208,238,0.08);
+  background:transparent;color:rgba(190,208,238,0.22);
+  font-size:10px;font-family:'JetBrains Mono',monospace;font-weight:400;
+  cursor:pointer;transition:all 0.15s;letter-spacing:0.04em;
+}
+.vote-btn:hover:not(.up-active):not(.dn-active){border-color:rgba(190,208,238,0.18);color:rgba(190,208,238,0.5)}
+.vote-btn.up-active{border-color:rgba(107,159,212,0.4);background:rgba(107,159,212,0.08);color:#6B9FD4}
+.vote-btn.dn-active{border-color:rgba(212,132,90,0.35);background:rgba(212,132,90,0.06);color:#D4845A}
+.replies{margin-left:auto;font-size:8px;color:rgba(190,208,238,0.2);letter-spacing:0.07em}
+
+/* ── Explore ─────────────────────────────────────────────────── */
+.search-input{
+  width:100%;padding:7px 10px;border-radius:2px;
+  border:1px solid rgba(107,159,212,0.1);background:rgba(107,159,212,0.03);
+  color:rgba(190,208,238,0.65);font-size:10px;font-family:'JetBrains Mono',monospace;
+  outline:none;margin-bottom:14px;transition:border-color 0.15s;letter-spacing:0.04em;
+}
+.search-input::placeholder{color:rgba(107,159,212,0.22)}
+.search-input:focus{border-color:rgba(107,159,212,0.3);background:rgba(107,159,212,0.04)}
+.co-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;cursor:pointer;transition:all 0.2s;padding-left:4px}
+.co-row:hover{background:rgba(107,159,212,0.03);padding-left:8px}
+.co-name{font-size:11px;font-weight:500;color:rgba(218,228,248,0.72);letter-spacing:0.02em}
+.co-count{font-size:8px;color:rgba(190,208,238,0.2);margin-top:2px;letter-spacing:0.06em}
+.bar-wrap{display:flex;align-items:center;gap:7px}
+.bar-track{width:44px;height:2px;background:rgba(190,208,238,0.06);overflow:hidden}
+.bar-fill-hi{height:100%;background:rgba(107,159,212,0.65)}
+.bar-fill-lo{height:100%;background:rgba(212,132,90,0.55)}
+.bar-pct{font-size:9px;color:rgba(190,208,238,0.28);width:20px;text-align:right}
+
+/* ── Ranks ───────────────────────────────────────────────────── */
+.rank-row{display:flex;align-items:center;padding:9px 0}
+.rank-num{width:22px;font-size:10px;font-weight:600;letter-spacing:0.04em}
+.rank-top{color:rgba(218,228,248,0.7)}
+.rank-rest{color:rgba(190,208,238,0.18)}
+.rank-user{font-size:9px;color:#6B9FD4;letter-spacing:0.04em}
+.rank-user::before{content:'[';color:rgba(107,159,212,0.35)}
+.rank-user::after{content:']';color:rgba(107,159,212,0.35)}
+.rank-posts{font-size:8px;color:rgba(190,208,238,0.15);margin-top:2px;letter-spacing:0.04em}
+.rank-karma{font-size:11px;font-weight:500;letter-spacing:0.02em}
+.you-badge{margin-left:5px;font-size:7px;color:rgba(212,132,90,0.6);letter-spacing:0.08em}
+.me-row{background:rgba(107,159,212,0.03);border-left:2px solid rgba(107,159,212,0.25);padding-left:8px}
+.me-karma{color:rgba(218,228,248,0.8)}
+.other-karma{color:rgba(190,208,238,0.22)}
+
+/* ── Cards ───────────────────────────────────────────────────── */
+.card{background:rgba(4,5,12,0.55);border:1px solid rgba(107,159,212,0.1);border-radius:3px;padding:14px;backdrop-filter:blur(6px)}
+.card-sm{background:rgba(4,5,12,0.45);border:1px solid rgba(107,159,212,0.08);border-radius:2px;padding:10px 12px;cursor:pointer;transition:all 0.15s;backdrop-filter:blur(4px)}
+.card-sm:hover{background:rgba(107,159,212,0.06);border-color:rgba(107,159,212,0.2);transform:translateY(-1px)}
+.card-sm-title{font-size:9px;font-weight:500;color:rgba(218,228,248,0.55);margin-bottom:2px;letter-spacing:0.06em}
+.card-sm-sub{font-size:8px;color:rgba(190,208,238,0.2);letter-spacing:0.04em}
+.lbl{font-size:7px;font-weight:500;letter-spacing:0.16em;text-transform:uppercase;color:rgba(107,159,212,0.32)}
+
+/* ── Profile ─────────────────────────────────────────────────── */
+.profile-head{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.profile-name{font-size:9px;color:#6B9FD4;letter-spacing:0.06em}
+.profile-name::before{content:'['}
+.profile-name::after{content:']'}
+.profile-meta{font-size:8px;color:rgba(190,208,238,0.18);margin-top:3px;letter-spacing:0.04em}
+.profile-divider{height:1px;background:rgba(107,159,212,0.07);margin-bottom:12px}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.stat-cell{text-align:center;padding:5px 0}
+.stat-val{font-size:18px;font-weight:600;color:rgba(218,228,248,0.95);line-height:1;letter-spacing:-0.02em}
+.stat-lbl{font-size:7px;font-weight:400;letter-spacing:0.14em;text-transform:uppercase;color:rgba(107,159,212,0.3);margin-top:4px}
+
+/* ── Write button ────────────────────────────────────────────── */
+.kbd-btn{width:30px;height:30px;border-radius:2px;border:1px solid rgba(107,159,212,0.15);background:transparent;color:rgba(190,208,238,0.3);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s}
+.kbd-btn:hover{background:rgba(107,159,212,0.08);color:rgba(218,228,248,0.8);border-color:rgba(107,159,212,0.35)}
+
+/* ── Dropdown ────────────────────────────────────────────────── */
+.dropdown{position:absolute;top:calc(100% + 6px);right:0;background:#090A15;border:1px solid rgba(107,159,212,0.12);border-radius:3px;padding:4px;box-shadow:0 20px 60px rgba(0,0,0,0.9);z-index:200;min-width:200px;display:none}
+.dropdown.open{display:block}
+.dropdown-inner{padding:8px 10px}
+.dropdown-divider{height:1px;background:rgba(107,159,212,0.07);margin:3px 6px}
+.disconnect-btn{display:block;width:100%;padding:7px 10px;border-radius:2px;font-size:8px;color:rgba(212,90,90,0.55);background:none;border:none;cursor:pointer;text-align:left;font-family:'JetBrains Mono',monospace;letter-spacing:0.08em;transition:background 0.15s;text-transform:uppercase}
+.disconnect-btn:hover{background:rgba(212,90,90,0.05)}
+
+/* ── Panels ──────────────────────────────────────────────────── */
+.panel{display:none}
+.panel.active{display:block;animation:fi 0.4s cubic-bezier(0.16,1,0.3,1) forwards}
+
+/* ── Prose ───────────────────────────────────────────────────── */
+.prose{font-size:11px;line-height:1.85;color:rgba(190,208,238,0.58);font-weight:300;letter-spacing:0.015em}
+.prose p{margin-bottom:14px}
+.prose p:last-child{margin-bottom:0}
+
+/* ── Watermark ───────────────────────────────────────────────── */
+.watermark{margin-top:20px;display:flex;justify-content:center;align-items:center;height:160px}
+.watermark span{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;font-style:italic;color:rgba(107,159,212,0.055);letter-spacing:0.12em;white-space:nowrap;user-select:none;transform:rotate(-90deg);display:block}
+
+/* ── Depth meter ─────────────────────────────────────────────── */
+.depth{position:fixed;bottom:14px;right:16px;z-index:50;font-size:8px;color:rgba(107,159,212,0.18);letter-spacing:0.1em}
+
+/* ── Coord label in sidebar ──────────────────────────────────── */
+.coord-lbl{font-size:7px;color:rgba(107,159,212,0.2);letter-spacing:0.1em;text-align:center;margin-bottom:4px}
+</style>
+</head>
+<body>
+
+<div id="bg">
+  <canvas id="tunnel"></canvas>
+  <div id="bg-grain"></div>
+  <div id="bg-dim"></div>
+  <div id="bg-center"></div>
+  <div id="bg-vignette"></div>
+  <div id="bg-top"></div>
+</div>
+
+<div class="meander-bar"></div>
+
+<nav>
+  <div class="nav-left">
+    <div class="logo"><span class="k">κ</span><span class="b">β</span></div>
+    <div class="nav-meta">
+      <span>KATABASED</span>
+      <span class="nav-sep">//</span>
+      <span>v0.1</span>
+      <span class="nav-sep">//</span>
+      <span>ANON_MODE</span>
+    </div>
+    <div class="rec-indicator"><div class="rec-dot"></div><span>ACTIVE</span></div>
+  </div>
+
+  <div class="tabs" id="tabs">
+    <button class="tab active" data-page="feed">FEED</button>
+    <button class="tab" data-page="explore">EXPLORE</button>
+    <button class="tab" data-page="ranks">RANKS</button>
+    <button class="tab" data-page="about">ABOUT</button>
+    <button class="tab" data-page="privacy">OPSEC</button>
+  </div>
+
+  <div class="nav-right">
+    <div style="position:relative">
+      <button class="btn-wallet" id="wallet-btn">
+        <div style="width:5px;height:5px;border-radius:50%;background:rgba(107,159,212,0.7);box-shadow:0 0 4px rgba(107,159,212,0.35);animation:pd 3s ease infinite;flex-shrink:0"></div>
+        <span>0x1a2b...3c4d</span>
+      </button>
+      <div class="dropdown" id="wallet-dd">
+        <div class="dropdown-inner">
+          <div class="lbl" style="margin-bottom:8px">WALLET</div>
+          <div style="font-size:10px;color:rgba(190,208,238,0.4);letter-spacing:0.04em">0x1a2b...3c4d</div>
+        </div>
+        <div class="dropdown-divider"></div>
+        <button class="disconnect-btn">Disconnect</button>
+      </div>
+    </div>
+    <div style="position:relative">
+      <button class="btn-user" id="user-btn">
+        <div class="avatar">κ</div>
+        <span class="username">anon_95410276</span>
+      </button>
+      <div class="dropdown" id="user-dd" style="min-width:240px">
+        <div style="padding:10px">
+          <div class="lbl" style="margin-bottom:8px">IDENTITY</div>
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <span style="font-size:10px;color:#6B9FD4;letter-spacing:0.05em">[anon_95410276]</span>
+            <button style="padding:2px 7px;border-radius:2px;border:1px solid rgba(190,208,238,0.08);background:none;color:rgba(190,208,238,0.3);font-size:8px;cursor:pointer;font-family:'JetBrains Mono',monospace;letter-spacing:0.08em">EDIT</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="shell">
+  <div id="page-container" style="transition:opacity 0.16s ease,transform 0.16s ease">
+
+    <div class="panel active" id="page-feed">
+      <div class="feed-header">
+        <div class="sec-head" style="margin-bottom:0">FEED_LOG <div class="sec-line"></div></div>
+        <button class="kbd-btn" title="Write a post">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="4" width="20" height="14" rx="1"/>
+            <line x1="6" y1="8" x2="6" y2="8" stroke-width="2.5"/><line x1="10" y1="8" x2="10" y2="8" stroke-width="2.5"/><line x1="14" y1="8" x2="14" y2="8" stroke-width="2.5"/><line x1="18" y1="8" x2="18" y2="8" stroke-width="2.5"/>
+            <line x1="6" y1="12" x2="6" y2="12" stroke-width="2.5"/><line x1="10" y1="12" x2="10" y2="12" stroke-width="2.5"/><line x1="14" y1="12" x2="14" y2="12" stroke-width="2.5"/><line x1="18" y1="12" x2="18" y2="12" stroke-width="2.5"/>
+            <line x1="8" y1="16" x2="16" y2="16"/>
+          </svg>
+        </button>
+      </div>
+      <div id="feed-list"></div>
+    </div>
+
+    <div class="panel" id="page-explore">
+      <div class="sec-head">EXPLORE <div class="sec-line"></div></div>
+      <input class="search-input" id="search" placeholder="> search companies..." oninput="filterCos(this.value)">
+      <div id="co-list"></div>
+    </div>
+
+    <div class="panel" id="page-ranks">
+      <div class="sec-head">LEADERBOARD <div class="sec-line"></div></div>
+      <div id="ranks-list"></div>
+    </div>
+
+    <div class="panel" id="page-about">
+      <div class="sec-head">ABOUT <div class="sec-line"></div></div>
+      <div class="prose">
+        <p>κατάβασις — the descent. Anonymous workplace truth, verified on-chain. No corporate PR. No HR filter. Just what it's actually like on the inside.</p>
+        <p>Connect a wallet. Receive an identity. Post what you know. Your wallet address is hashed — your employer will never know it's you.</p>
+        <p>This is a space for people who want the truth about where they work, where they're interviewing, and where they might end up. Nothing more.</p>
+      </div>
+    </div>
+
+    <div class="panel" id="page-privacy">
+      <div class="sec-head">OPSEC_GUIDE <div class="sec-line"></div></div>
+      <div class="prose">
+        <p>Your anonymity is only as strong as the steps you take to protect it. This guide covers everything you need to stay invisible.</p>
+        <p style="color:rgba(190,208,238,0.14);font-style:italic">Full guide coming soon — wallet hygiene, VPN setup, burner wallets, RAILGUN integration.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="sidebar" style="display:flex;flex-direction:column;gap:8px">
+    <div class="coord-lbl">37.9°N · 23.7°E · ΕΛΛΆΔΑ</div>
+
+    <div class="card fi" style="animation-delay:0.06s">
+      <div class="profile-head">
+        <div class="logo logo-lg"><span class="k">κ</span><span class="b">β</span></div>
+        <div>
+          <div class="profile-name">anon_95410276</div>
+          <div class="profile-meta">NOV 2024 · 0x1a2b...3c4d</div>
+        </div>
+      </div>
+      <div class="profile-divider"></div>
+      <div class="stat-grid">
+        <div class="stat-cell"><div class="stat-val">847</div><div class="stat-lbl">KARMA</div></div>
+        <div class="stat-cell"><div class="stat-val">23</div><div class="stat-lbl">POSTS</div></div>
+        <div class="stat-cell"><div class="stat-val">12d</div><div class="stat-lbl">STREAK</div></div>
+        <div class="stat-cell"><div class="stat-val">#5</div><div class="stat-lbl">RANK</div></div>
+      </div>
+    </div>
+
+    <div class="fi" id="link-cards" style="animation-delay:0.1s;display:flex;flex-direction:column;gap:3px">
+      <div class="card-sm" onclick="switchPage('about')">
+        <div class="card-sm-title">// ABOUT</div>
+        <div class="card-sm-sub">What this is and why</div>
+      </div>
+      <div class="card-sm" onclick="switchPage('privacy')">
+        <div class="card-sm-title">// OPSEC</div>
+        <div class="card-sm-sub">How to stay invisible</div>
+      </div>
+    </div>
+
+    <div class="watermark"><span>κατάβασις</span></div>
+  </div>
+</div>
+
+<div class="depth" id="depth">βάθος: 0m</div>
+
+<script>
+// ── Data ──────────────────────────────────────────────────────
+const FEED=[
+  {id:1,author:'anon_19283746',company:'Coinbase',title:'engineering culture is cooked post-layoffs',content:"After the restructuring, the team dynamic changed. More pressure, less psychological safety. Middle management is stretched thin and sprint planning is a mess.",up:142,dn:18,replies:34,time:'2h'},
+  {id:2,author:'anon_55839201',company:'Chainalysis',title:'good benefits, zero upward mobility',content:"Solid comp, good WLB, but promotions are completely opaque. If you want stability and interesting blockchain forensics work it's fine. Don't expect to climb.",up:89,dn:7,replies:12,time:'5h'},
+  {id:3,author:'anon_77201938',company:'OpenSea',title:'the Seaport pivot split the company in half',content:"Protocol team is doing genuinely interesting work. Product side feels directionless. Two very different experiences depending on which org you're in.",up:211,dn:31,replies:67,time:'8h'},
+  {id:4,author:'anon_33018274',company:'Uniswap Labs',title:'best smart contract engineers in DeFi',content:"Technical bar is extremely high. If you can keep up you'll learn more in six months than three years elsewhere. Compensation is top of market.",up:304,dn:12,replies:45,time:'12h'},
+  {id:5,author:'anon_99182736',company:'Alchemy',title:'sales-driven culture wearing an engineering costume',content:"Marketing is great, actual DX of the product is falling behind. Internal tooling is held together with duct tape. Nobody wants to hear it.",up:178,dn:44,replies:91,time:'1d'},
+  {id:6,author:'anon_44102938',company:'Paradigm',title:'if you get in, never leave',content:'Best research environment in crypto. The people are genuinely world-class. Only downside is the pressure to publish and the hours during market events.',up:523,dn:8,replies:112,time:'2d'},
+];
+const COS=[
+  {name:'Coinbase',count:342,sent:0.62},
+  {name:'Uniswap Labs',count:189,sent:0.84},
+  {name:'OpenSea',count:276,sent:0.51},
+  {name:'Alchemy',count:134,sent:0.45},
+  {name:'Chainalysis',count:98,sent:0.73},
+];
+const LEADERS=[
+  {rank:1,user:'anon_00128374',karma:12840,posts:156},
+  {rank:2,user:'anon_55291037',karma:9720,posts:98},
+  {rank:3,user:'anon_33018274',karma:8430,posts:87},
+  {rank:4,user:'anon_77201938',karma:6210,posts:64},
+  {rank:5,user:'anon_95410276',karma:847,posts:23},
+];
+const ME='anon_95410276';
+const votes={};
+
+// ── Render feed ───────────────────────────────────────────────
+function renderFeed(){
+  document.getElementById('feed-list').innerHTML=FEED.map((p,i)=>`
+    <div class="fi" style="animation-delay:${60+i*55}ms">
+      <div class="post-item">
+        <div class="post-meta">
+          <span class="post-author">${p.author}</span>
+          <span class="post-dot">·</span>
+          <span class="post-company">${p.company}</span>
+          <span class="post-dot">·</span>
+          <span class="post-time">${p.time}</span>
+          <span class="post-dot">·</span>
+          <span class="post-verified">ON-CHAIN</span>
+        </div>
+        <div class="post-title">${p.title}</div>
+        <div class="post-body">${p.content}</div>
+        <div class="post-actions">
+          <button class="vote-btn ${votes[p.id]==='up'?'up-active':''}" onclick="vote(${p.id},'up')">↑ ${p.up+(votes[p.id]==='up'?1:0)}</button>
+          <button class="vote-btn ${votes[p.id]==='dn'?'dn-active':''}" onclick="vote(${p.id},'dn')">↓ ${p.dn+(votes[p.id]==='dn'?1:0)}</button>
+          <span class="replies">${p.replies} replies</span>
+        </div>
+      </div>
+      ${i<FEED.length-1?'<div class="divider"></div>':''}
+    </div>`).join('');
+}
+function vote(id,t){votes[id]=votes[id]===t?null:t;renderFeed();}
+
+function renderCos(filter=''){
+  const filt=COS.filter(c=>c.name.toLowerCase().includes(filter.toLowerCase()));
+  document.getElementById('co-list').innerHTML=filt.map((c,i)=>{
+    const pct=Math.round(c.sent*100),hi=pct>=60;
+    return`<div class="fi" style="animation-delay:${40+i*45}ms">
+      <div class="co-row">
+        <div><div class="co-name">${c.name}</div><div class="co-count">${c.count} posts</div></div>
+        <div class="bar-wrap">
+          <div class="bar-track"><div class="${hi?'bar-fill-hi':'bar-fill-lo'}" style="width:${pct}%"></div></div>
+          <span class="bar-pct">${pct}</span>
+        </div>
+      </div>${i<filt.length-1?'<div class="divider" style="margin-left:0"></div>':''}
+    </div>`;
+  }).join('');
+}
+function filterCos(v){renderCos(v);}
+
+function renderRanks(){
+  document.getElementById('ranks-list').innerHTML=LEADERS.map((e,i)=>{
+    const me=e.user===ME;
+    return`<div class="fi" style="animation-delay:${40+i*45}ms">
+      <div class="rank-row ${me?'me-row':''}">
+        <span class="rank-num ${e.rank<=3?'rank-top':'rank-rest'}">${String(e.rank).padStart(2,'0')}</span>
+        <div style="flex:1;margin-left:10px">
+          <div class="rank-user">${e.user}${me?`<span class="you-badge">YOU</span>`:''}</div>
+          <div class="rank-posts">${e.posts} posts</div>
+        </div>
+        <div class="rank-karma ${me?'me-karma':'other-karma'}">${e.karma.toLocaleString()}</div>
+      </div>${i<LEADERS.length-1?'<div class="divider" style="margin-left:0"></div>':''}
+    </div>`;
+  }).join('');
+}
+
+// ── Page switching ────────────────────────────────────────────
+let currentPage='feed', transitioning=false;
+function switchPage(page){
+  if(page===currentPage||transitioning) return;
+  transitioning=true;
+  const c=document.getElementById('page-container');
+  c.style.opacity='0';c.style.transform='translateY(5px)';
+  setTimeout(()=>{
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    document.getElementById('page-'+page).classList.add('active');
+    const tab=document.querySelector(`.tab[data-page="${page}"]`);
+    if(tab)tab.classList.add('active');
+    currentPage=page;
+    if(page==='feed')renderFeed();
+    else if(page==='explore')renderCos();
+    else if(page==='ranks')renderRanks();
+    const lc=document.getElementById('link-cards');
+    if(lc)lc.style.display=['feed','explore','ranks'].includes(page)?'flex':'none';
+    c.style.transition='none';c.style.opacity='0';c.style.transform='translateY(5px)';
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      c.style.transition='opacity 0.16s ease,transform 0.16s ease';
+      c.style.opacity='1';c.style.transform='translateY(0)';
+      transitioning=false;
+    }));
+  },160);
+}
+document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>switchPage(btn.dataset.page)));
+
+// ── Dropdowns ─────────────────────────────────────────────────
+function toggleDd(id,other){
+  const dd=document.getElementById(id),o=document.getElementById(other);
+  if(o)o.classList.remove('open');dd.classList.toggle('open');
+}
+document.getElementById('wallet-btn').onclick=()=>toggleDd('wallet-dd','user-dd');
+document.getElementById('user-btn').onclick=()=>toggleDd('user-dd','wallet-dd');
+document.addEventListener('click',e=>{
+  if(!e.target.closest('#wallet-btn')&&!e.target.closest('#wallet-dd'))document.getElementById('wallet-dd').classList.remove('open');
+  if(!e.target.closest('#user-btn')&&!e.target.closest('#user-dd'))document.getElementById('user-dd').classList.remove('open');
+});
+
+// ── Depth / vignette scroll ───────────────────────────────────
+window.addEventListener('scroll',()=>{
+  const sy=window.scrollY;
+  document.getElementById('depth').textContent=`βάθος: ${Math.floor(sy*0.4)}m`;
+  document.getElementById('bg-vignette').style.background=
+    `radial-gradient(ellipse 90% 90% at 50% ${48-sy*0.002}%,transparent 50%,rgba(4,5,12,${Math.min(0.82,0.65+sy*0.0001)}) 100%)`;
+},{passive:true});
+
+// ── Init renders ──────────────────────────────────────────────
+renderFeed(); renderCos(); renderRanks();
+
+// ═══════════════════════════════════════════════════════════════
+// TUNNEL BACKGROUND
+// Technique: polar coordinate projection of a procedural rock
+// texture onto a perspective cylinder. scroll → depth offset.
+// ═══════════════════════════════════════════════════════════════
+(function(){
+  const canvas = document.getElementById('tunnel');
+  const ctx = canvas.getContext('2d');
+
+  // Render at 1/4 resolution, bilinear upscaled via CSS
+  const SCALE = 4;
+
+  // ── Rock texture ──────────────────────────────────────────
+  const TW = 512, TH = 512; // power-of-2 for fast modulo via &
+  const TW1 = TW - 1, TH1 = TH - 1;
+  const texR = new Uint8Array(TW * TH);
+  const texG = new Uint8Array(TW * TH);
+  const texB = new Uint8Array(TW * TH);
+
+  // Value noise with smooth interpolation
+  function h(n){const v=Math.sin(n*127.1+311.7)*43758.5453;return v-(v|0);}
+  function vnoise(x,y){
+    const ix=x|0,iy=y|0,fx=x-ix,fy=y-iy;
+    const ux=fx*fx*(3-2*fx),uy=fy*fy*(3-2*fy);
+    return h(ix+iy*137)*(1-ux)*(1-uy)+h(ix+1+iy*137)*ux*(1-uy)
+          +h(ix+(iy+1)*137)*(1-ux)*uy+h(ix+1+(iy+1)*137)*ux*uy;
+  }
+  // fBm — fractal brownian motion
+  function fbm(x,y,oct){
+    let v=0,a=0.5,f=1;
+    for(let i=0;i<oct;i++){v+=vnoise(x*f,y*f)*a;a*=0.5;f*=2.03;}
+    return v; // ~0 to ~1
+  }
+
+  // Generate the rock texture once
+  (function genTex(){
+    for(let y=0;y<TH;y++){
+      for(let x=0;x<TW;x++){
+        const u=x/TW*5, v=y/TH*8; // stretch vertically for horizontal strata
+
+        // Base rocky mass — emphasize vertical freq for strata feel
+        const base = fbm(u, v, 6);
+
+        // Sediment strata bands (horizontal)
+        const strata = Math.sin(v*Math.PI*10 + fbm(u*1.5,v*0.5,3)*3.5) * 0.5 + 0.5;
+        const fineStrata = Math.sin(v*Math.PI*30 + fbm(u*3,v,2)*2) * 0.5 + 0.5;
+
+        // Fine surface roughness
+        const rough = vnoise(u*14,v*14)*0.5+vnoise(u*28,v*28)*0.25;
+
+        // Rare warm mineral vein (terracotta/amber)
+        const vein = Math.max(0, fbm(u*4+87,v*3+53,5) - 0.62) * 2.8;
+
+        // Rare cool quartz vein (blue-white)
+        const quartz = Math.max(0, fbm(u*6+200,v*5+180,4) - 0.68) * 3.5;
+
+        // Combine into a 0..1 brightness value
+        const lum = 0.08
+          + base       * 0.38
+          + strata     * 0.14
+          + fineStrata * 0.04
+          + rough      * 0.06;
+
+        // Color: cold blue-gray rock with veins
+        // Base palette: dark slate blue
+        const r = Math.min(255, (lum*195 + vein*100 + quartz*120) | 0);
+        const g = Math.min(255, (lum*175 + vein*35  + quartz*130) | 0);
+        const b = Math.min(255, (lum*230              + quartz*180) | 0);
+
+        const i = y*TW + x;
+        texR[i]=r; texG[i]=g; texB[i]=b;
+      }
+    }
+  })();
+
+  // ── Lookup tables ─────────────────────────────────────────
+  // Pre-compute angle and warped-dist per canvas pixel (rebuilt on resize)
+  let angleLUT, distLUT, RW, RH;
+
+  function buildLUT(){
+    RW = Math.ceil(window.innerWidth  / SCALE);
+    RH = Math.ceil(window.innerHeight / SCALE);
+    canvas.width  = RW;
+    canvas.height = RH;
+
+    const N = RW * RH;
+    angleLUT = new Float32Array(N);
+    distLUT  = new Float32Array(N);
+
+    // Centre point — slightly above mid for cave-ceiling feel
+    const cx = RW * 0.5;
+    const cy = RH * 0.46;
+    const TAU = Math.PI * 2;
+
+    for(let py=0;py<RH;py++){
+      for(let px=0;px<RW;px++){
+        const dx = px - cx, dy = py - cy;
+        const ang = Math.atan2(dy, dx);
+
+        // Warp tunnel cross-section to look naturally irregular
+        // Different face shapes per "rock face" cycle
+        const w = 1
+          + 0.22 * Math.sin(ang * 2.1 + 0.6)
+          + 0.10 * Math.sin(ang * 4.7 + 1.8)
+          + 0.05 * Math.sin(ang * 9.3 + 0.3);
+
+        const i = py * RW + px;
+        angleLUT[i] = ((ang / TAU) + 1) % 1;       // 0..1 horizontal tex coord
+        distLUT[i]  = Math.sqrt(dx*dx + dy*dy) / w; // warped radial distance
+      }
+    }
+  }
+
+  // ── Render one frame ──────────────────────────────────────
+  // scrollDepth: increases as user scrolls down
+  // drift: very slow time-based ambient movement
+  function renderTunnel(scrollDepth, drift){
+    const imgData = ctx.createImageData(RW, RH);
+    const d = imgData.data;
+    const N = RW * RH;
+
+    // Reference radius: ~half the smaller screen dimension at reduced res
+    const refR = Math.min(RW, RH) * 0.46;
+
+    for(let i=0, p=0; i<N; i++, p+=4){
+      const dist  = distLUT[i];
+      const angle = angleLUT[i];
+
+      // Perspective: small dist = far away = texture wraps many times (fisheye depth)
+      // Large dist = near wall = texture moves slowly
+      const perspD = refR / (dist < 0.8 ? 0.8 : dist);
+
+      // Texture V coordinate — scroll-driven depth + slow drift
+      const tv = ((perspD * 0.13 + scrollDepth + drift) % 1 + 1) % 1;
+      const tu = angle;
+
+      // Sample texture (nearest neighbour — bilinear upscale handles smoothing)
+      const tx = (tu * TW) & TW1;
+      const ty = (tv * TH) & TH1;
+      const ti = ty * TW + tx;
+
+      // Brightness: cave walls near you = brighter, deep tunnel = dark
+      // nd = normalised distance (0 = centre/far, 1+ = near wall)
+      const nd = dist / refR;
+      // Soft power curve: visible walls but dark center
+      const brt = nd < 0.015 ? 0 : Math.min(1, Math.pow(nd, 0.55)) * 0.92;
+
+      d[p]   = (texR[ti] * brt) | 0;
+      d[p+1] = (texG[ti] * brt) | 0;
+      d[p+2] = (texB[ti] * brt) | 0;
+      d[p+3] = 255;
+    }
+
+    ctx.putImageData(imgData, 0, 0);
+  }
+
+  // ── Animation loop ────────────────────────────────────────
+  let lastScrollY = -1, lastTs = 0, lastRenderedScroll = -1;
+
+  function frame(ts){
+    requestAnimationFrame(frame);
+    const sy = window.scrollY;
+    const timeDelta = ts - lastTs;
+    // Render on scroll change OR every ~140ms for ambient drift
+    if(sy !== lastScrollY || timeDelta > 140){
+      const scrollDepth = sy * 0.00030;       // scroll → forward motion
+      const drift       = ts  * 0.000028;     // very slow ambient crawl
+      renderTunnel(scrollDepth, drift);
+      lastScrollY = sy;
+      lastTs = ts;
+    }
+  }
+
+  buildLUT();
+  requestAnimationFrame(frame);
+
+  window.addEventListener('resize', ()=>{ buildLUT(); lastTs=0; }, {passive:true});
+})();
+</script>
+</body>
+</html>
