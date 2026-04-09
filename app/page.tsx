@@ -37,7 +37,7 @@ export default function Home() {
   }, [isConnected, user, loading, router]);
 
   return (
-    <div style={{ minHeight: '100vh', background: '#04050C', position: 'relative', overflow: 'hidden' }}>
+    <div style={{ minHeight: '100vh', background: 'transparent', position: 'relative', overflow: 'hidden' }}>
       <style>{`
         @keyframes pd  { 0%,100%{opacity:1} 50%{opacity:0.15} }
         @keyframes lfi { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
@@ -116,16 +116,17 @@ export default function Home() {
             borderLeft: '2px solid rgba(107,159,212,0.25)',
             background: 'rgba(107,159,212,0.025)',
             animationDelay: '0.34s',
+            textAlign: 'left',
           }}
         >
-          <div style={{ fontFamily: mono, fontSize: 13, fontWeight: 500, letterSpacing: '0.18em', color: 'rgba(107,159,212,0.60)', marginBottom: 8, textTransform: 'uppercase' }}>{'// BEFORE_YOU_DESCEND'}</div>
+          <div style={{ fontFamily: mono, fontSize: 11, fontWeight: 500, letterSpacing: '0.18em', color: 'rgba(107,159,212,0.60)', marginBottom: 8, textTransform: 'uppercase' }}>{'// BEFORE_YOU_DESCEND'}</div>
           {[
             'Your wallet address will be one-way hashed.',
             'The hash anchors your identity on-chain.',
             'The wallet behind it is never stored.',
             'What you write here cannot be taken back.',
           ].map((line, i) => (
-            <div key={i} style={{ fontFamily: mono, fontSize: 14, lineHeight: 1.8, color: 'rgba(190,208,238,0.65)', letterSpacing: '0.01em', fontWeight: 300 }}>{line}</div>
+            <div key={i} style={{ fontFamily: mono, fontSize: 11, lineHeight: 1.75, color: 'rgba(190,208,238,0.65)', letterSpacing: '0.01em', fontWeight: 300 }}>{line}</div>
           ))}
         </div>
 

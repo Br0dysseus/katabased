@@ -205,7 +205,7 @@ export default function TunnelBackground({ dimOpacity = 0.72 }: { dimOpacity?: n
   const grainSeed = Math.floor(Math.random() * 1000);
 
   return (
-    <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0 }}>
+    <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 1 }}>
       <canvas ref={canvasRef} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', imageRendering: 'auto' }} />
       <div style={{
         position: 'absolute', inset: 0, opacity: 0.028,
