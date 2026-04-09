@@ -221,7 +221,7 @@ function FeedPage({ feed, votes, vote, onCompose, selectedEntity, onClearEntity,
                 );
               })()}
             </div>
-            {i < displayFeed.length - 1 && <div style={{ height: 1, background: 'linear-gradient(90deg, rgba(107,159,212,0.1) 0%, rgba(107,159,212,0.03) 100%)', marginLeft: 14 }} />}
+            {i < displayFeed.length - 1 && <div style={{ height: 1, borderTop: '1px solid rgba(107,159,212,0.15)', marginLeft: 14 }} />}
           </div>
           );
         })}
@@ -240,8 +240,8 @@ function ExplorePage({ entities, search, setSearch, onSelectEntity }: { entities
         value={search}
         onChange={e => setSearch((e.target as HTMLInputElement).value)}
         placeholder="> search entities..."
-        style={{ width: '100%', padding: '7px 10px', borderRadius: 2, border: '1px solid rgba(107,159,212,0.1)', background: 'rgba(107,159,212,0.03)', color: 'rgba(190,208,238,0.65)', fontSize: 10, fontFamily: mono, outline: 'none', marginBottom: 14, transition: 'border-color 0.15s', letterSpacing: '0.04em' }}
-        onFocus={e => { (e.target as HTMLInputElement).style.borderColor = 'rgba(107,159,212,0.3)'; (e.target as HTMLInputElement).style.background = 'rgba(107,159,212,0.04)'; }}
+        style={{ width: '100%', padding: '7px 10px', borderRadius: 2, border: '1px solid rgba(107,159,212,0.1)', background: 'rgba(107,159,212,0.03)', color: 'rgba(190,208,238,0.65)', fontSize: 10, fontFamily: mono, outline: 'none', marginTop: 14, marginBottom: 14, transition: 'border-color 0.15s', letterSpacing: '0.04em' }}
+        onFocus={e => { (e.target as HTMLInputElement).style.borderColor = 'rgba(107,159,212,0.3)'; (e.target as HTMLInputElement).style.background = 'rgba(107,159,212,0.06)'; }}
         onBlur={e  => { (e.target as HTMLInputElement).style.borderColor = 'rgba(107,159,212,0.1)'; (e.target as HTMLInputElement).style.background = 'rgba(107,159,212,0.03)'; }}
       />
       <div>
@@ -296,7 +296,7 @@ function RanksPage({ leaders, username }: { leaders: LeaderRow[]; username: stri
           const me = e.user === username;
           return (
             <div key={e.rank} className="fi" style={{ animationDelay: `${40 + i * 60}ms` }}>
-              <div style={{ display: 'flex', alignItems: 'center', padding: '9px 0', paddingLeft: me ? 8 : 0, background: me ? 'rgba(107,159,212,0.03)' : 'transparent', borderLeft: me ? '2px solid rgba(107,159,212,0.25)' : '2px solid transparent' }}>
+              <div style={{ display: 'flex', alignItems: 'center', padding: '9px 0', paddingLeft: me ? 8 : 0, background: me ? 'rgba(107,159,212,0.06)' : 'transparent', borderLeft: me ? '3px solid rgba(107,159,212,0.5)' : '2px solid transparent', boxShadow: me ? 'inset 0 0 8px rgba(107,159,212,0.08)' : 'none' }}>
                 <span style={{ fontFamily: mono, width: 22, fontSize: 10, fontWeight: 600, letterSpacing: '0.04em', color: e.rank <= 3 ? 'rgba(218,228,248,0.7)' : 'rgba(190,208,238,0.18)' }}>
                   {String(e.rank).padStart(2, '0')}
                 </span>
@@ -730,7 +730,7 @@ function OpsecPage() {
       </div>
 
       {/* Quick path */}
-      <div style={{ marginBottom: 24, padding: '12px 14px', border: '1px solid rgba(107,159,212,0.12)', borderRadius: 2, background: 'rgba(107,159,212,0.03)' }}>
+      <div style={{ marginBottom: 24, padding: '12px 14px', border: '1px solid rgba(107,159,212,0.18)', borderRadius: 2, background: 'rgba(107,159,212,0.04)' }}>
         <div style={{ fontFamily: mono, fontSize: 8, fontWeight: 600, letterSpacing: '0.16em', color: 'rgba(107,159,212,0.45)', marginBottom: 10 }}>{'// QUICK_PATH'}</div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
           {[
@@ -783,7 +783,7 @@ function OpsecPage() {
 
       {/* Tier cards */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-        {TIERS.map((t) => (
+        {TIERS.map((t, ti) => (
           <button
             key={t.id}
             onClick={() => setActiveTier(t.id)}
@@ -832,6 +832,9 @@ function OpsecPage() {
               )}
               <div style={{ fontFamily: mono, fontSize: 7, fontWeight: 600, letterSpacing: '0.14em', color: t.col, border: `1px solid ${t.col}55`, padding: '1px 5px', borderRadius: 1, opacity: 0.85 }}>
                 {t.threat}
+              </div>
+              <div style={{ fontFamily: mono, fontSize: 7, color: 'rgba(107,159,212,0.22)', letterSpacing: '0.08em' }}>
+                {(ti * 12 + 8)}m
               </div>
               <div style={{ fontFamily: mono, fontSize: 8, color: 'rgba(190,208,238,0.18)', letterSpacing: '0.06em' }}>
                 {t.steps.length} steps · {t.time}
@@ -1046,9 +1049,9 @@ export default function DashboardPage() {
                 onClick={() => switchPage(t)}
                 style={{
                   padding: '4px 11px', fontFamily: mono, fontSize: 9, fontWeight: 400,
-                  border: `1px solid ${page === t ? 'rgba(107,159,212,0.22)' : 'transparent'}`,
+                  border: `1px solid ${page === t ? 'rgba(107,159,212,0.35)' : 'transparent'}`,
                   borderRadius: 2, cursor: 'pointer', transition: 'all 0.18s',
-                  background: page === t ? 'rgba(107,159,212,0.08)' : 'transparent',
+                  background: page === t ? 'rgba(107,159,212,0.12)' : 'transparent',
                   color: page === t ? 'rgba(218,228,248,0.88)' : 'rgba(190,208,238,0.28)',
                   letterSpacing: '0.06em',
                 }}
@@ -1147,26 +1150,29 @@ export default function DashboardPage() {
               {page === 'about'   && (
                 <div className="fi" style={{ animationDelay: '0.06s' }}>
                   <SecHead label="ABOUT" />
-                  <div style={{ fontFamily: mono, fontSize: 11, lineHeight: 1.85, color: 'rgba(190,208,238,0.58)', fontWeight: 300, letterSpacing: '0.015em', marginBottom: 28 }}>
+                  <div style={{ fontFamily: mono, fontSize: 11, lineHeight: 1.72, color: 'rgba(190,208,238,0.58)', fontWeight: 300, letterSpacing: '0.025em', marginBottom: 28 }}>
                     <p style={{ marginBottom: 14 }}>κατάβασις — the descent. Anonymous intelligence from inside organizations. Corporations, government agencies, state departments, regulators, contractors — any entity that shapes the world but controls what&apos;s known about its interior. The surface is managed. The depths are not.</p>
                     <p style={{ marginBottom: 14 }}>Connect a wallet. Sign a message to prove ownership. Your public address is one-way hashed into an anonymous ID — the hash is on-chain, the wallet behind it is not. The entity you work for sees a pseudonym. We see the same.</p>
                     <p>This is a space for employees, contractors, whistleblowers, and insiders who want the truth known — about where they work, what they&apos;ve seen, and what the public deserves to hear. Nothing more.</p>
                   </div>
 
+                  <div style={{ height: 1, background: 'repeating-linear-gradient(90deg,rgba(107,159,212,0.1) 0,rgba(107,159,212,0.1) 3px,transparent 3px,transparent 6px,rgba(107,159,212,0.1) 6px,rgba(107,159,212,0.1) 9px,transparent 9px,transparent 12px,rgba(107,159,212,0.06) 12px,rgba(107,159,212,0.06) 15px,transparent 15px,transparent 18px)', marginBottom: 28 }} />
                   <SecHead label="INFORMATION_ASYMMETRY" mb={14} />
-                  <div style={{ fontFamily: mono, fontSize: 11, lineHeight: 1.85, color: 'rgba(190,208,238,0.58)', fontWeight: 300, letterSpacing: '0.015em', marginBottom: 28 }}>
+                  <div style={{ fontFamily: mono, fontSize: 11, lineHeight: 1.72, color: 'rgba(190,208,238,0.58)', fontWeight: 300, letterSpacing: '0.025em', marginBottom: 28 }}>
                     <p style={{ marginBottom: 14 }}>Every organization produces two versions of itself. The public version — press releases, job postings, investor decks, PR. And the real version — what employees know, what contractors have seen, what the org chart doesn&apos;t show.</p>
                     <p style={{ marginBottom: 14 }}>That gap is information asymmetry. It advantages the institution over the individual, the employer over the candidate, the regulated over the regulator. kataBased exists to close it.</p>
                     <p style={{ color: 'rgba(107,159,212,0.5)', fontSize: 10, letterSpacing: '0.04em' }}>{'// anonymous · verified · permanent · on-chain'}</p>
                   </div>
 
+                  <div style={{ height: 1, background: 'repeating-linear-gradient(90deg,rgba(107,159,212,0.1) 0,rgba(107,159,212,0.1) 3px,transparent 3px,transparent 6px,rgba(107,159,212,0.1) 6px,rgba(107,159,212,0.1) 9px,transparent 9px,transparent 12px,rgba(107,159,212,0.06) 12px,rgba(107,159,212,0.06) 15px,transparent 15px,transparent 18px)', marginBottom: 28 }} />
                   <SecHead label="DATA_API" mb={14} />
-                  <div style={{ fontFamily: mono, fontSize: 11, lineHeight: 1.85, color: 'rgba(190,208,238,0.58)', fontWeight: 300, letterSpacing: '0.015em', marginBottom: 28 }}>
+                  <div style={{ fontFamily: mono, fontSize: 11, lineHeight: 1.72, color: 'rgba(190,208,238,0.58)', fontWeight: 300, letterSpacing: '0.025em', marginBottom: 28 }}>
                     <p style={{ marginBottom: 14 }}>Aggregated company sentiment data — post volume, rolling sentiment scores, trending signals — is available via API for research, due diligence, and automated consumption.</p>
                     <p style={{ marginBottom: 14 }}>Access is tiered: delayed public data is free. Real-time feeds, webhooks, and raw historical data require a paid subscription key.</p>
                     <p style={{ color: 'rgba(107,159,212,0.5)', fontSize: 10, letterSpacing: '0.04em' }}>{'// API access: contact via on-chain message to the kataBased treasury address. Details forthcoming at launch.'}</p>
                   </div>
 
+                  <div style={{ height: 1, background: 'repeating-linear-gradient(90deg,rgba(107,159,212,0.1) 0,rgba(107,159,212,0.1) 3px,transparent 3px,transparent 6px,rgba(107,159,212,0.1) 6px,rgba(107,159,212,0.1) 9px,transparent 9px,transparent 12px,rgba(107,159,212,0.06) 12px,rgba(107,159,212,0.06) 15px,transparent 15px,transparent 18px)', marginBottom: 28 }} />
                   <SecHead label="PREDICTION_MARKETS" mb={14} />
                   <div style={{ fontFamily: mono, fontSize: 11, lineHeight: 1.85, color: 'rgba(190,208,238,0.58)', fontWeight: 300, letterSpacing: '0.015em' }}>
                     <p style={{ marginBottom: 14 }}>The long-term vision: every post on kataBased is a signal. Signals should be priceable. Posts about an entity&apos;s internal health, leadership, or policy direction are leading indicators — the kind of information that moves before markets, elections, or investigations do.</p>
@@ -1230,12 +1236,12 @@ export default function DashboardPage() {
                 <div
                   key={l.label}
                   onClick={() => switchPage(l.pg)}
-                  style={{ background: 'rgba(4,5,12,0.45)', border: '1px solid rgba(107,159,212,0.08)', borderRadius: 2, padding: '10px 12px', cursor: 'pointer', backdropFilter: 'blur(4px)', transition: 'all 0.18s' }}
+                  style={{ background: 'rgba(4,5,12,0.45)', border: '1px solid rgba(107,159,212,0.18)', borderRadius: 2, padding: '10px 12px', cursor: 'pointer', backdropFilter: 'blur(4px)', transition: 'all 0.18s' }}
                   onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(107,159,212,0.06)'; el.style.borderColor = 'rgba(107,159,212,0.2)'; el.style.transform = 'translateY(-1px)'; }}
                   onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(4,5,12,0.45)'; el.style.borderColor = 'rgba(107,159,212,0.08)'; el.style.transform = 'none'; }}
                 >
-                  <div style={{ fontFamily: mono, fontSize: 9, fontWeight: 500, color: 'rgba(218,228,248,0.55)', marginBottom: 2, letterSpacing: '0.06em' }}>{l.label}</div>
-                  <div style={{ fontFamily: mono, fontSize: 8, color: 'rgba(190,208,238,0.2)', letterSpacing: '0.04em' }}>{l.desc}</div>
+                  <div style={{ fontFamily: mono, fontSize: 9, fontWeight: 500, color: 'rgba(107,159,212,0.7)', marginBottom: 2, letterSpacing: '0.06em' }}>{l.label}</div>
+                  <div style={{ fontFamily: mono, fontSize: 8, color: 'rgba(190,208,238,0.32)', letterSpacing: '0.04em' }}>{l.desc}</div>
                 </div>
               ))}
             </div>
