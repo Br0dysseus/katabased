@@ -120,7 +120,7 @@ export default function Home() {
             <div key={l} style={{ textAlign: 'center' }}>
               <div style={{ fontFamily: mono, fontSize: 20, fontWeight: 600, color: 'rgba(218,228,248,0.3)', lineHeight: 1, letterSpacing: '-0.02em' }}>{v}</div>
               <div style={{ fontFamily: mono, fontSize: 7, color: 'rgba(107,159,212,0.18)', letterSpacing: '0.16em', marginTop: 5 }}>{l}</div>
-              <div style={{ fontFamily: mono, fontSize: 6, color: 'rgba(107,159,212,0.15)', letterSpacing: '0.1em', marginTop: 2 }}>// ESTIMATED</div>
+              <div style={{ fontFamily: mono, fontSize: 6, color: 'rgba(107,159,212,0.15)', letterSpacing: '0.1em', marginTop: 2 }}>{'// ESTIMATED'}</div>
             </div>
           ))}
         </div>
