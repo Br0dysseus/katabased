@@ -8,6 +8,7 @@ import { User } from '@/lib/supabase';
 
 type UserContextType = {
   user: User | null;
+  sessionToken: string | null;
   loading: boolean;
   signingIn: boolean;
   authError: string | null;
@@ -17,6 +18,7 @@ type UserContextType = {
 
 const UserContext = createContext<UserContextType>({
   user: null,
+  sessionToken: null,
   loading: true,
   signingIn: false,
   authError: null,
@@ -28,10 +30,11 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const { address, isConnected } = useAccount();
   const { signMessageAsync } = useSignMessage();
 
-  const [user,      setUser]      = useState<User | null>(null);
-  const [loading,   setLoading]   = useState(true);
-  const [signingIn, setSigningIn] = useState(false);
-  const [authError, setAuthError] = useState<string | null>(null);
+  const [user,         setUser]         = useState<User | null>(null);
+  const [sessionToken, setSessionToken] = useState<string | null>(null);
+  const [loading,      setLoading]      = useState(true);
+  const [signingIn,    setSigningIn]    = useState(false);
+  const [authError,    setAuthError]    = useState<string | null>(null);
 
   // Track which address we've already authenticated this session
   // so we don't re-prompt on every re-render.
@@ -46,7 +49,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
     }
 
     // Already authenticated this address this session — user is in state, nothing to do
-    if (authedAddress.current === address.toLowerCase() && user) {
+    if (authedAddress.current === address.toLowerCase() && user && sessionToken) {
       setLoading(false);
       return;
     }
@@ -60,12 +63,14 @@ export function UserProvider({ children }: { children: ReactNode }) {
       const message = buildSignMessage(address);
       const signature = await signMessageAsync({ message });
 
-      const userData = await getOrCreateUser(address, signature);
+      const { user: userData, sessionToken: token } = await getOrCreateUser(address, signature);
       setUser(userData);
+      setSessionToken(token);
       authedAddress.current = address.toLowerCase();
     } catch (error) {
       console.error('Sign-in failed:', error);
       setUser(null);
+      setSessionToken(null);
       authedAddress.current = null;
       const msg = error instanceof Error ? error.message : String(error);
       setAuthError(msg);
@@ -76,8 +81,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
   }
 
   async function changeUsername(newUsername: string) {
-    if (!user) throw new Error('No user logged in');
-    const updatedUser = await updateUsername(user.id, newUsername);
+    if (!sessionToken) throw new Error('No active session — reconnect wallet');
+    const updatedUser = await updateUsername(sessionToken, newUsername);
     setUser(updatedUser);
   }
 
@@ -87,7 +92,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
   }, [address, isConnected]);
 
   return (
-    <UserContext.Provider value={{ user, loading, signingIn, authError, refetchUser: loadUser, changeUsername }}>
+    <UserContext.Provider value={{ user, sessionToken, loading, signingIn, authError, refetchUser: loadUser, changeUsername }}>
       {children}
     </UserContext.Provider>
   );

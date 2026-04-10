@@ -180,6 +180,61 @@ export default function Home() {
 
       </div>
 
+      {/* Scroll nav links */}
+      <div style={{ position: 'relative', zIndex: 10, display: 'flex', justifyContent: 'center', gap: 32, paddingBottom: 32 }}>
+        {[{ label: '// ABOUT', href: '#about' }, { label: '// OPSEC', href: '#opsec' }].map(l => (
+          <a
+            key={l.href}
+            href={l.href}
+            style={{ fontFamily: mono, fontSize: 13, letterSpacing: '0.18em', color: 'rgba(107,159,212,0.35)', textDecoration: 'none', transition: 'color 0.15s' }}
+            onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.color = 'rgba(107,159,212,0.7)'; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.color = 'rgba(107,159,212,0.35)'; }}
+          >{l.label}</a>
+        ))}
+      </div>
+
+      {/* ── ABOUT ──────────────────────────────────────────────────────────── */}
+      <div id="about" style={{ position: 'relative', zIndex: 10, maxWidth: 620, margin: '0 auto', padding: '48px 32px 64px' }}>
+        <div style={{ height: 1, background: 'rgba(107,159,212,0.08)', marginBottom: 32 }} />
+        <div style={{ fontFamily: mono, fontSize: 12, fontWeight: 600, letterSpacing: '0.22em', color: 'rgba(107,159,212,0.35)', marginBottom: 20 }}>{'// ABOUT'}</div>
+        <div style={{ fontFamily: "'Cormorant Garamond',serif", fontStyle: 'italic', fontSize: 22, color: 'rgba(218,228,248,0.55)', letterSpacing: '0.04em', marginBottom: 20, lineHeight: 1.3 }}>
+          κατάβασις — the descent.
+        </div>
+        <div style={{ fontFamily: mono, fontSize: 13, lineHeight: 1.9, color: 'rgba(190,208,238,0.38)', letterSpacing: '0.01em', fontWeight: 300, marginBottom: 16 }}>
+          Anonymous intelligence from inside organizations. Corporations, government agencies, state departments, regulators, contractors — any entity that shapes the world but controls what is known about its interior. The surface is managed. The depths are not.
+        </div>
+        <div style={{ fontFamily: mono, fontSize: 13, lineHeight: 1.9, color: 'rgba(190,208,238,0.28)', letterSpacing: '0.01em', fontWeight: 300 }}>
+          A space for employees, contractors, whistleblowers, and insiders who want the truth known — about where they work, what they have seen, and what the public deserves to hear. Wallet-anchored identity. No email. No account. Nothing stored.
+        </div>
+      </div>
+
+      {/* ── OPSEC ──────────────────────────────────────────────────────────── */}
+      <div id="opsec" style={{ position: 'relative', zIndex: 10, maxWidth: 620, margin: '0 auto', padding: '0 32px 80px' }}>
+        <div style={{ height: 1, background: 'rgba(107,159,212,0.08)', marginBottom: 32 }} />
+        <div style={{ fontFamily: mono, fontSize: 12, fontWeight: 600, letterSpacing: '0.22em', color: 'rgba(107,159,212,0.35)', marginBottom: 20 }}>{'// OPSEC'}</div>
+        <div style={{ fontFamily: mono, fontSize: 13, lineHeight: 1.9, color: 'rgba(190,208,238,0.32)', letterSpacing: '0.01em', fontWeight: 300, marginBottom: 24 }}>
+          Anonymity is only as strong as its weakest step. The full guide is inside the app. Quick orientation:
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 24 }}>
+          {[
+            { tier: 'T0', label: 'MINDSET', desc: 'Compartmentalize. Never link your real identity to this wallet.' },
+            { tier: 'T1', label: 'NETWORK', desc: 'VPN or Tor. Mullvad accepts Monero. No-log policy.' },
+            { tier: 'T2', label: 'WALLET', desc: 'Dedicated wallet. Never fund from a KYC exchange directly.' },
+            { tier: 'T3', label: 'ON-CHAIN', desc: 'Break the fund trail with RAILGUN or XMR bridge before depositing.' },
+            { tier: 'T4', label: 'DEVICE', desc: 'Tails OS for maximum exposure. GrapheneOS for mobile.' },
+          ].map(r => (
+            <div key={r.tier} style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
+              <span style={{ fontFamily: mono, fontSize: 13, fontWeight: 600, letterSpacing: '0.14em', color: 'rgba(107,159,212,0.4)', flexShrink: 0, width: 24 }}>{r.tier}</span>
+              <span style={{ fontFamily: mono, fontSize: 13, fontWeight: 600, letterSpacing: '0.12em', color: 'rgba(190,208,238,0.35)', flexShrink: 0, width: 76 }}>{r.label}</span>
+              <span style={{ fontFamily: mono, fontSize: 13, lineHeight: 1.65, color: 'rgba(190,208,238,0.22)', letterSpacing: '0.01em', fontWeight: 300 }}>{r.desc}</span>
+            </div>
+          ))}
+        </div>
+        <div style={{ fontFamily: mono, fontSize: 12, color: 'rgba(107,159,212,0.25)', letterSpacing: '0.12em' }}>
+          {'// full guide → sign in → privacy tab'}
+        </div>
+      </div>
+
       {/* Fixed corner metadata */}
       <div style={{ position: 'fixed', bottom: 14, left: 16, zIndex: 50, fontFamily: mono, fontSize: 14, color: 'rgba(107,159,212,0.22)', letterSpacing: '0.1em' }}>
         βάθος: {Math.floor(scrollY * 0.4)}m

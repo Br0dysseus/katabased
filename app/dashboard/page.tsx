@@ -6,7 +6,8 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAccount, useDisconnect } from 'wagmi';
 import { useUser } from '@/lib/UserContext';
-import { getPosts, createPost, getEntities, getLeaderboard, getUserStats } from '@/lib/posts';
+import { getPosts, getEntities, getLeaderboard, getUserStats } from '@/lib/posts';
+import { createPost } from '@/lib/actions';
 import type { FeedPost, EntityRow, LeaderRow } from '@/lib/posts';
 
 // ─── Design tokens ────────────────────────────────────────────────────────────
@@ -324,7 +325,7 @@ function RanksPage({ leaders, username }: { leaders: LeaderRow[]; username: stri
 }
 
 // ─── Composer modal ───────────────────────────────────────────────────────────
-function ComposerModal({ userId, onPostCreated, onClose }: { userId: string; onPostCreated: (p: FeedPost) => void; onClose: () => void }) {
+function ComposerModal({ sessionToken, onPostCreated, onClose }: { sessionToken: string; onPostCreated: (p: FeedPost) => void; onClose: () => void }) {
   const [company,    setCompany]    = useState('');
   const [title,      setTitle]      = useState('');
   const [body,       setBody]       = useState('');
@@ -335,11 +336,11 @@ function ComposerModal({ userId, onPostCreated, onClose }: { userId: string; onP
   const TITLE_MAX = 120;
 
   const submit = async () => {
-    if (!userId) { setError('identity not established — reconnect wallet'); return; }
+    if (!sessionToken) { setError('identity not established — reconnect wallet'); return; }
     if (!title.trim() || !body.trim()) { setError('HEADER* and TRANSMISSION* are required'); return; }
     setSubmitting(true); setError('');
     try {
-      const post = await createPost(userId, title, body, company);
+      const post = await createPost(sessionToken, title, body, company);
       onPostCreated(post);
       onClose();
     } catch (e) {
@@ -736,8 +737,8 @@ function OpsecPage() {
             { label: 'CURRENT_EMPLOYER', path: 'T0 + T1 + T2 + T3', desc: 'Reviewing active employer — on-chain trail must be broken' },
             { label: 'HOSTILE_ADVERSARY', path: 'T0 → T4 full stack', desc: 'Retaliation risk, legal exposure, or high-profile target' },
           ].map(r => (
-            <div key={r.label} style={{ display: 'flex', gap: 10, alignItems: 'baseline' }}>
-              <span style={{ fontFamily: mono, fontSize: 13, fontWeight: 600, letterSpacing: '0.12em', color: 'rgba(107,159,212,0.4)', flexShrink: 0, width: 130 }}>{r.label}</span>
+            <div key={r.label} style={{ display: 'flex', gap: 10, alignItems: 'baseline', flexWrap: 'wrap' }}>
+              <span style={{ fontFamily: mono, fontSize: 13, fontWeight: 600, letterSpacing: '0.12em', color: 'rgba(107,159,212,0.4)', flexShrink: 0, minWidth: 182, overflow: 'hidden' }}>{r.label}</span>
               <span style={{ fontFamily: mono, fontSize: 14, color: 'rgba(107,159,212,0.7)', letterSpacing: '0.06em', flexShrink: 0 }}>{r.path}</span>
               <span style={{ fontFamily: mono, fontSize: 14, color: 'rgba(190,208,238,0.2)', letterSpacing: '0.01em' }}>— {r.desc}</span>
             </div>
@@ -858,11 +859,11 @@ function OpsecPage() {
             { tier: 'T4', name: 'Tails OS',          desc: 'Amnesic live OS. All traffic over Tor. Zero forensic trace.',     cat: 'OS'       },
             { tier: 'T4', name: 'GrapheneOS',        desc: 'Hardened Android. Only viable mobile option.',                    cat: 'OS'       },
           ].map(tool => (
-            <div key={tool.name} style={{ display: 'flex', gap: 10, alignItems: 'baseline' }}>
-              <span style={{ fontFamily: mono, fontSize: 13, letterSpacing: '0.1em', color: 'rgba(190,208,238,0.18)', flexShrink: 0, width: 22 }}>{tool.tier}</span>
-              <span style={{ fontFamily: mono, fontSize: 13, fontWeight: 600, letterSpacing: '0.1em', color: 'rgba(190,208,238,0.25)', flexShrink: 0, width: 46, textAlign: 'right' }}>[{tool.cat}]</span>
-              <span style={{ fontFamily: mono, fontSize: 13, fontWeight: 500, color: 'rgba(190,208,238,0.55)', letterSpacing: '0.04em', flexShrink: 0, width: 130 }}>{tool.name}</span>
-              <span style={{ fontFamily: mono, fontSize: 14, color: 'rgba(190,208,238,0.2)', letterSpacing: '0.01em', lineHeight: 1.5 }}>{tool.desc}</span>
+            <div key={tool.name} style={{ display: 'flex', gap: 10, alignItems: 'baseline', flexWrap: 'wrap' }}>
+              <span style={{ fontFamily: mono, fontSize: 13, letterSpacing: '0.1em', color: 'rgba(190,208,238,0.18)', flexShrink: 0, width: 24 }}>{tool.tier}</span>
+              <span style={{ fontFamily: mono, fontSize: 13, fontWeight: 600, letterSpacing: '0.1em', color: 'rgba(190,208,238,0.25)', flexShrink: 0, minWidth: 90 }}>[{tool.cat}]</span>
+              <span style={{ fontFamily: mono, fontSize: 13, fontWeight: 500, color: 'rgba(190,208,238,0.55)', letterSpacing: '0.04em', flexShrink: 0, minWidth: 140 }}>{tool.name}</span>
+              <span style={{ fontFamily: mono, fontSize: 14, color: 'rgba(190,208,238,0.2)', letterSpacing: '0.01em', lineHeight: 1.5, flex: 1, minWidth: 0 }}>{tool.desc}</span>
             </div>
           ))}
         </div>
@@ -906,7 +907,7 @@ export default function DashboardPage() {
   const router = useRouter();
   const { address, status: wagmiStatus } = useAccount();
   const { disconnect } = useDisconnect();
-  const { user: ctxUser, changeUsername, signingIn } = useUser();
+  const { user: ctxUser, sessionToken, changeUsername, signingIn } = useUser();
 
   const walletDisplay = address ? `${address.slice(0, 6)}...${address.slice(-4)}` : '0x????...????';
   const username = ctxUser?.username || 'anon_00000000';
@@ -1294,7 +1295,7 @@ export default function DashboardPage() {
 
       {showComposer && (
         <ComposerModal
-          userId={ctxUser?.id ?? ''}
+          sessionToken={sessionToken ?? ''}
           onPostCreated={(p) => setFeed(prev => [p, ...prev])}
           onClose={() => setShowComposer(false)}
         />

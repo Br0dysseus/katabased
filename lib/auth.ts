@@ -4,6 +4,7 @@ import { createHmac, randomBytes } from 'crypto';
 import { createClient } from '@supabase/supabase-js';
 import { verifyMessage } from 'viem';
 import { buildSignMessage } from '@/lib/siwe';
+import { signSession, verifySession as _verifySession } from '@/lib/session';
 
 // ─── Server-only Supabase client ───────────────────────────────────────────────
 function serverSupabase() {
@@ -47,7 +48,7 @@ function generateUsername(): string {
 }
 
 // ─── Auth actions ──────────────────────────────────────────────────────────────
-export async function getOrCreateUser(walletAddress: string, signature: string) {
+export async function getOrCreateUser(walletAddress: string, signature: string): Promise<{ user: ReturnType<typeof Object.assign>; sessionToken: string }> {
   await verifyWalletSignature(walletAddress, signature);
 
   const supabase = serverSupabase();
@@ -60,19 +61,25 @@ export async function getOrCreateUser(walletAddress: string, signature: string) 
     .maybeSingle();
 
   if (fetchError) throw fetchError;
-  if (existing) return existing;
 
-  const { data: newUser, error: insertError } = await supabase
-    .from('users')
-    .insert([{ wallet_hash: walletHash, username: generateUsername() }])
-    .select()
-    .single();
+  const user = existing ?? await (async () => {
+    const { data: newUser, error: insertError } = await supabase
+      .from('users')
+      .insert([{ wallet_hash: walletHash, username: generateUsername() }])
+      .select()
+      .single();
+    if (insertError) throw insertError;
+    return newUser;
+  })();
 
-  if (insertError) throw insertError;
-  return newUser;
+  const exp = Date.now() + 24 * 60 * 60 * 1000; // 24h
+  const sessionToken = signSession(user.id, exp);
+  return { user, sessionToken };
 }
 
-export async function updateUsername(userId: string, newUsername: string) {
+export async function updateUsername(sessionToken: string, newUsername: string) {
+  const userId = _verifySession(sessionToken);
+
   const trimmed = newUsername.trim();
   if (!trimmed || trimmed.length < 3 || trimmed.length > 24) {
     throw new Error('Username must be 3–24 characters');
