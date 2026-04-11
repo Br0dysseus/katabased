@@ -8,10 +8,10 @@ import { signSession, verifySession as _verifySession } from '@/lib/session';
 
 // ─── Server-only Supabase client ───────────────────────────────────────────────
 function serverSupabase() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://shhodgzbgwzbatqgncab.supabase.co';
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!key) throw new Error('SUPABASE_SERVICE_ROLE_KEY is not set');
+  return createClient(url, key);
 }
 
 // ─── Wallet ownership proof ────────────────────────────────────────────────────

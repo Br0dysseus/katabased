@@ -5,10 +5,10 @@ import { verifySession } from '@/lib/session';
 import type { FeedPost } from '@/lib/posts';
 
 function serverSupabase() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://shhodgzbgwzbatqgncab.supabase.co';
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!key) throw new Error('SUPABASE_SERVICE_ROLE_KEY is not set');
+  return createClient(url, key);
 }
 
 // biome-ignore lint: supabase returns untyped rows
