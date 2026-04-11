@@ -929,9 +929,9 @@ export default function DashboardPage() {
   const [contentKey,      setContentKey]     = useState(0);
   const [showComposer,    setShowComposer]   = useState(false);
   const [selectedEntity,  setSelectedEntity]  = useState<string | null>(null);
-  const [feed,            setFeed]           = useState<FeedPost[]>(FEED);
-  const [entities,        setEntities]       = useState<EntityRow[]>(COS);
-  const [leaders,         setLeaders]        = useState<LeaderRow[]>(LEADERS);
+  const [feed,            setFeed]           = useState<FeedPost[]>([]);
+  const [entities,        setEntities]       = useState<EntityRow[]>([]);
+  const [leaders,         setLeaders]        = useState<LeaderRow[]>([]);
   const [postCount,       setPostCount]      = useState(0);
   const [feedError,       setFeedError]      = useState(false);
   const [feedLoading,     setFeedLoading]    = useState(false);
