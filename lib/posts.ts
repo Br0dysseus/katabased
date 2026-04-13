@@ -1,7 +1,7 @@
 import { supabase } from './supabase';
 
 export type FeedPost = {
-  id: string | number;
+  id: string;
   author: string;
   entity: string;
   title: string;
@@ -40,7 +40,7 @@ export function timeAgo(iso: string): string {
 // biome-ignore lint: supabase returns untyped rows
 function normalizePost(p: Record<string, unknown> & { users?: { username?: string } }): FeedPost {
   return {
-    id: p.id as string,
+    id: String(p.id),
     author: p.users?.username ?? 'anon_unknown',
     entity: (p.company_name as string) ?? '—',
     title: p.title as string,
@@ -68,7 +68,7 @@ export async function getPosts(entity?: string): Promise<FeedPost[]> {
   return (data ?? []).map(normalizePost);
 }
 
-export async function createPost(
+async function createPost(
   userId: string,
   title: string,
   content: string,
@@ -125,7 +125,8 @@ export async function getEntities(): Promise<EntityRow[]> {
   const { data, error } = await supabase
     .from('posts')
     .select('company_name, confirms, disputes')
-    .not('company_name', 'is', null);
+    .not('company_name', 'is', null)
+    .limit(1000); // guard against unbounded scan; revisit with server-side aggregation at scale
 
   if (error || !data || data.length === 0) return [];
 
@@ -156,7 +157,8 @@ export async function getLeaderboard(): Promise<LeaderRow[]> {
   const { data, error } = await supabase
     .from('posts')
     .select('user_id, confirms, disputes, users(username)')
-    .not('user_id', 'is', null);
+    .not('user_id', 'is', null)
+    .limit(1000); // guard against unbounded scan; revisit with server-side aggregation at scale
 
   if (error || !data || data.length === 0) return [];
 

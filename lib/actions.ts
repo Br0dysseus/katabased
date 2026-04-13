@@ -2,6 +2,7 @@
 
 import { createClient } from '@supabase/supabase-js';
 import { verifySession } from '@/lib/session';
+import { timeAgo } from '@/lib/posts';
 import type { FeedPost } from '@/lib/posts';
 
 function serverSupabase() {
@@ -11,21 +12,17 @@ function serverSupabase() {
   return createClient(url, key);
 }
 
+// ─── Input sanitization ────────────────────────────────────────────────────────
+// Strip HTML tags and trim whitespace. Prevents stored-XSS if content ever
+// renders in a non-React context (emails, mobile apps, third-party integrations).
+function sanitizeContent(s: string): string {
+  return s.replace(/<[^>]*>/g, '').trim();
+}
+
 // biome-ignore lint: supabase returns untyped rows
 function normalizePost(p: Record<string, unknown> & { users?: { username?: string } }): FeedPost {
-  const timeAgo = (iso: string) => {
-    const diff = Date.now() - new Date(iso).getTime();
-    const m = Math.floor(diff / 60000);
-    if (m < 1) return 'now';
-    if (m < 60) return `${m}m`;
-    const h = Math.floor(m / 60);
-    if (h < 24) return `${h}h`;
-    const d = Math.floor(h / 24);
-    if (d < 30) return `${d}d`;
-    return `${Math.floor(d / 30)}mo`;
-  };
   return {
-    id: p.id as string,
+    id: String(p.id),
     author: p.users?.username ?? 'anon_unknown',
     entity: (p.company_name as string) ?? '—',
     title: p.title as string,
@@ -45,13 +42,13 @@ export async function createPost(
 ): Promise<FeedPost> {
   const userId = verifySession(sessionToken);
 
-  const trimmedTitle = title.trim();
-  const trimmedContent = content.trim();
-  const trimmedEntity = entityName.trim();
+  const trimmedTitle = sanitizeContent(title);
+  const trimmedContent = sanitizeContent(content);
+  const trimmedEntity = sanitizeContent(entityName);
 
   if (!trimmedTitle || trimmedTitle.length > 120) throw new Error('Title must be 1–120 characters');
   if (!trimmedContent || trimmedContent.length > 2000) throw new Error('Content must be 1–2000 characters');
-  if (trimmedEntity.length > 50) throw new Error('Entity name must be ≤ 50 characters');
+  if (trimmedEntity.length > 100) throw new Error('Entity name must be ≤ 100 characters');
 
   const supabase = serverSupabase();
 

@@ -15,6 +15,29 @@ const blue  = '#6B9FD4';
 const terra = '#D4845A';
 const green = 'rgba(107,212,159,1)';
 
+// ─── Error sanitization [L2] ──────────────────────────────────────────────────
+// Map known server error messages to safe user-facing strings.
+// Raw Supabase / internal errors must NOT reach the UI (information disclosure).
+const USER_ERRORS: Record<string, string> = {
+  'invalid_signature': 'Wallet verification failed. Please try again.',
+  'Signature verification failed — sign the message with your wallet': 'Wallet verification failed. Please try again.',
+  'duplicate_post': 'Post already exists.',
+  'rate_limited': 'Too many requests. Please wait.',
+  'Rate limit: max 5 transmissions per hour': 'Too many posts. Please wait before sending another.',
+  'Username already taken': 'That username is already taken.',
+  'Session expired — reconnect wallet': 'Session expired. Please reconnect your wallet.',
+  'Invalid session': 'Session invalid. Please reconnect your wallet.',
+  'Title must be 1–120 characters': 'Title must be 1–120 characters.',
+  'Content must be 1–2000 characters': 'Content must be 1–2000 characters.',
+  'Entity name must be ≤ 100 characters': 'Entity name must be 100 characters or fewer.',
+  'Username must be 3–50 characters': 'Username must be 3–50 characters.',
+  'Username may only contain letters, numbers, _ and -': 'Username may only contain letters, numbers, _ and -',
+};
+function friendlyError(err: unknown): string {
+  const msg = err instanceof Error ? err.message : String(err);
+  return USER_ERRORS[msg] ?? 'Something went wrong. Please try again.';
+}
+
 // ─── Mock data ────────────────────────────────────────────────────────────────
 const FEED = [
   { id: 1, author: 'anon_19283746', entity: 'Coinbase',      title: 'engineering culture is cooked post-layoffs',          content: 'After the restructuring, the team dynamic changed. More pressure, less psychological safety. Middle management is stretched thin and sprint planning is a mess.',                  confirms: 142, disputes: 18, replies: 34,  time: '2h'  },
@@ -227,12 +250,138 @@ function FeedPage({ feed, votes, vote, onCompose, selectedEntity, onClearEntity,
   );
 }
 
+// ─── Mega Index ───────────────────────────────────────────────────────────────
+interface MegaEntity { coin: string; factor_score: number; sentiment: string; mentions: number; signal: string; confidence: number; }
+interface MegaData { updated_at: string; regime: string; dominant_sentiment: string; narratives: string[]; session_notes: string; entities: MegaEntity[]; top_long: string[]; top_short: string[]; }
+
+const REGIME_COLOR: Record<string, string> = { trending: '#4ade80', choppy: '#facc15', 'mean-reversion': '#a78bfa', carry: '#38bdf8', breakout: '#f472b6', neutral: 'rgba(190,208,238,0.3)' };
+const SENT_COLOR: Record<string, string> = { bullish: '#4ade80', bearish: '#f87171', neutral: 'rgba(190,208,238,0.35)', mixed: '#facc15' };
+
+function MegaIndex() {
+  const [data, setData] = useState<MegaData | null>(null);
+  const [err, setErr] = useState(false);
+
+  const load = useCallback(async () => {
+    try {
+      const r = await fetch('/api/mega-index');
+      if (!r.ok) { setErr(true); return; }
+      setData(await r.json());
+      setErr(false);
+    } catch { setErr(true); }
+  }, []);
+
+  useEffect(() => {
+    load();
+    const t = setInterval(load, 2 * 60 * 1000);
+    return () => clearInterval(t);
+  }, [load]);
+
+  if (err) return (
+    <div style={{ fontFamily: mono, fontSize: 12, color: 'rgba(212,90,90,0.4)', letterSpacing: '0.06em', padding: '10px 0', marginBottom: 14 }}>{'// MEGA_INDEX signal lost'}</div>
+  );
+  if (!data) return (
+    <div style={{ fontFamily: mono, fontSize: 12, color: 'rgba(107,159,212,0.3)', letterSpacing: '0.06em', padding: '10px 0', marginBottom: 14, animation: 'pd 2s ease infinite' }}>{'// loading MEGA_INDEX...'}</div>
+  );
+
+  const bullCount = data.entities.filter(e => e.sentiment === 'bullish').length;
+  const bearCount = data.entities.filter(e => e.sentiment === 'bearish').length;
+  const neutCount = data.entities.length - bullCount - bearCount;
+  const total = data.entities.length || 1;
+  const bullPct = Math.round((bullCount / total) * 100);
+  const bearPct = Math.round((bearCount / total) * 100);
+  const neutPct = 100 - bullPct - bearPct;
+
+  const confEntities = data.entities.filter(e => e.signal !== 'NEUTRAL').sort((a,b) => b.confidence - a.confidence);
+  const longSet = new Set(data.top_long);
+  const shortSet = new Set(data.top_short);
+
+  return (
+    <div style={{ marginBottom: 20, padding: '12px 12px 10px', border: '1px solid rgba(107,159,212,0.08)', borderRadius: 2, background: 'rgba(107,159,212,0.02)' }}>
+      {/* Header row */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+        <div style={{ fontFamily: mono, fontSize: 11, fontWeight: 600, letterSpacing: '0.22em', color: 'rgba(107,159,212,0.55)', textTransform: 'uppercase' }}>
+          <span style={{ color: 'rgba(107,159,212,0.25)' }}>// </span>MEGA_INDEX
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          {/* Regime badge */}
+          <span style={{ fontFamily: mono, fontSize: 10, fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: REGIME_COLOR[data.regime] ?? REGIME_COLOR.neutral, border: `1px solid ${REGIME_COLOR[data.regime] ?? REGIME_COLOR.neutral}44`, padding: '2px 7px', borderRadius: 2, background: `${REGIME_COLOR[data.regime] ?? REGIME_COLOR.neutral}11` }}>
+            {data.regime.toUpperCase()}
+          </span>
+          {/* Sentiment dot */}
+          <span style={{ fontFamily: mono, fontSize: 10, letterSpacing: '0.1em', color: SENT_COLOR[data.dominant_sentiment] ?? SENT_COLOR.neutral, opacity: 0.85 }}>
+            {data.dominant_sentiment.toUpperCase()}
+          </span>
+        </div>
+      </div>
+
+      {/* Sentiment bar */}
+      <div style={{ marginBottom: 10 }}>
+        <div style={{ display: 'flex', width: '100%', height: 5, borderRadius: 1, overflow: 'hidden', gap: 1 }}>
+          <div style={{ width: `${bullPct}%`, background: 'rgba(74,222,128,0.65)', height: '100%', transition: 'width 0.5s' }} />
+          <div style={{ width: `${neutPct}%`, background: 'rgba(190,208,238,0.18)', height: '100%' }} />
+          <div style={{ width: `${bearPct}%`, background: 'rgba(248,113,113,0.6)', height: '100%' }} />
+        </div>
+        <div style={{ display: 'flex', gap: 12, marginTop: 4 }}>
+          <span style={{ fontFamily: mono, fontSize: 10, color: 'rgba(74,222,128,0.6)', letterSpacing: '0.06em' }}>{bullPct}% BULL</span>
+          <span style={{ fontFamily: mono, fontSize: 10, color: 'rgba(190,208,238,0.25)', letterSpacing: '0.06em' }}>{neutPct}% NEUT</span>
+          <span style={{ fontFamily: mono, fontSize: 10, color: 'rgba(248,113,113,0.55)', letterSpacing: '0.06em' }}>{bearPct}% BEAR</span>
+        </div>
+      </div>
+
+      {/* Top signals grid */}
+      {(data.top_long.length > 0 || data.top_short.length > 0) && (
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 10 }}>
+          <div>
+            <div style={{ fontFamily: mono, fontSize: 10, color: 'rgba(74,222,128,0.5)', letterSpacing: '0.14em', marginBottom: 5, textTransform: 'uppercase' }}>TOP LONG</div>
+            {data.top_long.map(coin => {
+              const e = confEntities.find(x => x.coin === coin);
+              return (
+                <div key={coin} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
+                  <span style={{ fontFamily: mono, fontSize: 11, fontWeight: 600, color: 'rgba(74,222,128,0.85)', letterSpacing: '0.04em' }}>{coin}</span>
+                  <span style={{ fontFamily: mono, fontSize: 11, color: 'rgba(74,222,128,0.45)', letterSpacing: '0.04em' }}>{e ? Math.round(e.confidence * 100) : '—'}%</span>
+                </div>
+              );
+            })}
+            {data.top_long.length === 0 && <span style={{ fontFamily: mono, fontSize: 11, color: 'rgba(190,208,238,0.15)' }}>—</span>}
+          </div>
+          <div>
+            <div style={{ fontFamily: mono, fontSize: 10, color: 'rgba(248,113,113,0.5)', letterSpacing: '0.14em', marginBottom: 5, textTransform: 'uppercase' }}>TOP SHORT</div>
+            {data.top_short.map(coin => {
+              const e = confEntities.find(x => x.coin === coin);
+              return (
+                <div key={coin} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
+                  <span style={{ fontFamily: mono, fontSize: 11, fontWeight: 600, color: 'rgba(248,113,113,0.8)', letterSpacing: '0.04em' }}>{coin}</span>
+                  <span style={{ fontFamily: mono, fontSize: 11, color: 'rgba(248,113,113,0.4)', letterSpacing: '0.04em' }}>{e ? Math.round(e.confidence * 100) : '—'}%</span>
+                </div>
+              );
+            })}
+            {data.top_short.length === 0 && <span style={{ fontFamily: mono, fontSize: 11, color: 'rgba(190,208,238,0.15)' }}>—</span>}
+          </div>
+        </div>
+      )}
+
+      {/* Narrative pills */}
+      {data.narratives.length > 0 && (
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 8 }}>
+          {data.narratives.slice(0, 10).map(n => (
+            <span key={n} style={{ fontFamily: mono, fontSize: 10, letterSpacing: '0.1em', color: 'rgba(107,159,212,0.5)', border: '1px solid rgba(107,159,212,0.15)', padding: '1px 6px', borderRadius: 2 }}>{n}</span>
+          ))}
+        </div>
+      )}
+
+      {/* Attribution */}
+      <div style={{ fontFamily: mono, fontSize: 10, color: 'rgba(190,208,238,0.15)', letterSpacing: '0.06em' }}>powered by anjew</div>
+    </div>
+  );
+}
+
 // ─── Explore page ─────────────────────────────────────────────────────────────
 function ExplorePage({ entities, search, setSearch, onSelectEntity }: { entities: EntityRow[]; search: string; setSearch: (s: string) => void; onSelectEntity: (name: string) => void }) {
   const filt = entities.filter(c => c.name.toLowerCase().includes(search.toLowerCase()));
   return (
     <div className="fi" style={{ animationDelay: '0.06s' }}>
       <SecHead label="EXPLORE" />
+      <MegaIndex />
       <input
         value={search}
         onChange={e => setSearch((e.target as HTMLInputElement).value)}
@@ -329,6 +478,7 @@ function ComposerModal({ sessionToken, onPostCreated, onClose }: { sessionToken:
   const [body,       setBody]       = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error,      setError]      = useState('');
+  const submitRef = useRef(false);
 
   const BODY_MAX = 1200;
   const TITLE_MAX = 120;
@@ -336,14 +486,17 @@ function ComposerModal({ sessionToken, onPostCreated, onClose }: { sessionToken:
   const submit = async () => {
     if (!sessionToken) { setError('identity not established — reconnect wallet'); return; }
     if (!title.trim() || !body.trim()) { setError('HEADER* and TRANSMISSION* are required'); return; }
+    if (submitRef.current) return; // prevent double-submit
+    submitRef.current = true;
     setSubmitting(true); setError('');
     try {
       const post = await createPost(sessionToken, title, body, company);
       onPostCreated(post);
       onClose();
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'broadcast failed');
+      setError(friendlyError(e));
     } finally {
+      submitRef.current = false;
       setSubmitting(false);
     }
   };
@@ -935,6 +1088,7 @@ export default function DashboardPage() {
   const [postCount,       setPostCount]      = useState(0);
   const [feedError,       setFeedError]      = useState(false);
   const [feedLoading,     setFeedLoading]    = useState(false);
+  const [voteError,       setVoteError]      = useState<string | null>(null);
 
   const uRef = useRef<HTMLDivElement>(null);
   const wRef = useRef<HTMLDivElement>(null);
@@ -977,7 +1131,51 @@ export default function DashboardPage() {
     return () => document.removeEventListener('mousedown', h);
   }, []);
 
-  const vote = (id: string, t: string) => setVotes(p => ({ ...p, [id]: p[id] === t ? null : t }));
+  const vote = async (id: string, t: string) => {
+    if (!sessionToken) return;
+    // Optimistic update
+    const prevVotes = votes;
+    const prevFeed  = feed;
+    const newVote   = votes[id] === t ? null : t;
+    setVotes(p => ({ ...p, [id]: newVote }));
+    // Optimistically adjust counts in feed
+    const voteType = t === 'confirm' ? 'up' : 'down';
+    try {
+      const res = await fetch('/api/votes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ post_id: id, vote_type: voteType, session_token: sessionToken }),
+      });
+      if (res.status === 409) {
+        // Opposite vote already cast — revert
+        setVotes(prevVotes);
+        setFeed(prevFeed);
+        setVoteError('already voted opposite direction');
+        setTimeout(() => setVoteError(null), 2500);
+        return;
+      }
+      if (!res.ok) {
+        setVotes(prevVotes);
+        setFeed(prevFeed);
+        setVoteError('vote failed');
+        setTimeout(() => setVoteError(null), 2500);
+        return;
+      }
+      const data: { ok: boolean; new_count: number; user_vote: string | null } = await res.json();
+      // Update feed count with server-confirmed value
+      setFeed(f => f.map(p => {
+        if (String(p.id) !== id) return p;
+        if (t === 'confirm') return { ...p, confirms: data.new_count };
+        return { ...p, disputes: data.new_count };
+      }));
+      setVoteError(null);
+    } catch {
+      setVotes(prevVotes);
+      setFeed(prevFeed);
+      setVoteError('vote failed — network error');
+      setTimeout(() => setVoteError(null), 2500);
+    }
+  };
 
   const switchPage = useCallback((next: string) => {
     if (next === page || transitioning) return;
@@ -1110,12 +1308,12 @@ export default function DashboardPage() {
                           <input
                             value={draft}
                             onChange={e => { setDraft((e.target as HTMLInputElement).value); setEditError(''); }}
-                            onKeyDown={e => { if (e.key === 'Enter' && draft.trim().length >= 3 && !isUpdating.current) { isUpdating.current = true; changeUsername(draft).then(() => { setEditing(false); setEditError(''); }).catch(err => setEditError(err.message ?? 'failed')).finally(() => { isUpdating.current = false; }); } }}
+                            onKeyDown={e => { if (e.key === 'Enter' && draft.trim().length >= 3 && !isUpdating.current) { isUpdating.current = true; changeUsername(draft).then(() => { setEditing(false); setEditError(''); }).catch(err => setEditError(friendlyError(err))).finally(() => { isUpdating.current = false; }); } }}
                             autoFocus
                             maxLength={24}
                             style={{ flex: 1, padding: '6px 9px', borderRadius: 2, border: `1px solid ${editError ? 'rgba(212,90,90,0.4)' : 'rgba(107,159,212,0.35)'}`, background: 'rgba(255,255,255,0.03)', color: '#fff', fontSize: 14, fontFamily: mono, outline: 'none', letterSpacing: '0.04em' }}
                           />
-                          <button onClick={() => { if (draft.trim().length >= 3 && !isUpdating.current) { isUpdating.current = true; changeUsername(draft).then(() => { setEditing(false); setEditError(''); }).catch(err => setEditError(err.message ?? 'failed')).finally(() => { isUpdating.current = false; }); } }} style={{ padding: '6px 12px', borderRadius: 2, border: 'none', background: blue, color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: mono, letterSpacing: '0.06em' }}>SAVE</button>
+                          <button onClick={() => { if (draft.trim().length >= 3 && !isUpdating.current) { isUpdating.current = true; changeUsername(draft).then(() => { setEditing(false); setEditError(''); }).catch(err => setEditError(friendlyError(err))).finally(() => { isUpdating.current = false; }); } }} style={{ padding: '6px 12px', borderRadius: 2, border: 'none', background: blue, color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: mono, letterSpacing: '0.06em' }}>SAVE</button>
                         </div>
                         {editError && <div style={{ fontFamily: mono, fontSize: 14, color: 'rgba(212,90,90,0.7)', marginTop: 5, letterSpacing: '0.05em' }}>{editError}</div>}
                       </div>
@@ -1288,6 +1486,12 @@ export default function DashboardPage() {
               <span style={{ color: 'rgba(190,208,238,0.28)', fontSize: 13 }}>Sign the message to prove ownership. No gas.</span>
             </div>
           </div>
+        </div>
+      )}
+
+      {voteError && (
+        <div style={{ position: 'fixed', bottom: 48, left: '50%', transform: 'translateX(-50%)', zIndex: 350, fontFamily: mono, fontSize: 13, color: 'rgba(212,90,90,0.85)', letterSpacing: '0.08em', background: 'rgba(4,5,12,0.92)', border: '1px solid rgba(212,90,90,0.25)', borderRadius: 2, padding: '7px 16px', backdropFilter: 'blur(8px)', pointerEvents: 'none' }}>
+          !! {voteError}
         </div>
       )}
 

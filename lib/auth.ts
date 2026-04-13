@@ -16,8 +16,9 @@ function serverSupabase() {
 
 // ─── Wallet ownership proof ────────────────────────────────────────────────────
 async function verifyWalletSignature(address: string, signature: string): Promise<void> {
-  // Accept current window OR previous window (handles clock skew at boundary)
-  const now = Math.floor(Date.now() / 300_000);
+  // Accept current window OR previous window (handles clock skew at boundary).
+  // Window is 2 minutes (120_000ms) — matches siwe.ts buildSignMessage.
+  const now = Math.floor(Date.now() / 120_000);
   for (const w of [now, now - 1]) {
     const message = buildSignMessage(address, w);
     try {
@@ -80,9 +81,11 @@ export async function getOrCreateUser(walletAddress: string, signature: string):
 export async function updateUsername(sessionToken: string, newUsername: string) {
   const userId = _verifySession(sessionToken);
 
-  const trimmed = newUsername.trim();
-  if (!trimmed || trimmed.length < 3 || trimmed.length > 24) {
-    throw new Error('Username must be 3–24 characters');
+  // Strip HTML before validation — defence-in-depth even though the regex below
+  // already blocks tag characters. Username max 50 chars per security policy.
+  const trimmed = newUsername.replace(/<[^>]*>/g, '').trim();
+  if (!trimmed || trimmed.length < 3 || trimmed.length > 50) {
+    throw new Error('Username must be 3–50 characters');
   }
   if (!/^[a-zA-Z0-9_-]+$/.test(trimmed)) {
     throw new Error('Username may only contain letters, numbers, _ and -');

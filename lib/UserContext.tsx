@@ -39,17 +39,22 @@ export function UserProvider({ children }: { children: ReactNode }) {
   // Track which address we've already authenticated this session
   // so we don't re-prompt on every re-render.
   const authedAddress = useRef<string | null>(null);
+  // Refs mirror state to avoid stale closure in loadUser
+  const userRef         = useRef<User | null>(null);
+  const sessionTokenRef = useRef<string | null>(null);
 
   async function loadUser() {
     if (!isConnected || !address) {
       setUser(null);
       setLoading(false);
       authedAddress.current = null;
+      userRef.current = null;
+      sessionTokenRef.current = null;
       return;
     }
 
     // Already authenticated this address this session — user is in state, nothing to do
-    if (authedAddress.current === address.toLowerCase() && user && sessionToken) {
+    if (authedAddress.current === address.toLowerCase() && userRef.current && sessionTokenRef.current) {
       setLoading(false);
       return;
     }
@@ -66,11 +71,15 @@ export function UserProvider({ children }: { children: ReactNode }) {
       const { user: userData, sessionToken: token } = await getOrCreateUser(address, signature);
       setUser(userData);
       setSessionToken(token);
+      userRef.current = userData;
+      sessionTokenRef.current = token;
       authedAddress.current = address.toLowerCase();
     } catch (error) {
       console.error('Sign-in failed:', error);
       setUser(null);
       setSessionToken(null);
+      userRef.current = null;
+      sessionTokenRef.current = null;
       authedAddress.current = null;
       const msg = error instanceof Error ? error.message : String(error);
       setAuthError(msg);

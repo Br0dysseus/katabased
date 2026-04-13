@@ -239,6 +239,34 @@ nav{
 
 /* ── Coord label in sidebar ──────────────────────────────────── */
 .coord-lbl{font-size:7px;color:rgba(107,159,212,0.2);letter-spacing:0.1em;text-align:center;margin-bottom:4px}
+
+/* ── Mega Index ──────────────────────────────────────────── */
+#mega-index{margin-bottom:20px;padding:12px 12px 10px;border:1px solid rgba(107,159,212,0.08);border-radius:2px;background:rgba(107,159,212,0.02)}
+.mi-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.mi-title{font-size:11px;font-weight:600;letter-spacing:0.22em;color:rgba(107,159,212,0.55);text-transform:uppercase}
+.mi-title span{color:rgba(107,159,212,0.25);font-weight:400}
+.mi-badges{display:flex;align-items:center;gap:8px}
+.mi-regime{font-size:10px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;padding:2px 7px;border-radius:2px}
+.mi-sent{font-size:10px;letter-spacing:0.1em;opacity:0.85}
+.mi-bar{display:flex;width:100%;height:5px;border-radius:1px;overflow:hidden;gap:1px;margin-bottom:4px}
+.mi-bar-bull{height:100%;background:rgba(74,222,128,0.65)}
+.mi-bar-neut{height:100%;background:rgba(190,208,238,0.18)}
+.mi-bar-bear{height:100%;background:rgba(248,113,113,0.6)}
+.mi-pcts{display:flex;gap:12px;margin-bottom:10px}
+.mi-pct-bull{font-size:10px;color:rgba(74,222,128,0.6);letter-spacing:0.06em}
+.mi-pct-neut{font-size:10px;color:rgba(190,208,238,0.25);letter-spacing:0.06em}
+.mi-pct-bear{font-size:10px;color:rgba(248,113,113,0.55);letter-spacing:0.06em}
+.mi-signals{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.mi-sig-lbl-long{font-size:10px;color:rgba(74,222,128,0.5);letter-spacing:0.14em;margin-bottom:5px;text-transform:uppercase}
+.mi-sig-lbl-short{font-size:10px;color:rgba(248,113,113,0.5);letter-spacing:0.14em;margin-bottom:5px;text-transform:uppercase}
+.mi-sig-row{display:flex;justify-content:space-between;margin-bottom:3px}
+.mi-coin-long{font-size:11px;font-weight:600;color:rgba(74,222,128,0.85);letter-spacing:0.04em}
+.mi-coin-short{font-size:11px;font-weight:600;color:rgba(248,113,113,0.8);letter-spacing:0.04em}
+.mi-conf-long{font-size:11px;color:rgba(74,222,128,0.45);letter-spacing:0.04em}
+.mi-conf-short{font-size:11px;color:rgba(248,113,113,0.4);letter-spacing:0.04em}
+.mi-narratives{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
+.mi-pill{font-size:10px;letter-spacing:0.1em;color:rgba(107,159,212,0.5);border:1px solid rgba(107,159,212,0.15);padding:1px 6px;border-radius:2px}
+.mi-credit{font-size:10px;color:rgba(190,208,238,0.15);letter-spacing:0.06em}
 </style>
 </head>
 <body>
@@ -328,6 +356,7 @@ nav{
 
     <div class="panel" id="page-explore">
       <div class="sec-head">EXPLORE <div class="sec-line"></div></div>
+      <div id="mega-index"><div style="font-size:10px;color:rgba(107,159,212,0.3);letter-spacing:0.06em;padding:10px 0;animation:pd 2s ease infinite">// loading MEGA_INDEX...</div></div>
       <input class="search-input" id="search" placeholder="> search companies..." oninput="filterCos(this.value)">
       <div id="co-list"></div>
     </div>
@@ -531,6 +560,113 @@ window.addEventListener('scroll',()=>{
 
 // ── Init renders ──────────────────────────────────────────────
 renderFeed(); renderCos(); renderRanks();
+
+// ── Mega Index ────────────────────────────────────────────────
+const REGIME_COLOR={trending:'#4ade80',choppy:'#facc15','mean-reversion':'#a78bfa',carry:'#38bdf8',breakout:'#f472b6',neutral:'rgba(190,208,238,0.3)'};
+const SENT_COLOR={bullish:'#4ade80',bearish:'#f87171',neutral:'rgba(190,208,238,0.35)',mixed:'#facc15'};
+
+function renderMegaIndex(d){
+  const el=document.getElementById('mega-index');
+  if(!el)return;
+  const bullCount=d.entities.filter(e=>e.sentiment==='bullish').length;
+  const bearCount=d.entities.filter(e=>e.sentiment==='bearish').length;
+  const total=d.entities.length||1;
+  const bullPct=Math.round(bullCount/total*100);
+  const bearPct=Math.round(bearCount/total*100);
+  const neutPct=100-bullPct-bearPct;
+  const confEnts=d.entities.filter(e=>e.signal!=='NEUTRAL').sort((a,b)=>b.confidence-a.confidence);
+  const rCol=REGIME_COLOR[d.regime]||REGIME_COLOR.neutral;
+  const sCol=SENT_COLOR[d.dominant_sentiment]||SENT_COLOR.neutral;
+
+  let longsHtml='', shortsHtml='';
+  if(d.top_long&&d.top_long.length){
+    d.top_long.forEach(coin=>{
+      const e=confEnts.find(x=>x.coin===coin);
+      longsHtml+=`<div class="mi-sig-row"><span class="mi-coin-long">${coin}</span><span class="mi-conf-long">${e?Math.round(e.confidence*100):'—'}%</span></div>`;
+    });
+  } else { longsHtml='<span style="font-size:11px;color:rgba(190,208,238,0.15)">—</span>'; }
+  if(d.top_short&&d.top_short.length){
+    d.top_short.forEach(coin=>{
+      const e=confEnts.find(x=>x.coin===coin);
+      shortsHtml+=`<div class="mi-sig-row"><span class="mi-coin-short">${coin}</span><span class="mi-conf-short">${e?Math.round(e.confidence*100):'—'}%</span></div>`;
+    });
+  } else { shortsHtml='<span style="font-size:11px;color:rgba(190,208,238,0.15)">—</span>'; }
+
+  const pillsHtml=(d.narratives||[]).slice(0,10).map(n=>`<span class="mi-pill">${n}</span>`).join('');
+
+  el.innerHTML=`
+    <div class="mi-header">
+      <div class="mi-title"><span>// </span>MEGA_INDEX</div>
+      <div class="mi-badges">
+        <span class="mi-regime" style="color:${rCol};border:1px solid ${rCol}44;background:${rCol}11">${(d.regime||'').toUpperCase()}</span>
+        <span class="mi-sent" style="color:${sCol}">${(d.dominant_sentiment||'').toUpperCase()}</span>
+      </div>
+    </div>
+    <div class="mi-bar">
+      <div class="mi-bar-bull" style="width:${bullPct}%"></div>
+      <div class="mi-bar-neut" style="width:${neutPct}%"></div>
+      <div class="mi-bar-bear" style="width:${bearPct}%"></div>
+    </div>
+    <div class="mi-pcts">
+      <span class="mi-pct-bull">${bullPct}% BULL</span>
+      <span class="mi-pct-neut">${neutPct}% NEUT</span>
+      <span class="mi-pct-bear">${bearPct}% BEAR</span>
+    </div>
+    ${(d.top_long&&d.top_long.length)||(d.top_short&&d.top_short.length)?`
+    <div class="mi-signals">
+      <div><div class="mi-sig-lbl-long">TOP LONG</div>${longsHtml}</div>
+      <div><div class="mi-sig-lbl-short">TOP SHORT</div>${shortsHtml}</div>
+    </div>`:''}
+    ${pillsHtml?`<div class="mi-narratives">${pillsHtml}</div>`:''}
+    <div class="mi-credit">powered by anjew</div>
+  `;
+}
+
+function renderMegaError(){
+  const el=document.getElementById('mega-index');
+  if(el)el.innerHTML='<div style="font-size:10px;color:rgba(212,90,90,0.4);letter-spacing:0.06em;padding:10px 0">// MEGA_INDEX signal lost</div>';
+}
+
+async function fetchMegaIndex(){
+  // Try Next.js dev server first
+  try{
+    const r=await fetch('http://localhost:3000/api/mega-index');
+    if(r.ok){renderMegaIndex(await r.json());return;}
+  }catch(e){}
+  // Fallback: HL server market_intel directly
+  try{
+    const r=await fetch('http://localhost:5052/api/market_intel');
+    if(r.ok){
+      const intel=await r.json();
+      // Build minimal MegaData from market_intel
+      renderMegaIndex({
+        updated_at:new Date().toISOString(),
+        regime:'choppy',
+        dominant_sentiment:intel.dominant_sentiment||'neutral',
+        narratives:intel.narratives||[],
+        session_notes:intel.session_notes||'',
+        entities:[],
+        top_long:[],
+        top_short:[]
+      });
+      return;
+    }
+  }catch(e){}
+  // Static fallback
+  renderMegaIndex({
+    updated_at:new Date().toISOString(),
+    regime:'neutral',
+    dominant_sentiment:'neutral',
+    narratives:['defi','l2s','rwa','ai-agents'],
+    session_notes:'',
+    entities:[],
+    top_long:[],
+    top_short:[]
+  });
+}
+
+fetchMegaIndex();
+setInterval(fetchMegaIndex, 2*60*1000);
 
 // ═══════════════════════════════════════════════════════════════
 // TUNNEL BACKGROUND
