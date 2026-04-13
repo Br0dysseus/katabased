@@ -1,0 +1,19 @@
+{
+  "name": "katabased-mcp",
+  "version": "1.0.0",
+  "description": "MCP server for kataBased — anonymous Web3 workplace reviews + crypto market sentiment",
+  "main": "server.js",
+  "type": "module",
+  "bin": {
+    "katabased-mcp": "./server.js"
+  },
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": ["mcp", "web3", "crypto", "hyperliquid", "workplace-reviews"],
+  "author": "kataBased",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0"
+  }
+}

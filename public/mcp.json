@@ -1,0 +1,6 @@
+{
+  "name": "katabased",
+  "description": "Anonymous Web3 workplace reviews + crypto market sentiment",
+  "mcp_server": "npx katabased-mcp",
+  "tools": ["get_market_sentiment", "search_reviews", "submit_review", "get_api_info"]
+}
