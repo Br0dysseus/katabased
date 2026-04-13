@@ -300,7 +300,7 @@ function MegaIndex() {
       {/* Header row */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
         <div style={{ fontFamily: mono, fontSize: 11, fontWeight: 600, letterSpacing: '0.22em', color: 'rgba(107,159,212,0.55)', textTransform: 'uppercase' }}>
-          <span style={{ color: 'rgba(107,159,212,0.25)' }}>// </span>MEGA_INDEX
+          <span style={{ color: 'rgba(107,159,212,0.25)' }}>{'//'} </span>MEGA_INDEX
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           {/* Regime badge */}
