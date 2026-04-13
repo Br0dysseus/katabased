@@ -414,7 +414,7 @@ function MegaIndex() {
             <div style={{ marginBottom: 4 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 6 }}>
                 <span style={{ fontFamily: mono, fontSize: 9, color: 'rgba(107,159,212,0.25)', letterSpacing: '0.1em' }}>{'//'}</span>
-                <span style={{ fontFamily: mono, fontSize: 9, fontWeight: 600, letterSpacing: '0.16em', color: 'rgba(212,132,90,0.55)', textTransform: 'uppercase' }}>PREDICTION_MKT</span>
+                <span style={{ fontFamily: mono, fontSize: 9, fontWeight: 600, letterSpacing: '0.16em', color: 'rgba(212,132,90,0.55)', textTransform: 'uppercase' }}>MACRO_SIGNALS</span>
               </div>
               {polyItems.map((m, i) => {
                 const pYes = m.yes_prob;

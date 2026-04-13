@@ -16,7 +16,33 @@ function serviceSupabase() {
 }
 
 function stripHtml(str: string): string {
-  return str.replace(/<[^>]*>/g, '').trim();
+  // Remove null bytes and other control characters first
+  let s = str.replace(/\0/g, '').replace(/[\x01-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
+  // Strip HTML tags iteratively until stable (handles nested/malformed tags)
+  let prev = '';
+  while (prev !== s) {
+    prev = s;
+    s = s.replace(/<[^>]*>/g, '');
+  }
+  // Decode common HTML entities that could survive tag stripping
+  s = s
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&amp;/gi, '&')
+    .replace(/&#x[0-9a-f]+;/gi, '')
+    .replace(/&#\d+;/gi, '');
+  // Strip again after entity decode in case it revealed tags
+  prev = '';
+  while (prev !== s) {
+    prev = s;
+    s = s.replace(/<[^>]*>/g, '');
+  }
+  return s.trim();
+}
+
+function validateCompany(s: string): boolean {
+  // Allow alphanumeric, spaces, hyphens, dots, underscores, parentheses
+  return /^[\w\s\-.()'"&,]+$/.test(s);
 }
 
 export async function POST(req: NextRequest) {
@@ -81,6 +107,10 @@ export async function POST(req: NextRequest) {
   if (cleanCompany.length === 0 || cleanTitle.length === 0 || cleanContent.length === 0) {
     return NextResponse.json({ error: 'company, title, content cannot be empty' }, { status: 400 });
   }
+  // company format: must be printable identifier, no raw HTML survivors
+  if (!validateCompany(cleanCompany)) {
+    return NextResponse.json({ error: 'company contains invalid characters' }, { status: 400 });
+  }
 
   // ── Insert post ───────────────────────────────────────────────────────────
   const { data: post, error: insErr } = await supabase
@@ -101,11 +131,21 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: insErr?.message ?? 'insert failed' }, { status: 500 });
   }
 
-  // ── Increment requests_today ──────────────────────────────────────────────
-  await supabase
-    .from('api_keys')
-    .update({ requests_today: requestsToday + 1 })
-    .eq('id', keyRow.id);
+  // ── Atomic increment requests_today ──────────────────────────────────────
+  // Uses Supabase RPC to avoid read-modify-write race. If rpc not available,
+  // falls back to conditional UPDATE that only increments if still under limit.
+  const { error: rpcErr } = await supabase.rpc('increment_requests_today', {
+    key_id: keyRow.id,
+    limit_val: DAILY_POST_LIMIT,
+  });
+  if (rpcErr) {
+    // Fallback: conditional update (still safer than plain update)
+    await supabase
+      .from('api_keys')
+      .update({ requests_today: requestsToday + 1 })
+      .eq('id', keyRow.id)
+      .lt('requests_today', DAILY_POST_LIMIT);
+  }
 
   return NextResponse.json({ ok: true, post_id: post.id });
 }

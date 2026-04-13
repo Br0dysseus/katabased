@@ -245,40 +245,90 @@ async function fetchCryptoNews(): Promise<NewsItem[]> {
   return results.slice(0, 5);
 }
 
-// ─── Polymarket Gamma API: top crypto prediction markets ─────────────────────
-async function fetchPolymarketCrypto(): Promise<PolymarketMarket[]> {
+// ─── Polymarket Gamma API: macro/geo/crypto prediction markets ───────────────
+
+const POLY_EXCLUDE = [
+  'nba','nfl','nhl','mlb','nascar','soccer','football','basketball','baseball',
+  'hockey','tennis','golf','boxing','ufc','mma','wrestling','super bowl',
+  'world cup','champions league','lebron','curry','mahomes','messi','ronaldo',
+  'taylor swift','beyonce','kanye','drake','oscar','grammy','emmy',
+  'academy award','movie','album','song','artist of the year','rapper','singer',
+  'jesus','christ','god','allah','rapture','second coming','apocalypse',
+  'antichrist','pope','will elon','will trump tweet','will biden',
+  'doge coin','flat earth',
+];
+
+const POLY_BOOST = [
+  'fed','rate','fomc','inflation','cpi','gdp','jobs','unemployment','recession',
+  'oil','gold','bitcoin','btc','ethereum','eth','rate cut','rate hike',
+  'election','president','war','nato','china','russia','iran','sanctions',
+];
+
+function parsePolyMarket(m: Record<string, unknown>): PolymarketMarket {
+  let yes_prob = 0;
   try {
-    // Gamma markets endpoint — public, no auth
-    const res = await fetch(
-      'https://gamma-api.polymarket.com/markets?tag_slug=crypto&active=true&closed=false&limit=20&order=volumeNum&ascending=false',
-      {
-        headers: { 'Accept': 'application/json' },
-        next: { revalidate: 300 },
-        signal: AbortSignal.timeout(5000),
-      }
+    const prices = typeof m.outcomePrices === 'string'
+      ? JSON.parse(m.outcomePrices as string)
+      : m.outcomePrices;
+    yes_prob = Math.round(parseFloat((prices as string[])?.[0] ?? '0') * 100);
+  } catch { yes_prob = 0; }
+  const volume = Math.round(parseFloat(String(m.volumeNum ?? m.volume ?? '0')));
+  return { question: m.question as string, yes_prob, volume };
+}
+
+async function fetchPolymarketCrypto(): Promise<PolymarketMarket[]> {
+  const tags = ['economics', 'crypto', 'politics', 'world'];
+  const opts = {
+    headers: { 'Accept': 'application/json' },
+    next: { revalidate: 300 } as { revalidate: number },
+    signal: AbortSignal.timeout(5000),
+  };
+
+  try {
+    const responses = await Promise.allSettled(
+      tags.map(tag =>
+        fetch(
+          `https://gamma-api.polymarket.com/markets?closed=false&limit=30&tag_slug=${tag}`,
+          opts,
+        ).then(r => r.ok ? r.json() : [])
+      )
     );
-    if (!res.ok) return [];
 
-    const rawMarkets = await res.json();
-    const markets = rawMarkets as Record<string, unknown>[];
-    if (!Array.isArray(markets)) return [];
+    // Collect all markets, deduplicate by id
+    const seen = new Set<string>();
+    const all: Record<string, unknown>[] = [];
 
-    return markets
-      .filter((m) => m.question && (m.outcomePrices || m.bestAsk))
-      .slice(0, 3)
-      .map((m) => {
-        // outcomePrices is "[\"0.72\",\"0.28\"]" — yes price is index 0
-        let yes_prob = 0;
-        try {
-          const prices = typeof m.outcomePrices === 'string'
-            ? JSON.parse(m.outcomePrices)
-            : m.outcomePrices;
-          yes_prob = Math.round(parseFloat(prices?.[0] ?? '0') * 100);
-        } catch { yes_prob = 0; }
+    for (const result of responses) {
+      if (result.status !== 'fulfilled') continue;
+      const arr = result.value as Record<string, unknown>[];
+      if (!Array.isArray(arr)) continue;
+      for (const m of arr) {
+        const id = String(m.id ?? m.conditionId ?? m.question ?? '');
+        if (!id || seen.has(id)) continue;
+        if (!m.question || (!m.outcomePrices && !m.bestAsk)) continue;
+        seen.add(id);
+        all.push(m);
+      }
+    }
 
-        const volume = Math.round(parseFloat(String(m.volumeNum ?? m.volume ?? '0')));
-        return { question: m.question as string, yes_prob, volume };
-      });
+    // Filter irrelevant markets
+    const filtered = all.filter(m => {
+      const q = String(m.question).toLowerCase();
+      return !POLY_EXCLUDE.some(kw => q.includes(kw));
+    });
+
+    // Sort by boosted volume desc
+    filtered.sort((a, b) => {
+      const volA = parseFloat(String(a.volumeNum ?? a.volume ?? '0'));
+      const volB = parseFloat(String(b.volumeNum ?? b.volume ?? '0'));
+      const qA = String(a.question).toLowerCase();
+      const qB = String(b.question).toLowerCase();
+      const boostA = POLY_BOOST.some(kw => qA.includes(kw)) ? 2 : 1;
+      const boostB = POLY_BOOST.some(kw => qB.includes(kw)) ? 2 : 1;
+      return (volB * boostB) - (volA * boostA);
+    });
+
+    return filtered.slice(0, 5).map(parsePolyMarket);
   } catch {
     return [];
   }

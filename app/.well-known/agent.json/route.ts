@@ -1,11 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// Agent-friendly bot patterns — case-insensitive match
-const AGENT_PATTERNS = [
-  'bot', 'crawler', 'spider', 'gpt', 'claude', 'anthropic',
-  'openai', 'gemini', 'agent', 'llm', 'ai',
-];
-
 const AGENT_MANIFEST = {
   name: 'kataBased',
   description: 'Anonymous Web3 workplace intelligence. Agent-readable posts, votes, company sentiment. x402 micropayments accepted.',
@@ -28,18 +22,14 @@ const AGENT_MANIFEST = {
 };
 
 export async function GET(req: NextRequest) {
-  const ua = req.headers.get('user-agent') ?? '';
-  const uaLower = ua.toLowerCase();
-
-  const isAgent = AGENT_PATTERNS.some(p => uaLower.includes(p));
-
-  if (!isAgent) {
-    return new NextResponse(null, { status: 404 });
-  }
+  // UA-based filtering removed: trivially spoofed, manifest is public/benign.
+  // Serving to all callers is correct — .well-known/* is public by convention.
+  void req; // req unused but kept for Next.js route signature consistency
 
   return NextResponse.json(AGENT_MANIFEST, {
     headers: {
-      'Cache-Control': 'no-store',
+      // Cache at edge/CDN for 1h — manifest changes rarely
+      'Cache-Control': 'public, max-age=3600, stale-while-revalidate=86400',
       'X-Agent-Welcome': 'true',
     },
   });

@@ -47,6 +47,24 @@ export async function POST(req: NextRequest) {
   }
   const wallet_hash = userRow.wallet_hash as string;
 
+  // Max 10 active keys per wallet
+  const MAX_KEYS_PER_WALLET = 10;
+  const { count: activeKeyCount, error: countErr } = await supabase
+    .from('api_keys')
+    .select('id', { count: 'exact', head: true })
+    .eq('owner_wallet_hash', wallet_hash)
+    .eq('active', true);
+
+  if (countErr) {
+    return NextResponse.json({ error: 'could not verify key quota' }, { status: 500 });
+  }
+  if ((activeKeyCount ?? 0) >= MAX_KEYS_PER_WALLET) {
+    return NextResponse.json(
+      { error: `max ${MAX_KEYS_PER_WALLET} active keys per wallet — revoke one first` },
+      { status: 429 }
+    );
+  }
+
   // Generate key: kb_ + 32 random bytes as hex = kb_ + 64 hex chars
   const rawBytes = randomBytes(32);
   const rawKey = 'kb_' + rawBytes.toString('hex');
