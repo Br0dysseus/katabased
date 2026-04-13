@@ -1,0 +1,295 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "kataBased API",
+    "description": "Anonymous Web3 workplace review platform. Wallet-hashed identities, on-chain verified. κατάβασις — the descent.",
+    "version": "0.1.0",
+    "contact": {
+      "url": "https://katabased.vercel.app"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://katabased.vercel.app",
+      "description": "Production"
+    }
+  ],
+  "paths": {
+    "/api/mega-index": {
+      "get": {
+        "operationId": "getMegaIndex",
+        "summary": "Crypto market intelligence index",
+        "description": "Returns real-time market intelligence fused from Hyperliquid on-chain factor scores (funding, OI, volume) and social sentiment snapshots. Cached 2 minutes. No authentication required.",
+        "tags": ["Market Intelligence"],
+        "responses": {
+          "200": {
+            "description": "Market intelligence snapshot",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MegaIndexResponse"
+                },
+                "example": {
+                  "updated_at": "2026-04-13T12:00:00.000Z",
+                  "regime": "trending",
+                  "dominant_sentiment": "bullish",
+                  "narratives": ["BTC dominance rising", "ETH spot demand"],
+                  "session_notes": "Strong risk-on across majors, alts lagging.",
+                  "entities": [
+                    {
+                      "coin": "BTC",
+                      "factor_score": 1.24,
+                      "sentiment": "bullish",
+                      "mentions": 42,
+                      "signal": "LONG",
+                      "confidence": 0.87
+                    }
+                  ],
+                  "top_long": ["BTC", "SOL", "ETH"],
+                  "top_short": ["DOGE"]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/votes": {
+      "post": {
+        "operationId": "submitVote",
+        "summary": "Vote on a review post",
+        "description": "Confirm (up) or dispute (down) a review. Requires a valid session_token from wallet authentication. Voting the same direction twice toggles the vote off. Voting opposite direction returns 409.",
+        "tags": ["Reviews"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VoteRequest"
+              },
+              "example": {
+                "session_token": "user-id.1713000000000.abc123...",
+                "post_id": "550e8400-e29b-41d4-a716-446655440000",
+                "vote_type": "up"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Vote recorded or toggled off",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VoteResponse"
+                },
+                "example": {
+                  "ok": true,
+                  "new_count": 14,
+                  "user_vote": "up"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing required fields or invalid vote_type",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+                "example": { "error": "post_id, vote_type, session_token required" }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid or expired session token",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+                "example": { "error": "invalid or expired session" }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+                "example": { "error": "user not found" }
+              }
+            }
+          },
+          "409": {
+            "description": "Already voted in the opposite direction",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": { "type": "string" },
+                    "user_vote": {
+                      "type": "string",
+                      "enum": ["up", "down"]
+                    }
+                  }
+                },
+                "example": { "error": "already voted opposite direction", "user_vote": "down" }
+              }
+            }
+          },
+          "500": {
+            "description": "Database error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "MegaIndexEntity": {
+        "type": "object",
+        "required": ["coin", "factor_score", "sentiment", "mentions", "signal", "confidence"],
+        "properties": {
+          "coin": {
+            "type": "string",
+            "description": "Asset ticker symbol",
+            "example": "BTC"
+          },
+          "factor_score": {
+            "type": "number",
+            "description": "Composite z-score from on-chain factors (funding, OI/volume ratio). Rounded to 3 decimal places.",
+            "example": 1.24
+          },
+          "sentiment": {
+            "type": "string",
+            "enum": ["bullish", "bearish", "neutral", "mixed"],
+            "description": "Social sentiment direction for this asset"
+          },
+          "mentions": {
+            "type": "integer",
+            "description": "Number of social mentions in the current window",
+            "example": 42
+          },
+          "signal": {
+            "type": "string",
+            "enum": ["LONG", "SHORT", "NEUTRAL"],
+            "description": "Fused trading signal combining factor score and sentiment"
+          },
+          "confidence": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "description": "Signal confidence score, 0.0–1.0. Rounded to 2 decimal places.",
+            "example": 0.87
+          }
+        }
+      },
+      "MegaIndexResponse": {
+        "type": "object",
+        "required": ["updated_at", "regime", "dominant_sentiment", "narratives", "session_notes", "entities", "top_long", "top_short"],
+        "properties": {
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "ISO 8601 timestamp of when this response was generated"
+          },
+          "regime": {
+            "type": "string",
+            "enum": ["trending", "breakout", "carry", "mean-reversion", "choppy"],
+            "description": "Detected market regime based on factor distribution across assets"
+          },
+          "dominant_sentiment": {
+            "type": "string",
+            "description": "Aggregate sentiment across all tracked assets and social signals",
+            "example": "bullish"
+          },
+          "narratives": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Active market narratives extracted from social signal processing",
+            "example": ["BTC dominance rising", "ETH spot demand"]
+          },
+          "session_notes": {
+            "type": "string",
+            "description": "Human-readable market session digest",
+            "example": "Strong risk-on across majors, alts lagging."
+          },
+          "entities": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/MegaIndexEntity" },
+            "description": "All tracked assets sorted by absolute factor score descending"
+          },
+          "top_long": {
+            "type": "array",
+            "items": { "type": "string" },
+            "maxItems": 3,
+            "description": "Top 3 LONG signal assets by confidence",
+            "example": ["BTC", "SOL", "ETH"]
+          },
+          "top_short": {
+            "type": "array",
+            "items": { "type": "string" },
+            "maxItems": 3,
+            "description": "Top 3 SHORT signal assets by confidence",
+            "example": ["DOGE"]
+          }
+        }
+      },
+      "VoteRequest": {
+        "type": "object",
+        "required": ["session_token", "post_id", "vote_type"],
+        "properties": {
+          "session_token": {
+            "type": "string",
+            "description": "Session token from wallet authentication (userId.expiry.hmac format)"
+          },
+          "post_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the review post to vote on"
+          },
+          "vote_type": {
+            "type": "string",
+            "enum": ["up", "down"],
+            "description": "up = confirm the review, down = dispute it"
+          }
+        }
+      },
+      "VoteResponse": {
+        "type": "object",
+        "required": ["ok", "new_count"],
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "example": true
+          },
+          "new_count": {
+            "type": "integer",
+            "description": "Updated vote count (confirms or disputes) after the operation",
+            "example": 14
+          },
+          "user_vote": {
+            "type": "string",
+            "enum": ["up", "down"],
+            "nullable": true,
+            "description": "Resulting vote state for this user. null means vote was toggled off."
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "required": ["error"],
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "Human-readable error message"
+          }
+        }
+      }
+    }
+  }
+}

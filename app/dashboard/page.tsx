@@ -252,7 +252,9 @@ function FeedPage({ feed, votes, vote, onCompose, selectedEntity, onClearEntity,
 
 // ─── Mega Index ───────────────────────────────────────────────────────────────
 interface MegaEntity { coin: string; factor_score: number; sentiment: string; mentions: number; signal: string; confidence: number; }
-interface MegaData { updated_at: string; regime: string; dominant_sentiment: string; narratives: string[]; session_notes: string; entities: MegaEntity[]; top_long: string[]; top_short: string[]; }
+interface MegaNewsItem { title: string; source: string; url: string; published?: string; }
+interface MegaPolyItem { question: string; yes_prob: number; volume: number; }
+interface MegaData { updated_at: string; regime: string; dominant_sentiment: string; narratives: string[]; session_notes: string; entities: MegaEntity[]; top_long: string[]; top_short: string[]; news: MegaNewsItem[]; polymarket: MegaPolyItem[]; }
 
 const REGIME_COLOR: Record<string, string> = { trending: '#4ade80', choppy: '#facc15', 'mean-reversion': '#a78bfa', carry: '#38bdf8', breakout: '#f472b6', neutral: 'rgba(190,208,238,0.3)' };
 const SENT_COLOR: Record<string, string> = { bullish: '#4ade80', bearish: '#f87171', neutral: 'rgba(190,208,238,0.35)', mixed: '#facc15' };
@@ -285,92 +287,203 @@ function MegaIndex() {
 
   const bullCount = data.entities.filter(e => e.sentiment === 'bullish').length;
   const bearCount = data.entities.filter(e => e.sentiment === 'bearish').length;
-  const neutCount = data.entities.length - bullCount - bearCount;
   const total = data.entities.length || 1;
   const bullPct = Math.round((bullCount / total) * 100);
   const bearPct = Math.round((bearCount / total) * 100);
   const neutPct = 100 - bullPct - bearPct;
 
-  const confEntities = data.entities.filter(e => e.signal !== 'NEUTRAL').sort((a,b) => b.confidence - a.confidence);
-  const longSet = new Set(data.top_long);
-  const shortSet = new Set(data.top_short);
+  const confEntities = data.entities.filter(e => e.signal !== 'NEUTRAL').sort((a, b) => b.confidence - a.confidence);
+
+  // Relative publish time
+  function relTime(published?: string): string {
+    if (!published) return '';
+    const d = new Date(published);
+    if (isNaN(d.getTime())) return '';
+    const mins = Math.floor((Date.now() - d.getTime()) / 60000);
+    if (mins < 60) return `${mins}m`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `${hrs}h`;
+    return `${Math.floor(hrs / 24)}d`;
+  }
+
+  const newsItems = data.news ?? [];
+  const polyItems = data.polymarket ?? [];
+
+  const divider = <div style={{ height: 1, background: 'linear-gradient(90deg, rgba(107,159,212,0.12) 0%, transparent 100%)', margin: '9px 0' }} />;
 
   return (
-    <div style={{ marginBottom: 20, padding: '12px 12px 10px', border: '1px solid rgba(107,159,212,0.08)', borderRadius: 2, background: 'rgba(107,159,212,0.02)' }}>
-      {/* Header row */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-        <div style={{ fontFamily: mono, fontSize: 11, fontWeight: 600, letterSpacing: '0.22em', color: 'rgba(107,159,212,0.55)', textTransform: 'uppercase' }}>
-          <span style={{ color: 'rgba(107,159,212,0.25)' }}>{'//'} </span>MEGA_INDEX
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          {/* Regime badge */}
-          <span style={{ fontFamily: mono, fontSize: 10, fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: REGIME_COLOR[data.regime] ?? REGIME_COLOR.neutral, border: `1px solid ${REGIME_COLOR[data.regime] ?? REGIME_COLOR.neutral}44`, padding: '2px 7px', borderRadius: 2, background: `${REGIME_COLOR[data.regime] ?? REGIME_COLOR.neutral}11` }}>
-            {data.regime.toUpperCase()}
-          </span>
-          {/* Sentiment dot */}
-          <span style={{ fontFamily: mono, fontSize: 10, letterSpacing: '0.1em', color: SENT_COLOR[data.dominant_sentiment] ?? SENT_COLOR.neutral, opacity: 0.85 }}>
-            {data.dominant_sentiment.toUpperCase()}
-          </span>
-        </div>
-      </div>
+    <div style={{ marginBottom: 20, padding: '12px 12px 10px', border: '1px solid rgba(107,159,212,0.1)', borderRadius: 2, background: 'rgba(4,5,12,0.8)', position: 'relative', overflow: 'hidden' }}>
 
-      {/* Sentiment bar */}
-      <div style={{ marginBottom: 10 }}>
-        <div style={{ display: 'flex', width: '100%', height: 5, borderRadius: 1, overflow: 'hidden', gap: 1 }}>
-          <div style={{ width: `${bullPct}%`, background: 'rgba(74,222,128,0.65)', height: '100%', transition: 'width 0.5s' }} />
-          <div style={{ width: `${neutPct}%`, background: 'rgba(190,208,238,0.18)', height: '100%' }} />
-          <div style={{ width: `${bearPct}%`, background: 'rgba(248,113,113,0.6)', height: '100%' }} />
-        </div>
-        <div style={{ display: 'flex', gap: 12, marginTop: 4 }}>
-          <span style={{ fontFamily: mono, fontSize: 10, color: 'rgba(74,222,128,0.6)', letterSpacing: '0.06em' }}>{bullPct}% BULL</span>
-          <span style={{ fontFamily: mono, fontSize: 10, color: 'rgba(190,208,238,0.25)', letterSpacing: '0.06em' }}>{neutPct}% NEUT</span>
-          <span style={{ fontFamily: mono, fontSize: 10, color: 'rgba(248,113,113,0.55)', letterSpacing: '0.06em' }}>{bearPct}% BEAR</span>
-        </div>
-      </div>
+      {/* Scan-line texture overlay */}
+      <div style={{ position: 'absolute', inset: 0, backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(107,159,212,0.015) 3px, rgba(107,159,212,0.015) 4px)', pointerEvents: 'none', zIndex: 0 }} />
 
-      {/* Top signals grid */}
-      {(data.top_long.length > 0 || data.top_short.length > 0) && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 10 }}>
-          <div>
-            <div style={{ fontFamily: mono, fontSize: 10, color: 'rgba(74,222,128,0.5)', letterSpacing: '0.14em', marginBottom: 5, textTransform: 'uppercase' }}>TOP LONG</div>
-            {data.top_long.map(coin => {
-              const e = confEntities.find(x => x.coin === coin);
-              return (
-                <div key={coin} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
-                  <span style={{ fontFamily: mono, fontSize: 11, fontWeight: 600, color: 'rgba(74,222,128,0.85)', letterSpacing: '0.04em' }}>{coin}</span>
-                  <span style={{ fontFamily: mono, fontSize: 11, color: 'rgba(74,222,128,0.45)', letterSpacing: '0.04em' }}>{e ? Math.round(e.confidence * 100) : '—'}%</span>
-                </div>
-              );
-            })}
-            {data.top_long.length === 0 && <span style={{ fontFamily: mono, fontSize: 11, color: 'rgba(190,208,238,0.15)' }}>—</span>}
+      <div style={{ position: 'relative', zIndex: 1 }}>
+
+        {/* ── HEADER: regime + sentiment inline ── */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 9 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span style={{ fontFamily: mono, fontSize: 10, color: 'rgba(107,159,212,0.3)', letterSpacing: '0.1em' }}>{'//'}</span>
+            <span style={{ fontFamily: mono, fontSize: 11, fontWeight: 700, letterSpacing: '0.22em', color: 'rgba(107,159,212,0.7)', textTransform: 'uppercase' }}>MEGA_INDEX</span>
           </div>
-          <div>
-            <div style={{ fontFamily: mono, fontSize: 10, color: 'rgba(248,113,113,0.5)', letterSpacing: '0.14em', marginBottom: 5, textTransform: 'uppercase' }}>TOP SHORT</div>
-            {data.top_short.map(coin => {
-              const e = confEntities.find(x => x.coin === coin);
-              return (
-                <div key={coin} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
-                  <span style={{ fontFamily: mono, fontSize: 11, fontWeight: 600, color: 'rgba(248,113,113,0.8)', letterSpacing: '0.04em' }}>{coin}</span>
-                  <span style={{ fontFamily: mono, fontSize: 11, color: 'rgba(248,113,113,0.4)', letterSpacing: '0.04em' }}>{e ? Math.round(e.confidence * 100) : '—'}%</span>
-                </div>
-              );
-            })}
-            {data.top_short.length === 0 && <span style={{ fontFamily: mono, fontSize: 11, color: 'rgba(190,208,238,0.15)' }}>—</span>}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span style={{ fontFamily: mono, fontSize: 10, fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: REGIME_COLOR[data.regime] ?? REGIME_COLOR.neutral, border: `1px solid ${REGIME_COLOR[data.regime] ?? REGIME_COLOR.neutral}50`, padding: '2px 7px', borderRadius: 2, background: `${REGIME_COLOR[data.regime] ?? REGIME_COLOR.neutral}10` }}>
+              {data.regime.toUpperCase()}
+            </span>
+            <span style={{ fontFamily: mono, fontSize: 10, letterSpacing: '0.12em', color: SENT_COLOR[data.dominant_sentiment] ?? SENT_COLOR.neutral }}>
+              {data.dominant_sentiment.toUpperCase()}
+            </span>
           </div>
         </div>
-      )}
 
-      {/* Narrative pills */}
-      {data.narratives.length > 0 && (
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 8 }}>
-          {data.narratives.slice(0, 10).map(n => (
-            <span key={n} style={{ fontFamily: mono, fontSize: 10, letterSpacing: '0.1em', color: 'rgba(107,159,212,0.5)', border: '1px solid rgba(107,159,212,0.15)', padding: '1px 6px', borderRadius: 2 }}>{n}</span>
-          ))}
+        {/* ── SENTIMENT BAR ── */}
+        <div style={{ marginBottom: 10 }}>
+          <div style={{ display: 'flex', width: '100%', height: 5, borderRadius: 1, overflow: 'hidden', gap: 1 }}>
+            <div style={{ width: `${bullPct}%`, background: 'rgba(74,222,128,0.65)', height: '100%', transition: 'width 0.5s' }} />
+            <div style={{ width: `${neutPct}%`, background: 'rgba(190,208,238,0.14)', height: '100%' }} />
+            <div style={{ width: `${bearPct}%`, background: 'rgba(248,113,113,0.6)', height: '100%' }} />
+          </div>
+          <div style={{ display: 'flex', gap: 12, marginTop: 4 }}>
+            <span style={{ fontFamily: mono, fontSize: 10, color: 'rgba(74,222,128,0.6)', letterSpacing: '0.06em' }}>{bullPct}%<span style={{ color: 'rgba(74,222,128,0.3)', marginLeft: 3 }}>BULL</span></span>
+            <span style={{ fontFamily: mono, fontSize: 10, color: 'rgba(190,208,238,0.22)', letterSpacing: '0.06em' }}>{neutPct}%<span style={{ marginLeft: 3 }}>NEUT</span></span>
+            <span style={{ fontFamily: mono, fontSize: 10, color: 'rgba(248,113,113,0.55)', letterSpacing: '0.06em' }}>{bearPct}%<span style={{ color: 'rgba(248,113,113,0.3)', marginLeft: 3 }}>BEAR</span></span>
+          </div>
         </div>
-      )}
 
-      {/* Attribution */}
-      <div style={{ fontFamily: mono, fontSize: 10, color: 'rgba(190,208,238,0.15)', letterSpacing: '0.06em' }}>powered by anjew</div>
+        {/* ── TOP SIGNALS GRID — with factor score context ── */}
+        {(data.top_long.length > 0 || data.top_short.length > 0) && (
+          <>
+            {divider}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 4 }}>
+              {/* LONG column */}
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+                  <span style={{ fontFamily: mono, fontSize: 9, color: 'rgba(74,222,128,0.35)', letterSpacing: '0.14em', textTransform: 'uppercase' }}>[LONG]</span>
+                </div>
+                {data.top_long.map(coin => {
+                  const e = confEntities.find(x => x.coin === coin);
+                  const fs = e ? (e.factor_score > 0 ? '+' : '') + e.factor_score.toFixed(2) : null;
+                  return (
+                    <div key={coin} style={{ display: 'grid', gridTemplateColumns: '1fr auto auto', gap: 6, alignItems: 'center', marginBottom: 4, padding: '3px 5px', background: 'rgba(74,222,128,0.04)', borderLeft: '2px solid rgba(74,222,128,0.3)', borderRadius: 1 }}>
+                      <span style={{ fontFamily: mono, fontSize: 11, fontWeight: 700, color: 'rgba(74,222,128,0.9)', letterSpacing: '0.04em' }}>{coin}</span>
+                      {fs && <span style={{ fontFamily: mono, fontSize: 9, color: 'rgba(74,222,128,0.35)', letterSpacing: '0.04em' }}>z{fs}</span>}
+                      <span style={{ fontFamily: mono, fontSize: 11, color: 'rgba(74,222,128,0.55)', letterSpacing: '0.04em' }}>{e ? Math.round(e.confidence * 100) : '—'}%</span>
+                    </div>
+                  );
+                })}
+                {data.top_long.length === 0 && <span style={{ fontFamily: mono, fontSize: 11, color: 'rgba(190,208,238,0.12)' }}>—</span>}
+              </div>
+
+              {/* SHORT column */}
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+                  <span style={{ fontFamily: mono, fontSize: 9, color: 'rgba(248,113,113,0.35)', letterSpacing: '0.14em', textTransform: 'uppercase' }}>[SHORT]</span>
+                </div>
+                {data.top_short.map(coin => {
+                  const e = confEntities.find(x => x.coin === coin);
+                  const fs = e ? (e.factor_score > 0 ? '+' : '') + e.factor_score.toFixed(2) : null;
+                  return (
+                    <div key={coin} style={{ display: 'grid', gridTemplateColumns: '1fr auto auto', gap: 6, alignItems: 'center', marginBottom: 4, padding: '3px 5px', background: 'rgba(248,113,113,0.04)', borderLeft: '2px solid rgba(248,113,113,0.25)', borderRadius: 1 }}>
+                      <span style={{ fontFamily: mono, fontSize: 11, fontWeight: 700, color: 'rgba(248,113,113,0.85)', letterSpacing: '0.04em' }}>{coin}</span>
+                      {fs && <span style={{ fontFamily: mono, fontSize: 9, color: 'rgba(248,113,113,0.3)', letterSpacing: '0.04em' }}>z{fs}</span>}
+                      <span style={{ fontFamily: mono, fontSize: 11, color: 'rgba(248,113,113,0.5)', letterSpacing: '0.04em' }}>{e ? Math.round(e.confidence * 100) : '—'}%</span>
+                    </div>
+                  );
+                })}
+                {data.top_short.length === 0 && <span style={{ fontFamily: mono, fontSize: 11, color: 'rgba(190,208,238,0.12)' }}>—</span>}
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* ── NARRATIVES ── */}
+        {data.narratives.length > 0 && (
+          <>
+            {divider}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 4 }}>
+              {data.narratives.slice(0, 8).map(n => (
+                <span key={n} style={{ fontFamily: mono, fontSize: 10, letterSpacing: '0.08em', color: 'rgba(107,159,212,0.45)', border: '1px solid rgba(107,159,212,0.12)', padding: '1px 6px', borderRadius: 2 }}>{n}</span>
+              ))}
+            </div>
+          </>
+        )}
+
+        {/* ── PREDICTION MARKET ── */}
+        {polyItems.length > 0 && (
+          <>
+            {divider}
+            <div style={{ marginBottom: 4 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 6 }}>
+                <span style={{ fontFamily: mono, fontSize: 9, color: 'rgba(107,159,212,0.25)', letterSpacing: '0.1em' }}>{'//'}</span>
+                <span style={{ fontFamily: mono, fontSize: 9, fontWeight: 600, letterSpacing: '0.16em', color: 'rgba(212,132,90,0.55)', textTransform: 'uppercase' }}>PREDICTION_MKT</span>
+              </div>
+              {polyItems.map((m, i) => {
+                const pYes = m.yes_prob;
+                const pNo = 100 - pYes;
+                const volK = m.volume >= 1000 ? `$${(m.volume / 1000).toFixed(0)}k` : `$${m.volume}`;
+                const yesBright = pYes > 65 ? 'rgba(74,222,128,0.85)' : pYes < 35 ? 'rgba(248,113,113,0.8)' : 'rgba(190,208,238,0.55)';
+                return (
+                  <div key={i} style={{ marginBottom: 6 }}>
+                    <div style={{ fontFamily: mono, fontSize: 10, color: 'rgba(190,208,238,0.5)', letterSpacing: '0.04em', marginBottom: 3, lineHeight: 1.35, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const }}>
+                      {m.question}
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      {/* YES/NO probability bar */}
+                      <div style={{ flex: 1, display: 'flex', height: 4, borderRadius: 1, overflow: 'hidden', gap: 1 }}>
+                        <div style={{ width: `${pYes}%`, background: 'rgba(74,222,128,0.5)', height: '100%', transition: 'width 0.4s' }} />
+                        <div style={{ width: `${pNo}%`, background: 'rgba(248,113,113,0.35)', height: '100%' }} />
+                      </div>
+                      <span style={{ fontFamily: mono, fontSize: 10, fontWeight: 700, color: yesBright, letterSpacing: '0.06em', flexShrink: 0 }}>{pYes}%</span>
+                      <span style={{ fontFamily: mono, fontSize: 9, color: 'rgba(190,208,238,0.2)', letterSpacing: '0.04em', flexShrink: 0 }}>{volK}</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        )}
+
+        {/* ── NEWS FEED ── */}
+        {newsItems.length > 0 && (
+          <>
+            {divider}
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 6 }}>
+                <span style={{ fontFamily: mono, fontSize: 9, color: 'rgba(107,159,212,0.25)', letterSpacing: '0.1em' }}>{'//'}</span>
+                <span style={{ fontFamily: mono, fontSize: 9, fontWeight: 600, letterSpacing: '0.16em', color: 'rgba(107,159,212,0.45)', textTransform: 'uppercase' }}>FEED</span>
+              </div>
+              {newsItems.map((item, i) => {
+                const age = relTime(item.published);
+                return (
+                  <div key={i} style={{ marginBottom: 5, paddingBottom: 5, borderBottom: i < newsItems.length - 1 ? '1px solid rgba(107,159,212,0.05)' : 'none' }}>
+                    <a href={item.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+                      <div style={{ fontFamily: mono, fontSize: 10, color: 'rgba(190,208,238,0.7)', letterSpacing: '0.03em', lineHeight: 1.45, marginBottom: 2, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, cursor: 'pointer' }}
+                        onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(107,159,212,0.9)'; }}
+                        onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(190,208,238,0.7)'; }}
+                      >
+                        {item.title}
+                      </div>
+                    </a>
+                    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                      <span style={{ fontFamily: mono, fontSize: 9, color: 'rgba(212,132,90,0.5)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>{item.source}</span>
+                      {age && <span style={{ fontFamily: mono, fontSize: 9, color: 'rgba(190,208,238,0.2)', letterSpacing: '0.06em' }}>{age} ago</span>}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        )}
+
+        {/* ── FOOTER ── */}
+        {divider}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span style={{ fontFamily: mono, fontSize: 9, color: 'rgba(190,208,238,0.12)', letterSpacing: '0.08em' }}>powered by anjew</span>
+          <span style={{ fontFamily: mono, fontSize: 9, color: 'rgba(107,159,212,0.15)', letterSpacing: '0.06em' }}>
+            {new Date(data.updated_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+          </span>
+        </div>
+
+      </div>
     </div>
   );
 }

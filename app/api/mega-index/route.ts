@@ -5,6 +5,20 @@ export const revalidate = 120; // 2 min
 
 const HL_API = 'https://api.hyperliquid.xyz/info';
 
+// ─── News + Polymarket types ──────────────────────────────────────────────────
+interface NewsItem {
+  title: string;
+  source: string;
+  url: string;
+  published?: string;
+}
+
+interface PolymarketMarket {
+  question: string;
+  yes_prob: number;
+  volume: number;
+}
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface FactorAsset {
   coin: string;
@@ -50,6 +64,8 @@ interface MegaIndexResponse {
   entities: MegaIndexEntity[];
   top_long: string[];
   top_short: string[];
+  news: NewsItem[];
+  polymarket: PolymarketMarket[];
 }
 
 // ─── Regime detection from factor distribution ────────────────────────────────
@@ -174,11 +190,107 @@ async function fetchMarketIntelFromSupabase(): Promise<MarketIntel | null> {
   }
 }
 
+// ─── RSS: fetch crypto news from public feeds ─────────────────────────────────
+async function fetchCryptoNews(): Promise<NewsItem[]> {
+  const feeds = [
+    { url: 'https://cointelegraph.com/rss', source: 'CT' },
+    { url: 'https://decrypt.co/feed', source: 'DECRYPT' },
+    { url: 'https://www.theblock.co/rss.xml', source: 'THEBLOCK' },
+  ];
+
+  const results: NewsItem[] = [];
+
+  await Promise.allSettled(
+    feeds.map(async ({ url, source }) => {
+      try {
+        const res = await fetch(url, {
+          headers: { 'User-Agent': 'Mozilla/5.0 (compatible; kataBased/1.0)' },
+          next: { revalidate: 300 }, // 5 min
+          signal: AbortSignal.timeout(4000),
+        });
+        if (!res.ok) return;
+        const text = await res.text();
+
+        // Parse <item> blocks — simple regex, no DOM
+        const itemRegex = /<item[^>]*>([\s\S]*?)<\/item>/gi;
+        let itemMatch: RegExpExecArray | null;
+        let count = 0;
+        while (count < 2 && (itemMatch = itemRegex.exec(text)) !== null) {
+          const block = itemMatch[1];
+          const titleMatch = block.match(/<title[^>]*>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/title>/i);
+          const linkMatch = block.match(/<link[^>]*>(?:<!\[CDATA\[)?(https?:\/\/[^\s<\]]+)(?:\]\]>)?<\/link>/i)
+            ?? block.match(/<guid[^>]*>(?:<!\[CDATA\[)?(https?:\/\/[^\s<\]]+)(?:\]\]>)?<\/guid>/i);
+          const pubMatch = block.match(/<pubDate[^>]*>([\s\S]*?)<\/pubDate>/i);
+          const title = titleMatch?.[1]?.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&#039;/g, "'").replace(/&quot;/g, '"').trim();
+          const link = linkMatch?.[1]?.trim();
+          const pub = pubMatch?.[1]?.trim();
+          if (title && link) {
+            results.push({ title, source, url: link, published: pub });
+            count++;
+          }
+        }
+      } catch {
+        // feed unreachable — skip silently
+      }
+    })
+  );
+
+  // Sort by published date desc, return top 5
+  results.sort((a, b) => {
+    const da = a.published ? new Date(a.published).getTime() : 0;
+    const db = b.published ? new Date(b.published).getTime() : 0;
+    return db - da;
+  });
+
+  return results.slice(0, 5);
+}
+
+// ─── Polymarket Gamma API: top crypto prediction markets ─────────────────────
+async function fetchPolymarketCrypto(): Promise<PolymarketMarket[]> {
+  try {
+    // Gamma markets endpoint — public, no auth
+    const res = await fetch(
+      'https://gamma-api.polymarket.com/markets?tag_slug=crypto&active=true&closed=false&limit=20&order=volumeNum&ascending=false',
+      {
+        headers: { 'Accept': 'application/json' },
+        next: { revalidate: 300 },
+        signal: AbortSignal.timeout(5000),
+      }
+    );
+    if (!res.ok) return [];
+
+    const rawMarkets = await res.json();
+    const markets = rawMarkets as Record<string, unknown>[];
+    if (!Array.isArray(markets)) return [];
+
+    return markets
+      .filter((m) => m.question && (m.outcomePrices || m.bestAsk))
+      .slice(0, 3)
+      .map((m) => {
+        // outcomePrices is "[\"0.72\",\"0.28\"]" — yes price is index 0
+        let yes_prob = 0;
+        try {
+          const prices = typeof m.outcomePrices === 'string'
+            ? JSON.parse(m.outcomePrices)
+            : m.outcomePrices;
+          yes_prob = Math.round(parseFloat(prices?.[0] ?? '0') * 100);
+        } catch { yes_prob = 0; }
+
+        const volume = Math.round(parseFloat(String(m.volumeNum ?? m.volume ?? '0')));
+        return { question: m.question as string, yes_prob, volume };
+      });
+  } catch {
+    return [];
+  }
+}
+
 // ─── Handler ──────────────────────────────────────────────────────────────────
 export async function GET() {
-  const [factors, intel] = await Promise.all([
+  const [factors, intel, news, polymarket] = await Promise.all([
     fetchHLFactorScores(),
     fetchMarketIntelFromSupabase(),
+    fetchCryptoNews(),
+    fetchPolymarketCrypto(),
   ]);
 
   const dominant_sentiment = intel?.dominant_sentiment ?? 'neutral';
@@ -247,7 +359,15 @@ export async function GET() {
     entities,
     top_long,
     top_short,
+    news,
+    polymarket,
   };
 
-  return NextResponse.json(response);
+  return NextResponse.json(response, {
+    headers: {
+      'X-Agent-Welcome': 'true',
+      'X-KB-Docs': 'https://katabased.vercel.app/llms.txt',
+      'X-Payment-Protocol': 'x402 (coming soon)',
+    },
+  });
 }
