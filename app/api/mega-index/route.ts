@@ -256,6 +256,13 @@ const POLY_EXCLUDE = [
   'jesus','christ','god','allah','rapture','second coming','apocalypse',
   'antichrist','pope','will elon','will trump tweet','will biden',
   'doge coin','flat earth',
+  'gta','grand theft','video game','game release','game launch',
+  'fortnite','minecraft','call of duty','playstation','xbox',
+  'nintendo','streaming','netflix','spotify','youtube',
+  'tiktok views','viral','followers','subscribers',
+  'world series','stanley cup','wimbledon','masters',
+  'miss universe','miss america','reality tv','survivor',
+  'bachelor','american idol','got talent',
 ];
 
 const POLY_BOOST = [
