@@ -51,8 +51,9 @@ function checkRateLimit(ip: string, route: string, windowMs: number, maxReqs: nu
 // ---------------------------------------------------------------------------
 
 const RATE_LIMITS: Array<{ path: string; maxReqs: number; windowMs: number }> = [
-  { path: '/api/agent/post',   maxReqs: 10, windowMs: 60_000 },
-  { path: '/api/keys/generate', maxReqs: 3,  windowMs: 60_000 },
+  { path: '/api/agent/post',     maxReqs: 10, windowMs: 60_000 },
+  { path: '/api/keys/generate',  maxReqs: 3,  windowMs: 60_000 },
+  { path: '/api/agent/seed-key', maxReqs: 3,  windowMs: 60_000 },
 ];
 
 // ---------------------------------------------------------------------------
@@ -89,5 +90,10 @@ export function middleware(req: NextRequest) {
 
 // Only run middleware on these paths — skip static assets, _next, etc.
 export const config = {
-  matcher: ['/api/agent/post', '/api/agent/post/:path*', '/api/keys/generate'],
+  matcher: [
+    '/api/agent/post',
+    '/api/agent/post/:path*',
+    '/api/keys/generate',
+    '/api/agent/seed-key',
+  ],
 };

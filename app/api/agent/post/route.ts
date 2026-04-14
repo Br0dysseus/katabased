@@ -10,6 +10,7 @@ const TIER_LIMITS: Record<string, number> = {
   free:       5,
   agent:      20,
   agent_pro:  100,
+  seed:       500,
 };
 
 function serviceSupabase() {

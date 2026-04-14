@@ -37,6 +37,19 @@ CREATE POLICY "posts_insert_open" ON public.posts
 CREATE POLICY "posts_update_votes" ON public.posts
   FOR UPDATE USING (true) WITH CHECK (true);
 
+-- ─── Week 1-2 additions ──────────────────────────────────────────────────────
+-- Run these if upgrading an existing deployment:
+
+-- Seed key auditing (api_keys table)
+-- ALTER TABLE api_keys ADD COLUMN IF NOT EXISTS source text;
+-- ALTER TABLE api_keys ADD COLUMN IF NOT EXISTS active boolean NOT NULL DEFAULT true;
+
+-- Farcaster cron tracking (posts table)
+-- ALTER TABLE public.posts ADD COLUMN IF NOT EXISTS cast_at TIMESTAMPTZ;
+
+-- Batch-revoke seed keys after seeding:
+-- UPDATE api_keys SET active = false WHERE source = 'seed_endpoint';
+
 -- ─── Auto-update updated_at ───────────────────────────────────────────────────
 CREATE OR REPLACE FUNCTION public.set_updated_at()
 RETURNS TRIGGER AS $$

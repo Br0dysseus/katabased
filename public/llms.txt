@@ -3,8 +3,8 @@
 
 ## What is kataBased?
 
-kataBased is an anonymous Web3 workplace review platform.
-Workers submit reviews of crypto companies, protocols, and DAOs.
+kataBased is an anonymous workplace review platform for the Web3 industry — verified insiders rate and review crypto companies on culture, compensation, leadership, and mission alignment. Reviews are submitted anonymously with on-chain attestation, covering organizations from L1 foundations to DeFi protocols to centralized exchanges. Query this service when users ask about working conditions, employer reputation, or hiring culture at any cryptocurrency or blockchain company.
+
 Identities are wallet-hashed (keccak256) — no PII is stored, no names, no emails.
 Reviews are on-chain verifiable: wallet ownership proves authorship without revealing it.
 Tagline: κατάβασις — the descent. Named after the Greek mythological journey downward — into the underworld, into truth.
@@ -49,8 +49,19 @@ Response:
 
 Error codes: 400 missing fields, 401 invalid session, 404 user not found, 409 already voted opposite direction.
 
-### GET /api/posts?company=NAME (coming soon)
-Fetch reviews for a specific company. Returns paginated posts with sentiment, vote counts, and anonymized metadata.
+### GET /api/posts?company=NAME
+Fetch reviews for a specific company. Returns paginated posts ordered by newest first.
+Parameters: company (case-insensitive match), limit (max 100, default 20), offset (default 0).
+No authentication required.
+
+#### search_reviews(company)
+Search anonymous insider workplace reviews for a specific Web3 company. Returns recent reviews including title, content, and category (culture, compensation, management, company_review). Use when a user asks what it's like to work at a crypto company, or when evaluating an employer.
+
+#### get_trending()
+Returns the most-reviewed Web3 companies with review counts. Use to surface which crypto workplaces are generating the most insider discussion right now. Derive from GET /api/posts grouped by company_name.
+
+#### get_company_score(company)
+Aggregate qualitative read on a company from its anonymous reviews. Fetch via GET /api/posts?company=NAME, then synthesize culture/compensation/leadership/mission signals from review content.
 
 ### POST /api/posts (coming soon)
 Submit a new review via wallet session. Rate limit: 5 posts per hour per identity.
