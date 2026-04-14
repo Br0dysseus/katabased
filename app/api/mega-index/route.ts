@@ -248,27 +248,48 @@ async function fetchCryptoNews(): Promise<NewsItem[]> {
 // ─── Polymarket Gamma API: macro/geo/crypto prediction markets ───────────────
 
 const POLY_EXCLUDE = [
+  // Sports
   'nba','nfl','nhl','mlb','nascar','soccer','football','basketball','baseball',
   'hockey','tennis','golf','boxing','ufc','mma','wrestling','super bowl',
   'world cup','champions league','lebron','curry','mahomes','messi','ronaldo',
+  'world series','stanley cup','wimbledon','masters',
+  // Entertainment / celebrity
   'taylor swift','beyonce','kanye','drake','oscar','grammy','emmy',
   'academy award','movie','album','song','artist of the year','rapper','singer',
+  'miss universe','miss america','reality tv','survivor','bachelor','american idol','got talent',
+  // Religious / fringe
   'jesus','christ','god','allah','rapture','second coming','apocalypse',
-  'antichrist','pope','will elon','will trump tweet','will biden',
-  'doge coin','flat earth',
+  'antichrist','pope','flat earth',
+  // Social media noise
+  'tiktok views','viral','followers','subscribers','will elon','will trump tweet',
+  // Gaming / streaming
   'gta','grand theft','video game','game release','game launch',
-  'fortnite','minecraft','call of duty','playstation','xbox',
-  'nintendo','streaming','netflix','spotify','youtube',
-  'tiktok views','viral','followers','subscribers',
-  'world series','stanley cup','wimbledon','masters',
-  'miss universe','miss america','reality tv','survivor',
-  'bachelor','american idol','got talent',
+  'fortnite','minecraft','call of duty','playstation','xbox','nintendo',
+  'streaming','netflix','spotify','youtube',
+  // TradFi M&A noise (low crypto signal)
+  'acquisition','merger','ipo','spinoff',
+  // Low-velocity geo terms
+  'nato','sanctions',
+  // Commodities (HL perps don't list crude/gold — cut entirely)
+  'oil price','crude','brent','wti','opec','barrel',
 ];
 
+// Bucket-aligned boost terms — maps to the 7 whitelisted categories
 const POLY_BOOST = [
-  'fed','rate','fomc','inflation','cpi','gdp','jobs','unemployment','recession',
-  'oil','gold','bitcoin','btc','ethereum','eth','rate cut','rate hike',
-  'election','president','war','nato','china','russia','iran','sanctions',
+  // FED / MACRO
+  'fed','fomc','rate cut','rate hike','inflation','cpi','gdp','unemployment','recession','treasury','yield',
+  // CRYPTO
+  'bitcoin','btc','ethereum','eth','crypto','altcoin','defi',
+  // STABLECOIN / REGULATION (highest-volatility catalyst)
+  'tether','usdc','stablecoin','sec','gensler','etf approval','stablecoin bill','crypto regulation',
+  // TRUMP / US POLICY
+  'trump','tariff','executive order','trade war','trade deal',
+  // GEOPOLITICS
+  'china','taiwan','russia','export controls','chip ban','war','conflict',
+  // IRAN / MIDDLE EAST
+  'iran','israel','middle east',
+  // AI / TECH (moves TAO, VIRTUAL, RENDER etc.)
+  'artificial intelligence','compute','training run','model release','deepseek','openai','nvidia','gpu',
 ];
 
 function parsePolyMarket(m: Record<string, unknown>): PolymarketMarket {
@@ -284,7 +305,8 @@ function parsePolyMarket(m: Record<string, unknown>): PolymarketMarket {
 }
 
 async function fetchPolymarketCrypto(): Promise<PolymarketMarket[]> {
-  const tags = ['economics', 'crypto', 'politics', 'world'];
+  // 7 whitelisted buckets: FED/MACRO, CRYPTO, STABLECOIN/REG, TRUMP/US, GEOPOLITICS, IRAN/ME, AI/TECH
+  const tags = ['crypto', 'economics', 'politics', 'world', 'middle-east', 'ai', 'technology'];
   const opts = {
     headers: { 'Accept': 'application/json' },
     next: { revalidate: 300 } as { revalidate: number },

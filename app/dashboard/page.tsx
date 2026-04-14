@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAccount, useDisconnect } from 'wagmi';
 import { useUser } from '@/lib/UserContext';
 import { getPosts, getEntities, getLeaderboard, getUserStats } from '@/lib/posts';
-import { createPost } from '@/lib/actions';
+import { createPost, createVote } from '@/lib/actions';
 import type { FeedPost, EntityRow, LeaderRow } from '@/lib/posts';
 
 // ─── Design tokens ────────────────────────────────────────────────────────────
@@ -1254,27 +1254,7 @@ export default function DashboardPage() {
     // Optimistically adjust counts in feed
     const voteType = t === 'confirm' ? 'up' : 'down';
     try {
-      const res = await fetch('/api/votes', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ post_id: id, vote_type: voteType, session_token: sessionToken }),
-      });
-      if (res.status === 409) {
-        // Opposite vote already cast — revert
-        setVotes(prevVotes);
-        setFeed(prevFeed);
-        setVoteError('already voted opposite direction');
-        setTimeout(() => setVoteError(null), 2500);
-        return;
-      }
-      if (!res.ok) {
-        setVotes(prevVotes);
-        setFeed(prevFeed);
-        setVoteError('vote failed');
-        setTimeout(() => setVoteError(null), 2500);
-        return;
-      }
-      const data: { ok: boolean; new_count: number; user_vote: string | null } = await res.json();
+      const data = await createVote(sessionToken, id, voteType as 'up' | 'down');
       // Update feed count with server-confirmed value
       setFeed(f => f.map(p => {
         if (String(p.id) !== id) return p;
@@ -1282,10 +1262,11 @@ export default function DashboardPage() {
         return { ...p, disputes: data.new_count };
       }));
       setVoteError(null);
-    } catch {
+    } catch (err: unknown) {
       setVotes(prevVotes);
       setFeed(prevFeed);
-      setVoteError('vote failed — network error');
+      const msg = err instanceof Error ? err.message : 'vote failed';
+      setVoteError(msg.includes('opposite') ? 'already voted opposite direction' : 'vote failed');
       setTimeout(() => setVoteError(null), 2500);
     }
   };

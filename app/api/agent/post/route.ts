@@ -5,8 +5,12 @@ import { createHash } from 'crypto';
 // Shared identity for all agent-submitted posts
 const AGENT_USER_ID = '00000000-0000-0000-0000-000000000001';
 
-// Rate limit: 10 posts/day per API key
-const DAILY_POST_LIMIT = 10;
+// Rate limits by tier
+const TIER_LIMITS: Record<string, number> = {
+  free:       5,
+  agent:      20,
+  agent_pro:  100,
+};
 
 function serviceSupabase() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://shhodgzbgwzbatqgncab.supabase.co';
@@ -66,11 +70,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'invalid API key' }, { status: 401 });
   }
 
-  // ── Rate limit ────────────────────────────────────────────────────────────
+  // ── Rate limit (tier-aware) ───────────────────────────────────────────────
+  const tier: string = keyRow.tier ?? 'free';
+  const dailyLimit: number = TIER_LIMITS[tier] ?? TIER_LIMITS.free;
   const requestsToday: number = keyRow.requests_today ?? 0;
-  if (requestsToday >= DAILY_POST_LIMIT) {
+  if (requestsToday >= dailyLimit) {
     return NextResponse.json(
-      { error: 'daily post limit reached', limit: DAILY_POST_LIMIT },
+      { error: 'daily post limit reached', limit: dailyLimit, tier },
       { status: 429 }
     );
   }
@@ -118,10 +124,10 @@ export async function POST(req: NextRequest) {
     .insert([
       {
         user_id: AGENT_USER_ID,
-        company: cleanCompany,
+        company_name: cleanCompany,
         title: cleanTitle,
         content: cleanContent,
-        category: cleanCategory,
+        category: cleanCategory ?? 'company_review',
       },
     ])
     .select('id')
@@ -136,15 +142,14 @@ export async function POST(req: NextRequest) {
   // falls back to conditional UPDATE that only increments if still under limit.
   const { error: rpcErr } = await supabase.rpc('increment_requests_today', {
     key_id: keyRow.id,
-    limit_val: DAILY_POST_LIMIT,
+    limit_val: dailyLimit,
   });
   if (rpcErr) {
-    // Fallback: conditional update (still safer than plain update)
     await supabase
       .from('api_keys')
       .update({ requests_today: requestsToday + 1 })
       .eq('id', keyRow.id)
-      .lt('requests_today', DAILY_POST_LIMIT);
+      .lt('requests_today', dailyLimit);
   }
 
   return NextResponse.json({ ok: true, post_id: post.id });

@@ -178,6 +178,30 @@ export default function Home() {
 
       </div>
 
+      {/* Top 3 posts preview — visible without login */}
+      <div style={{ position: 'relative', zIndex: 10, maxWidth: 520, margin: '0 auto 48px', padding: '0 32px' }}>
+        <div style={{ fontFamily: mono, fontSize: 11, fontWeight: 600, letterSpacing: '0.2em', color: 'rgba(107,159,212,0.45)', marginBottom: 14, textTransform: 'uppercase' }}>{'// RECENT_TRANSMISSIONS — last 6h'}</div>
+        {[
+          { entity: 'Uniswap Labs', title: 'best smart contract engineers in DeFi',       confirms: 304, time: '1h' },
+          { entity: 'OpenSea',      title: 'the Seaport pivot split the company in half',  confirms: 211, time: '4h' },
+          { entity: 'Coinbase',     title: 'engineering culture is cooked post-layoffs',   confirms: 142, time: '5h' },
+        ].map((p, i) => (
+          <div key={i} style={{ borderLeft: '2px solid rgba(107,159,212,0.12)', padding: '10px 14px', marginBottom: 8, background: 'rgba(107,159,212,0.018)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+              <span style={{ fontFamily: mono, fontSize: 10, letterSpacing: '0.14em', color: terra, fontWeight: 500 }}>{p.entity}</span>
+              <span style={{ fontFamily: mono, fontSize: 10, color: 'rgba(107,159,212,0.3)', letterSpacing: '0.08em' }}>{p.time}</span>
+            </div>
+            <div style={{ fontFamily: mono, fontSize: 11, color: 'rgba(190,208,238,0.55)', letterSpacing: '0.01em', fontWeight: 300, lineHeight: 1.5, marginBottom: 6 }}>{p.title}</div>
+            <div style={{ fontFamily: mono, fontSize: 10, color: 'rgba(107,159,212,0.3)', letterSpacing: '0.08em' }}>
+              <span style={{ color: 'rgba(107,212,159,0.45)' }}>{p.confirms} confirmed</span>
+            </div>
+          </div>
+        ))}
+        <div style={{ fontFamily: mono, fontSize: 10, color: 'rgba(107,159,212,0.25)', letterSpacing: '0.12em', marginTop: 10, textAlign: 'center' }}>
+          {'// connect wallet to see full feed + post'}
+        </div>
+      </div>
+
       {/* Scroll nav links */}
       <div style={{ position: 'relative', zIndex: 10, display: 'flex', justifyContent: 'center', gap: 32, paddingBottom: 32 }}>
         {[{ label: '// ABOUT', href: '#about' }, { label: '// OPSEC', href: '#opsec' }].map(l => (

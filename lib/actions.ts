@@ -35,6 +35,58 @@ function normalizePost(p: Record<string, unknown> & { users?: { username?: strin
   };
 }
 
+export async function createVote(
+  sessionToken: string,
+  post_id: string,
+  vote_type: 'up' | 'down',
+): Promise<{ ok: boolean; new_count: number; user_vote: string | null }> {
+  const userId = verifySession(sessionToken);
+  const supabase = serverSupabase();
+
+  const { data: userRow, error: userErr } = await supabase
+    .from('users')
+    .select('wallet_hash')
+    .eq('id', userId)
+    .single();
+
+  if (userErr || !userRow) throw new Error('user not found');
+  const wallet_hash = (userRow as { wallet_hash: string }).wallet_hash;
+
+  const { data: existing, error: fetchErr } = await supabase
+    .from('votes')
+    .select('id, vote_type')
+    .eq('post_id', post_id)
+    .eq('wallet_hash', wallet_hash)
+    .maybeSingle();
+
+  if (fetchErr) throw fetchErr;
+
+  const voteCol = vote_type === 'up' ? 'confirms' : 'disputes';
+
+  // Toggle off (same direction)
+  if (existing && (existing as { vote_type: string }).vote_type === vote_type) {
+    const { error: delErr } = await supabase.from('votes').delete().eq('id', (existing as { id: string }).id);
+    if (delErr) throw delErr;
+    const { data: post } = await supabase.from('posts').select(voteCol).eq('id', post_id).single();
+    const newVal = Math.max(0, ((post as Record<string, number>)[voteCol] ?? 1) - 1);
+    await supabase.from('posts').update({ [voteCol]: newVal }).eq('id', post_id);
+    return { ok: true, new_count: newVal, user_vote: null };
+  }
+
+  // Opposite direction — reject
+  if (existing && (existing as { vote_type: string }).vote_type !== vote_type) {
+    throw new Error('already voted opposite direction');
+  }
+
+  // New vote — insert and increment
+  const { error: insErr } = await supabase.from('votes').insert([{ post_id, wallet_hash, vote_type }]);
+  if (insErr) throw insErr;
+  const { data: post } = await supabase.from('posts').select(voteCol).eq('id', post_id).single();
+  const newVal = ((post as Record<string, number>)[voteCol] ?? 0) + 1;
+  await supabase.from('posts').update({ [voteCol]: newVal }).eq('id', post_id);
+  return { ok: true, new_count: newVal, user_vote: vote_type };
+}
+
 export async function createPost(
   sessionToken: string,
   title: string,
