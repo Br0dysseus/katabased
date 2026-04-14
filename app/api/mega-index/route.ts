@@ -305,25 +305,22 @@ function parsePolyMarket(m: Record<string, unknown>): PolymarketMarket {
 }
 
 async function fetchPolymarketCrypto(): Promise<PolymarketMarket[]> {
-  // 7 whitelisted buckets: FED/MACRO, CRYPTO, STABLECOIN/REG, TRUMP/US, GEOPOLITICS, IRAN/ME, AI/TECH
-  const tags = ['crypto', 'economics', 'politics', 'world', 'middle-east', 'ai', 'technology'];
+  // tag_slug doesn't reliably filter — Polymarket returns trending markets regardless.
+  // Fetch a large batch then WHITELIST: only keep markets containing a POLY_BOOST term.
   const opts = {
     headers: { 'Accept': 'application/json' },
     next: { revalidate: 300 } as { revalidate: number },
-    signal: AbortSignal.timeout(5000),
+    signal: AbortSignal.timeout(6000),
   };
 
   try {
-    const responses = await Promise.allSettled(
-      tags.map(tag =>
-        fetch(
-          `https://gamma-api.polymarket.com/markets?closed=false&limit=30&tag_slug=${tag}`,
-          opts,
-        ).then(r => r.ok ? r.json() : [])
-      )
-    );
+    // Fetch top 200 markets by volume across a few broad tags for coverage
+    const responses = await Promise.allSettled([
+      fetch('https://gamma-api.polymarket.com/markets?closed=false&limit=100&order=volume&ascending=false', opts).then(r => r.ok ? r.json() : []),
+      fetch('https://gamma-api.polymarket.com/markets?closed=false&limit=100&offset=100&order=volume&ascending=false', opts).then(r => r.ok ? r.json() : []),
+    ]);
 
-    // Collect all markets, deduplicate by id
+    // Collect, deduplicate
     const seen = new Set<string>();
     const all: Record<string, unknown>[] = [];
 
@@ -340,10 +337,13 @@ async function fetchPolymarketCrypto(): Promise<PolymarketMarket[]> {
       }
     }
 
-    // Filter irrelevant markets
+    // WHITELIST: must contain at least one boost term (our 7 buckets)
+    // Then BLACKLIST: exclude anything in POLY_EXCLUDE
     const filtered = all.filter(m => {
       const q = String(m.question).toLowerCase();
-      return !POLY_EXCLUDE.some(kw => q.includes(kw));
+      const hasBoost = POLY_BOOST.some(kw => q.includes(kw));
+      const isExcluded = POLY_EXCLUDE.some(kw => q.includes(kw));
+      return hasBoost && !isExcluded;
     });
 
     // Sort by boosted volume desc
