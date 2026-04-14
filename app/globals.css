@@ -1,5 +1,5 @@
-@import "tailwindcss";
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,700&family=JetBrains+Mono:wght@300;400;500;600&display=swap');
+@import "tailwindcss";
 
 @theme {
   --color-background: #04050C;

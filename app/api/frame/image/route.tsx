@@ -77,7 +77,7 @@ export async function GET(req: NextRequest) {
 
         {/* Title */}
         <div style={{ color: '#E8E8E8', fontSize: '28px', lineHeight: '1.3', maxWidth: '900px' }}>
-          "{truncate(title, 80)}"
+          &quot;{truncate(title, 80)}&quot;
         </div>
 
         {/* Pull quote */}
