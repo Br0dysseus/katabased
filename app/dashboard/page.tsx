@@ -1507,11 +1507,11 @@ export default function DashboardPage() {
     if (!address) return;
     setFeedLoading(true); setFeedError(false);
     getPosts()
-      .then(data => { if (data.length > 0 || process.env.NODE_ENV !== 'development') setFeed(data); })
+      .then(data => { if (data.length > 0) setFeed(data); })
       .catch(() => setFeedError(true))
       .finally(() => setFeedLoading(false));
-    getEntities().then(data => { if (data.length > 0 || process.env.NODE_ENV !== 'development') setEntities(data); }).catch(console.error);
-    getLeaderboard().then(data => { if (data.length > 0 || process.env.NODE_ENV !== 'development') setLeaders(data); }).catch(console.error);
+    getEntities().then(data => { if (data.length > 0) setEntities(data); }).catch(console.error);
+    getLeaderboard().then(data => { if (data.length > 0) setLeaders(data); }).catch(console.error);
   }, [address]);
 
   useEffect(() => {
