@@ -80,7 +80,7 @@ function TaglineReveal({ text, delay = 0 }: { text: string; delay?: number }) {
   useEffect(() => {
     if (!started) return;
     if (revealed >= text.length) return;
-    const t = setTimeout(() => setRevealed(r => r + 1), 28);
+    const t = setTimeout(() => setRevealed(r => r + 1), 14);
     return () => clearTimeout(t);
   }, [started, revealed, text.length]);
 
@@ -103,16 +103,22 @@ function TaglineReveal({ text, delay = 0 }: { text: string; delay?: number }) {
 }
 
 // ─── Intersection observer fade-up hook ──────────────────────────────────────
-function useFadeIn(threshold = 0.12) {
+function useFadeIn(threshold = 0.05) {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+    // Fire immediately if already in viewport on mount (avoids stall above-fold)
+    const rect = el.getBoundingClientRect();
+    if (rect.top < window.innerHeight && rect.bottom > 0) {
+      setVisible(true);
+      return;
+    }
     const obs = new IntersectionObserver(
       ([entry]) => { if (entry.isIntersecting) { setVisible(true); obs.disconnect(); } },
-      { threshold }
+      { threshold, rootMargin: '0px 0px -5% 0px' }
     );
     obs.observe(el);
     return () => obs.disconnect();
@@ -128,12 +134,11 @@ function FadeUp({ children, delay = 0, style }: { children: React.ReactNode; del
       ref={ref}
       style={{
         opacity: visible ? 1 : 0,
-        // 3D reveal: rotates up from below on a perspective axis as it fades in
         transform: visible
           ? 'perspective(800px) rotateX(0deg) translateY(0)'
-          : 'perspective(800px) rotateX(12deg) translateY(20px)',
+          : 'perspective(800px) rotateX(8deg) translateY(10px)',
         transformOrigin: 'top center',
-        transition: `opacity 0.75s cubic-bezier(0.16,1,0.3,1) ${delay}ms, transform 0.85s cubic-bezier(0.16,1,0.3,1) ${delay}ms`,
+        transition: `opacity 0.35s cubic-bezier(0.16,1,0.3,1) ${delay}ms, transform 0.40s cubic-bezier(0.16,1,0.3,1) ${delay}ms`,
         ...style,
       }}
     >
@@ -307,9 +312,9 @@ export default function Home() {
         >
           {mounted && (
             <>
-              <TaglineReveal text="Surface is managed." delay={180} />
+              <TaglineReveal text="Surface is managed." delay={60} />
               <br />
-              <TaglineReveal text="Depths are not." delay={520} />
+              <TaglineReveal text="Depths are not." delay={220} />
             </>
           )}
         </div>
@@ -458,13 +463,13 @@ export default function Home() {
           const total = p.confirms + p.disputes;
           const confPct = total > 0 ? (p.confirms / total) * 100 : 50;
           return (
-            <FadeUp key={i} delay={i * 90}>
+            <FadeUp key={i} delay={i * 30}>
               <PreviewEntry p={p} confPct={confPct} />
             </FadeUp>
           );
         })}
 
-        <FadeUp delay={320}>
+        <FadeUp delay={120}>
           <div style={{
             fontFamily: mono, fontSize: 10, color: 'rgba(200,208,220,0.45)',
             letterSpacing: '0.16em', marginTop: 36, textAlign: 'center',
@@ -718,7 +723,7 @@ export default function Home() {
           })}
         </div>
 
-        <FadeUp delay={580}>
+        <FadeUp delay={200}>
           <div style={{
             marginTop: 52, fontFamily: mono, fontSize: 9,
             color: 'rgba(200,208,220,0.48)', letterSpacing: '0.2em',
