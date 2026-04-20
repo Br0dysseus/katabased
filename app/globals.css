@@ -3,7 +3,7 @@
   src: url('/fonts/kataGlyph-Stele-v03.otf') format('opentype');
   font-style: normal;
   font-weight: 400;
-  font-display: block;
+  font-display: swap;
 }
 @import "tailwindcss";
 
