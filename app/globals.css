@@ -1,11 +1,17 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,700&family=JetBrains+Mono:wght@300;400;500;600&display=swap');
+@font-face {
+  font-family: 'kataGlyph Stele';
+  src: url('/fonts/kataGlyph-Stele-v03.otf') format('opentype');
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+}
 @import "tailwindcss";
 
 @theme {
-  --color-background: #04050C;
-  --color-foreground: rgba(190,208,238,0.68);
-  --color-blue: #6B9FD4;
-  --color-terra: #D4845A;
+  --color-background: #0C0806;
+  --color-foreground: #D8C4A0;
+  --color-accent:     #C8602A;
+  --color-signal:     #E55A00;
 }
 
 * {
@@ -14,28 +20,183 @@
   padding: 0;
 }
 
+:root {
+  /* Base — warm fired-clay black */
+  --bg:         #0C0806;
+  --bg-2:       #130C07;
+  --bg-3:       #1C1108;
+
+  /* Text — warm parchment, not cool slate */
+  --text-1:     #D8C4A0;
+  --text-2:     rgba(216,196,160,0.70);
+  --text-3:     rgba(216,196,160,0.42);
+  --text-ghost: rgba(216,196,160,0.18);
+
+  /* Brand — terracotta copper */
+  --copper:      #C8602A;
+  --copper-dim:  rgba(200,96,42,0.18);
+  --copper-glow: rgba(200,96,42,0.38);
+
+  /* Signals */
+  --signal-red:  #D94030;
+  --signal-blue: #7AABCC;
+  --signal-gold: #C9A84C;
+
+  /* Chrome — amber-tinted rules */
+  --rule:        rgba(200,140,60,0.10);
+  --rule-strong: rgba(200,140,60,0.18);
+
+  /* Type scale */
+  --text-display: clamp(52px, 5vw + 20px, 96px);
+  --text-h1:      clamp(32px, 3vw + 16px, 52px);
+  --text-h2:      clamp(22px, 1.5vw + 14px, 32px);
+  --text-h3:      18px;
+  --text-body:    15px;
+  --text-data:    12px;
+  --text-label:   10px;
+}
+
 html, body {
   min-height: 100vh;
-  background: #04050C;
-  color: rgba(190,208,238,0.68);
-  font-family: 'JetBrains Mono', monospace;
+  background: #0C0806;
+  color: #D8C4A0;
+  font-family: 'kataGlyph Stele', Georgia, serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  font-size: 11px;
+  font-size: 15px;
+  line-height: 1.65;
 }
 
 ::selection {
-  background: rgba(107,159,212,0.22);
-  color: #fff;
+  background: rgba(200,96,42,0.28);
+  color: #D8C4A0;
 }
 
-::-webkit-scrollbar {
-  width: 2px;
+::-webkit-scrollbar { width: 1px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(200,96,42,0.18); }
+
+/* ─── Keyframes ─────────────────────────────────────────────────────────────── */
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
-::-webkit-scrollbar-track {
-  background: transparent;
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.12; }
 }
-::-webkit-scrollbar-thumb {
-  background: rgba(107,159,212,0.1);
-  border-radius: 1px;
+
+@keyframes copperPulse {
+  0%, 100% { box-shadow: 0 0 16px rgba(200,96,42,0.22), 0 0 0 1px rgba(200,96,42,0.28); }
+  50%       { box-shadow: 0 0 32px rgba(200,96,42,0.48), 0 0 0 1px rgba(200,96,42,0.55); }
+}
+
+@keyframes breathe {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.006); }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes charReveal {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes scanDrift {
+  0%   { transform: translateX(-100%); opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { transform: translateX(100vw); opacity: 0; }
+}
+
+@keyframes loop-horizontal {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+@keyframes copperBreath {
+  0%, 100% {
+    text-shadow:
+      1px 1px 0 rgba(80,20,0,0.8),
+      2px 2px 0 rgba(50,10,0,0.5),
+      3px 3px 0 rgba(30,5,0,0.3),
+      0 0 10px rgba(200,96,42,0.5),
+      0 0 28px rgba(200,96,42,0.2);
+  }
+  50% {
+    text-shadow:
+      1px 1px 0 rgba(80,20,0,0.8),
+      2px 2px 0 rgba(50,10,0,0.5),
+      3px 3px 0 rgba(30,5,0,0.3),
+      0 0 18px rgba(200,96,42,0.82),
+      0 0 48px rgba(200,96,42,0.38),
+      0 0 80px rgba(200,96,42,0.14);
+  }
+}
+
+@keyframes logoRock {
+  0%, 100% { transform: rotateX(0deg) rotateY(0deg); }
+  25%      { transform: rotateX(2deg) rotateY(-3deg); }
+  50%      { transform: rotateX(-1deg) rotateY(3deg); }
+  75%      { transform: rotateX(1.5deg) rotateY(-2deg); }
+}
+
+/* ─── Ceramic grain overlay ──────────────────────────────────────────────────
+   Two layers: fine grain (top) + coarser warm-tinted texture (bottom)        */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.065;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.68' numOctaves='5' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0.4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 180px 180px;
+  mix-blend-mode: overlay;
+}
+
+/* Warm vignette — like viewing a pottery surface from above */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9998;
+  background: radial-gradient(
+    ellipse 78% 72% at 50% 50%,
+    transparent 38%,
+    rgba(6,3,1,0.30) 72%,
+    rgba(4,2,0,0.62) 100%
+  );
+}
+
+/* ─── Utility classes ────────────────────────────────────────────────────────── */
+.fade-up      { animation: fadeUp       0.6s cubic-bezier(0.16,1,0.3,1) forwards; opacity: 0; }
+.slide-in     { animation: slideIn      0.4s cubic-bezier(0.16,1,0.3,1) forwards; opacity: 0; }
+.pulse-dot    { animation: pulse        2s ease infinite; }
+.cta-glow     { animation: copperPulse  2.8s ease-in-out infinite; }
+.logo-breathe { animation: breathe      4.5s ease-in-out infinite; }
+
+@media (max-width: 600px) {
+  .hero-logo-main { font-size: 68px !important; }
+}
+
+/* ─── kataGlyph Stele flag — toggle via <body data-font="stele-proof"> ─────── */
+body[data-font="stele-proof"] .hero-logo-main,
+body[data-font="stele-proof"] .kata-glyph,
+body[data-font="stele-proof"] h1,
+body[data-font="stele-proof"] h2 {
+  font-family: 'kataGlyph Stele', 'EB Garamond', serif;
 }

@@ -6,14 +6,14 @@ export default function Loading() {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      fontFamily: "'JetBrains Mono', monospace",
+      fontFamily: "'kataGlyph Stele', Georgia, serif",
     }}>
       <div style={{ textAlign: 'center' }}>
         <div style={{
           fontSize: 48,
           fontWeight: 700,
-          fontFamily: "'Cormorant Garamond', serif",
-          fontStyle: 'italic',
+          fontFamily: "'kataGlyph Stele', Georgia, serif",
+          fontStyle: 'normal',
           color: '#6B9FD4',
           marginBottom: 16,
           opacity: 0.8,
