@@ -66,7 +66,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
       setAuthError(null);
 
       const message = buildSignMessage(address);
-      const signature = await signMessageAsync({ message });
+      const signature = await signMessageAsync({ message, account: address as `0x${string}` });
 
       const { user: userData, sessionToken: token } = await getOrCreateUser(address, signature);
       setUser(userData);

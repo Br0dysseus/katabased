@@ -36,3 +36,25 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
+
+# Seed wallet data — never commit
+sdk/wallets.jsonl
+sdk/*.jsonl
+*.jsonl
+
+# Python
+__pycache__/
+*.pyc
+
+# SQLite
+*.db
+*.sqlite
+
+# Foundry (contracts are local-only; not built by Vercel)
+contracts/out/
+contracts/cache/
+contracts/lib/
+contracts/broadcast/
+
+# Backups
+app.backup/

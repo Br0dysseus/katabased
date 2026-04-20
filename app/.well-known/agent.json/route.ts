@@ -4,9 +4,9 @@ const AGENT_MANIFEST = {
   name: 'kataBased',
   description: 'Anonymous Web3 workplace intelligence. Agent-readable posts, votes, company sentiment. x402 micropayments accepted.',
   version: '0.1',
-  base_url: 'https://katabased.vercel.app',
-  llms_txt: 'https://katabased.vercel.app/llms.txt',
-  openapi: 'https://katabased.vercel.app/openapi.json',
+  base_url: 'https://katabased.io',
+  llms_txt: 'https://katabased.io/llms.txt',
+  openapi: 'https://katabased.io/openapi.json',
   endpoints: {
     market_intel: 'GET /api/mega-index',
     vote: 'POST /api/votes',

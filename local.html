@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>kataBased — κατάβασις</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,700&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js"}}
+</script>
 <style>
 /* ── Reset ───────────────────────────────────────────────────── */
 *{box-sizing:border-box;margin:0;padding:0}
@@ -267,6 +270,20 @@ nav{
 .mi-narratives{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
 .mi-pill{font-size:10px;letter-spacing:0.1em;color:rgba(107,159,212,0.5);border:1px solid rgba(107,159,212,0.15);padding:1px 6px;border-radius:2px}
 .mi-credit{font-size:10px;color:rgba(190,208,238,0.15);letter-spacing:0.06em}
+
+/* ── Hero / kB logo ──────────────────────────────────────────── */
+#logo-fx{position:fixed;top:46%;left:50%;transform:translate(-50%,-50%) scale(1);z-index:0;pointer-events:none;will-change:transform,opacity;transform-origin:50% 50%}
+#logo-mount{display:flex;align-items:center;justify-content:center}
+#logo-mount canvas{display:block;filter:drop-shadow(0 18px 48px rgba(107,159,212,0.14)) drop-shadow(0 2px 12px rgba(4,5,12,0.7))}
+#hero{position:relative;height:100vh;display:flex;align-items:flex-end;justify-content:center;padding-bottom:7vh;z-index:4;pointer-events:none}
+.hero-cta{display:flex;flex-direction:column;align-items:center;gap:18px;pointer-events:auto;text-align:center;will-change:opacity,transform}
+.hero-title{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:700;font-size:34px;color:rgba(218,228,248,0.85);letter-spacing:0.02em;line-height:1}
+.hero-sub{font-size:9px;letter-spacing:0.4em;color:rgba(107,159,212,0.5);text-transform:uppercase}
+.hero-connect{padding:11px 24px;background:rgba(107,159,212,0.08);border:1px solid rgba(107,159,212,0.3);color:rgba(218,228,248,0.9);font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:400;letter-spacing:0.24em;cursor:pointer;display:inline-flex;align-items:center;gap:12px;border-radius:2px;transition:background 0.2s,border-color 0.2s,transform 0.15s;text-transform:uppercase}
+.hero-connect:hover{background:rgba(107,159,212,0.16);border-color:rgba(107,159,212,0.55)}
+.hero-connect:active{transform:translateY(1px)}
+.hero-dot{width:5px;height:5px;border-radius:50%;background:#6B9FD4;box-shadow:0 0 6px rgba(107,159,212,0.6);animation:pd 2.2s ease infinite;flex-shrink:0}
+.hero-scroll{font-size:8px;letter-spacing:0.4em;color:rgba(107,159,212,0.28);text-transform:uppercase;animation:pd 2.4s ease infinite;margin-top:4px}
 </style>
 </head>
 <body>
@@ -279,6 +296,17 @@ nav{
   <div id="bg-vignette"></div>
   <div id="bg-top"></div>
 </div>
+
+<div id="logo-fx" aria-hidden="true"><div id="logo-mount"></div></div>
+
+<section id="hero">
+  <div class="hero-cta">
+    <div class="hero-title">κατάβασις</div>
+    <div class="hero-sub">the descent</div>
+    <button class="hero-connect" id="hero-connect"><span class="hero-dot"></span><span>Connect Wallet</span></button>
+    <div class="hero-scroll">↓ descend</div>
+  </div>
+</section>
 
 <div class="meander-bar"></div>
 
@@ -846,6 +874,291 @@ setInterval(fetchMegaIndex, 2*60*1000);
 
   window.addEventListener('resize', ()=>{ buildLUT(); lastTs=0; }, {passive:true});
 })();
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+
+// ── Seeded RNG ────────────────────────────────────────────────
+function mkRng(seed){let s=seed>>>0;return()=>{s=(Math.imul(s,1664525)+1013904223)>>>0;return s/0x100000000;};}
+
+// ── Coords ────────────────────────────────────────────────────
+const S=0.0085,OX=-190,OY=-300;
+const vp=(x,y,z=0)=>new THREE.Vector3((x+OX)*S,-(y+OY)*S,z);
+const R=(sw)=>sw*S/2;
+
+// ── Doric fluting ─────────────────────────────────────────────
+function flute(g,nF,dF){
+  const p=g.attributes.position,n=g.attributes.normal,u=g.attributes.uv;
+  for(let i=0;i<p.count;i++){
+    const a=u.getY(i)*Math.PI*2*nF,t=(1-Math.cos(a))/2,d=dF*t;
+    p.setXYZ(i,p.getX(i)-n.getX(i)*d,p.getY(i)-n.getY(i)*d,p.getZ(i)-n.getZ(i)*d);
+  }
+  p.needsUpdate=true;g.computeVertexNormals();return g;
+}
+function degrade(g,it,rng){
+  const p=g.attributes.position,n=g.attributes.normal,u=g.attributes.uv;
+  for(let i=0;i<p.count;i++){
+    const uu=u.getX(i);
+    const ef=Math.pow(Math.max(0,1-Math.min(uu,1-uu)*5),2.2);
+    const d=(rng()-0.5)*0.007*it+(rng()>0.38?-1:1)*rng()*0.032*it*ef;
+    p.setXYZ(i,p.getX(i)+n.getX(i)*d,p.getY(i)+n.getY(i)*d,p.getZ(i)+n.getZ(i)*d);
+  }
+  p.needsUpdate=true;g.computeVertexNormals();return g;
+}
+
+// ── Palette + patina ──────────────────────────────────────────
+const PAL={cream:[0.80,0.760,0.680],verdigris:[0.040,0.420,0.280],ochre:[0.680,0.320,0.050],grime:[0.035,0.025,0.015]};
+function computePatina(info,scrollLift,shiftX=0.5){
+  for(const{colorAttr,strokeDeg,vdata}of info){
+    const cols=colorAttr.array;
+    const[bR,bG,bB]=PAL.cream,[vR,vG,vB]=PAL.verdigris,[oR,oG,oB]=PAL.ochre,[gR,gG,gB]=PAL.grime;
+    for(let i=0;i<vdata.length;i++){
+      const{nx,ny,n1,n2,n3,n4}=vdata[i];
+      const bd=Math.abs(nx-shiftX);
+      const sw=Math.max(0,1.0-bd*1.3);
+      const lf=0.55+sw*0.75;
+      const el=Math.max(0,(1-ny)-scrollLift*1.0+lf*0.3*scrollLift);
+      const pBase=lf*0.62+el*0.52+n1*strokeDeg+0.15;
+      const pStr=Math.max(0,Math.min(1,pBase*(0.75+strokeDeg*0.5)*(1+scrollLift*1.8)+n2*strokeDeg*0.5));
+      const vF=pStr*(0.55+n3*0.16);
+      const oF=Math.max(0,pStr*(0.23+n3*0.15)-n4*0.08);
+      const gF=el*strokeDeg*(0.10+n4*0.15);
+      const bF=Math.max(0,1-vF-oF-gF);
+      cols[i*3+0]=Math.min(1,bR*bF+vR*vF+oR*oF+gR*gF);
+      cols[i*3+1]=Math.min(1,bG*bF+vG*vF+oG*oF+gG*gF);
+      cols[i*3+2]=Math.min(1,bB*bF+vB*vF+oB*oF+gB*gF);
+    }
+    colorAttr.needsUpdate=true;
+  }
+}
+
+// ── Textures ──────────────────────────────────────────────────
+function makeMarbleMap(size=1024){
+  const rng=mkRng(77);const c=document.createElement('canvas');c.width=c.height=size;
+  const ctx=c.getContext('2d');ctx.fillStyle='#C8C2B8';ctx.fillRect(0,0,size,size);
+  for(let vn=0;vn<14;vn++){
+    const x0=rng()*size*1.4-size*0.2,y0=rng()*size*1.4-size*0.2;
+    const ang=rng()*Math.PI+0.1,w=0.2+rng()*1.8,op=0.04+rng()*0.10,wav=0.10+rng()*0.9;
+    ctx.save();ctx.strokeStyle=`rgba(50,42,32,${op})`;ctx.lineWidth=w;
+    ctx.beginPath();let cx=x0,cy=y0;ctx.moveTo(cx,cy);
+    for(let i=0;i<38;i++){
+      const a2=ang+Math.sin(i*0.38)*wav;
+      cx+=Math.cos(a2)*size*0.058+(rng()-0.5)*4;
+      cy+=Math.sin(a2)*size*0.058+(rng()-0.5)*4;
+      ctx.lineTo(cx,cy);
+    }
+    ctx.stroke();ctx.restore();
+  }
+  const tex=new THREE.CanvasTexture(c);tex.colorSpace=THREE.SRGBColorSpace;
+  tex.wrapS=tex.wrapT=THREE.RepeatWrapping;tex.repeat.set(1.2,1);return tex;
+}
+function makeRoughMap(size=512){
+  const rng=mkRng(133);const c=document.createElement('canvas');c.width=c.height=size;
+  const ctx=c.getContext('2d');ctx.fillStyle='#3A3A3A';ctx.fillRect(0,0,size,size);
+  for(let p=0;p<22;p++){
+    const px=rng()*size*0.8,py=size*0.15+rng()*size*0.85;
+    const rad=size*(0.04+rng()*0.12),v2=Math.floor(110+rng()*120),op=0.45+rng()*0.5;
+    const grd=ctx.createRadialGradient(px,py,0,px,py,rad);
+    grd.addColorStop(0,`rgba(${v2},${v2},${v2},${op})`);
+    grd.addColorStop(1,`rgba(${v2},${v2},${v2},0)`);
+    ctx.fillStyle=grd;ctx.fillRect(0,0,size,size);
+  }
+  const tex=new THREE.CanvasTexture(c);tex.wrapS=tex.wrapT=THREE.RepeatWrapping;
+  tex.repeat.set(1.2,1);return tex;
+}
+
+// ── Stroke definitions ────────────────────────────────────────
+const STROKE_DEFS=[
+  {curve:()=>new THREE.LineCurve3(vp(173,180),vp(173,461)),sw:16,tSeg:2,fl:16,deg:0.42},
+  {curve:()=>new THREE.LineCurve3(vp(161,461),vp(185,461)),sw:5,tSeg:2,fl:12,deg:0.62},
+  {curve:()=>new THREE.LineCurve3(vp(155,466),vp(191,466)),sw:6,tSeg:2,fl:14,deg:0.72},
+  {curve:()=>new THREE.LineCurve3(vp(149,472),vp(197,472)),sw:6,tSeg:2,fl:14,deg:0.82},
+  {curve:()=>new THREE.CubicBezierCurve3(vp(173,180),vp(173,100),vp(277,157),vp(276,197)),sw:16,tSeg:28,fl:16,deg:0.42},
+  {curve:()=>new THREE.CubicBezierCurve3(vp(276,197),vp(275,236),vp(220,260),vp(173,256)),sw:16,tSeg:28,fl:16,deg:0.46},
+  {curve:()=>new THREE.CubicBezierCurve3(vp(173,264),vp(220,260),vp(275,284),vp(276,323)),sw:16,tSeg:28,fl:16,deg:0.56},
+  {curve:()=>new THREE.CubicBezierCurve3(vp(276,323),vp(277,363),vp(237,390),vp(173,396)),sw:16,tSeg:28,fl:16,deg:0.72},
+  {curve:()=>new THREE.LineCurve3(vp(68,248),vp(92,248)),sw:5,tSeg:2,fl:12,deg:0.32},
+  {curve:()=>new THREE.LineCurve3(vp(62,243),vp(98,243)),sw:6,tSeg:2,fl:14,deg:0.28},
+  {curve:()=>new THREE.LineCurve3(vp(58,238),vp(102,238)),sw:4,tSeg:2,fl:12,deg:0.22},
+  {curve:()=>new THREE.LineCurve3(vp(80,252),vp(80,408)),sw:16,tSeg:4,fl:16,deg:0.52},
+  {curve:()=>new THREE.LineCurve3(vp(68,413),vp(92,413)),sw:5,tSeg:2,fl:12,deg:0.52},
+  {curve:()=>new THREE.LineCurve3(vp(62,418),vp(98,418)),sw:6,tSeg:2,fl:14,deg:0.66},
+  {curve:()=>new THREE.LineCurve3(vp(56,424),vp(104,424)),sw:6,tSeg:2,fl:14,deg:0.76},
+  {curve:()=>new THREE.CubicBezierCurve3(vp(173,264),vp(117,264),vp(80,314),vp(80,330)),sw:16,tSeg:28,fl:16,deg:0.46},
+  {curve:()=>new THREE.CubicBezierCurve3(vp(80,330),vp(80,346),vp(117,396),vp(173,396)),sw:16,tSeg:28,fl:16,deg:0.60},
+];
+
+// ── Setup ─────────────────────────────────────────────────────
+const ASPECT=520/320;
+function baseSize(){
+  const w=Math.min(780,Math.max(320,window.innerWidth*0.88));
+  return {w,h:w/ASPECT};
+}
+const mount=document.getElementById('logo-mount');
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
+renderer.toneMapping=THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure=1.25;
+renderer.outputColorSpace=THREE.SRGBColorSpace;
+let{w:W,h:H}=baseSize();
+function applyDpr(){
+  ({w:W,h:H}=baseSize());
+  renderer.setPixelRatio(Math.min(Math.max(window.devicePixelRatio||1,2),4));
+  renderer.setSize(W,H);
+  camera.aspect=W/H;camera.updateProjectionMatrix();
+}
+mount.appendChild(renderer.domElement);
+
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(38,W/H,0.01,200);
+camera.position.set(0,0,6.8);
+camera.lookAt(-0.047,0,0);
+applyDpr();
+window.addEventListener('resize',applyDpr);
+
+scene.add(new THREE.AmbientLight(0x1E1A14,1.4));
+const key=new THREE.DirectionalLight(0xFFF2E0,4.5);key.position.set(-5,6,7);scene.add(key);
+const fill=new THREE.DirectionalLight(0xC8DCFF,1.2);fill.position.set(6,-2,4);scene.add(fill);
+const rim=new THREE.DirectionalLight(0xA0C0E8,2.4);rim.position.set(2,5,-8);scene.add(rim);
+const rake=new THREE.DirectionalLight(0xB8904A,1.6);rake.position.set(-5,-4,2);scene.add(rake);
+
+const marbleMap=makeMarbleMap(1024);
+const roughMap=makeRoughMap(512);
+const matRng=mkRng(42);
+function mkMat(deg){
+  const ww=0.97+matRng()*0.06;
+  return new THREE.MeshPhysicalMaterial({
+    color:new THREE.Color(ww,ww,ww),vertexColors:true,
+    map:marbleMap,roughnessMap:roughMap,
+    roughness:0.18+deg*0.32,metalness:0.0,
+    clearcoat:0.98-deg*0.55,clearcoatRoughness:0.04+deg*0.44,
+    ior:1.56,reflectivity:0.62,
+  });
+}
+
+const group=new THREE.Group();
+const patinaInfo=[],crumbleInfo=[];
+const xMin=-1.25,xMax=0.80,yMin=-1.45,yMax=1.45;
+
+STROKE_DEFS.forEach((def,idx)=>{
+  const r=R(def.sw);
+  const rs=Math.max(40,def.fl*4);
+  let g=new THREE.TubeGeometry(def.curve(),def.tSeg,r,rs,false);
+  g=flute(g,def.fl,r*0.20);
+  g=degrade(g,def.deg*0.55,mkRng(idx*1337+99));
+  const pos=g.attributes.position,nrm=g.attributes.normal,cnt=pos.count;
+  const rng2=mkRng(idx*2718+55);
+  const vdata=[];
+  for(let i=0;i<cnt;i++){
+    vdata.push({
+      nx:Math.max(0,Math.min(1,(pos.getX(i)-xMin)/(xMax-xMin))),
+      ny:Math.max(0,Math.min(1,(pos.getY(i)-yMin)/(yMax-yMin))),
+      n1:(rng2()-0.5)*0.7,n2:(rng2()-0.5)*0.5,n3:rng2(),n4:rng2(),
+    });
+  }
+  const cols=new Float32Array(cnt*3);
+  g.setAttribute('color',new THREE.BufferAttribute(cols,3));
+  patinaInfo.push({colorAttr:g.attributes.color,strokeDeg:def.deg,vdata});
+  if(def.deg>0.35){
+    const origPos=new Float32Array(pos.array);
+    const noiseFreq=new Float32Array(cnt),noisePhase=new Float32Array(cnt);
+    const rng3=mkRng(idx*9973+17);
+    for(let i=0;i<cnt;i++){noiseFreq[i]=0.4+rng3()*1.2;noisePhase[i]=rng3()*Math.PI*2;}
+    const ringCount=def.tSeg+1;
+    const CHUNK_RINGS=7;
+    const chunkCount=Math.max(1,Math.ceil(ringCount/CHUNK_RINGS));
+    const chunkPhase=new Float32Array(chunkCount),chunkSpeed=new Float32Array(chunkCount);
+    for(let c=0;c<chunkCount;c++){chunkPhase[c]=rng3()*Math.PI*2;chunkSpeed[c]=0.017+rng3()*0.030;}
+    crumbleInfo.push({posAttr:pos,nrmAttr:nrm,origPos,noiseFreq,noisePhase,deg:def.deg,
+      radius:r,radSeg:rs,chunkRings:CHUNK_RINGS,chunkCount,chunkPhase,chunkSpeed});
+  }
+  group.add(new THREE.Mesh(g,mkMat(def.deg)));
+});
+scene.add(group);
+computePatina(patinaInfo,0.20,0.0);
+
+// ── Debris ────────────────────────────────────────────────────
+const debris=[];
+const DEBRIS_MAX=30,DEBRIS_LIFE=5.5,SPAWN_INTERVAL=0.35;
+let lastSpawn=0;
+function spawnDebris(t){
+  if(debris.length>=DEBRIS_MAX||group.children.length===0)return;
+  const mesh=group.children[Math.floor(Math.random()*group.children.length)];
+  const pos=mesh.geometry.attributes.position;
+  const idx=Math.floor(Math.random()*pos.count);
+  const x=pos.getX(idx),y=pos.getY(idx),z=pos.getZ(idx);
+  const size=0.008+Math.random()*0.022;
+  const geo=new THREE.BoxGeometry(size,size,size);
+  const shade=0.40+Math.random()*0.30;
+  const mat=new THREE.MeshBasicMaterial({color:new THREE.Color(shade,shade*0.88,shade*0.75),transparent:true,opacity:0.95});
+  const p=new THREE.Mesh(geo,mat);
+  p.position.set(x,y,z);
+  p.userData={vx:(Math.random()-0.5)*0.16,vy:-0.01+Math.random()*0.05,vz:(Math.random()-0.5)*0.10,
+    rotVx:(Math.random()-0.5)*2.2,rotVy:(Math.random()-0.5)*2.2,spawn:t};
+  scene.add(p);debris.push(p);
+}
+function updateDebris(dt,t){
+  for(let i=debris.length-1;i>=0;i--){
+    const p=debris[i];const age=t-p.userData.spawn;
+    if(age>DEBRIS_LIFE){scene.remove(p);p.geometry.dispose();p.material.dispose();debris.splice(i,1);continue;}
+    p.userData.vy-=0.55*dt;
+    p.position.x+=p.userData.vx*dt;p.position.y+=p.userData.vy*dt;p.position.z+=p.userData.vz*dt;
+    p.rotation.x+=p.userData.rotVx*dt;p.rotation.y+=p.userData.rotVy*dt;
+    p.material.opacity=0.95*(1-age/DEBRIS_LIFE);
+  }
+  if(t-lastSpawn>SPAWN_INTERVAL){spawnDebris(t);lastSpawn=t;}
+}
+
+// ── Scroll-driven shrink ──────────────────────────────────────
+const fx=document.getElementById('logo-fx');
+const cta=document.querySelector('.hero-cta');
+let targetR=0,currentR=0;
+function onScroll(){
+  const vh=window.innerHeight;
+  targetR=Math.max(0,Math.min(1,window.scrollY/(vh*0.85)));
+}
+window.addEventListener('scroll',onScroll,{passive:true});
+onScroll();
+
+// ── Animate ───────────────────────────────────────────────────
+let startTime=performance.now(),frameN=0,lastT=0;
+function animate(){
+  requestAnimationFrame(animate);
+  frameN++;
+  const t=(performance.now()-startTime)/1000;
+  const dt=Math.min(t-lastT,0.1);lastT=t;
+  const pLift=0.45+0.35*Math.sin(t*0.24)+0.18*Math.sin(t*0.51+1.3);
+  const shiftX=0.5-0.5*Math.cos(t*0.55);
+  computePatina(patinaInfo,pLift,shiftX);
+  if(frameN%2===0){
+    for(const info of crumbleInfo){
+      const{posAttr,nrmAttr,origPos,noiseFreq,noisePhase,deg,radius,radSeg,chunkRings,chunkCount,chunkPhase,chunkSpeed}=info;
+      const amp=deg*0.022;const ringStride=radSeg+1;const collapseMax=radius*0.95;
+      for(let i=0;i<posAttr.count;i++){
+        const ringIdx=Math.floor(i/ringStride);
+        const cIdx=Math.min(chunkCount-1,Math.floor(ringIdx/chunkRings));
+        const w=Math.sin(t*chunkSpeed[cIdx]+chunkPhase[cIdx]);
+        let missing=0;
+        if(w>0.92){const u=(w-0.92)/0.08;missing=u*u*(3-2*u);}
+        const shimmer=Math.sin(t*noiseFreq[i]+noisePhase[i])*amp;
+        const d=shimmer-collapseMax*missing;
+        posAttr.setXYZ(i,origPos[i*3]+nrmAttr.getX(i)*d,origPos[i*3+1]+nrmAttr.getY(i)*d,origPos[i*3+2]+nrmAttr.getZ(i)*d);
+      }
+      posAttr.needsUpdate=true;
+    }
+  }
+  updateDebris(dt,t);
+
+  // smooth scroll-scale
+  currentR+=(targetR-currentR)*0.14;
+  const scale=1-currentR*0.74;
+  fx.style.transform=`translate(-50%,-50%) scale(${scale.toFixed(4)})`;
+  fx.style.opacity=(1-currentR*0.62).toFixed(3);
+  if(cta)cta.style.opacity=(1-currentR*1.6).toFixed(3);
+
+  renderer.render(scene,camera);
+}
+animate();
 </script>
 </body>
 </html>

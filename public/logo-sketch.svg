@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 420" width="300" height="420" fill="none">
+  <!-- kataBased kB monogram — hand-drawn style, monochrome -->
+  <!-- Vertical spine -->
+  <path d="M148 30 C145 28 143 32 142 40 L138 200 C137 240 136 310 137 385 C137 395 140 400 143 398 C146 396 149 390 150 380 L154 200 C155 160 154 90 152 40 C151 33 150 28 148 30 Z"
+    fill="#111" stroke="none"/>
+
+  <!-- lowercase k — left arm diagonal up -->
+  <path d="M140 195 C138 193 132 185 118 170 C104 155 92 143 84 136 C78 131 74 132 74 136 C74 140 78 145 86 152 C98 162 115 178 128 194"
+    fill="none" stroke="#111" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- lowercase k — left arm diagonal down -->
+  <path d="M140 210 C136 214 126 224 112 240 C98 256 86 270 78 281 C73 288 72 293 75 295 C78 297 83 293 90 285 C104 269 122 248 136 228"
+    fill="none" stroke="#111" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Capital B — upper lobe -->
+  <path d="M152 60 C155 58 168 56 182 60 C200 66 214 78 218 96 C222 114 214 132 198 140 C186 146 168 147 155 145"
+    fill="none" stroke="#111" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Capital B — lower lobe (larger) -->
+  <path d="M153 145 C158 143 175 141 192 146 C214 154 228 170 228 192 C228 216 212 234 190 240 C174 244 158 242 152 240"
+    fill="none" stroke="#111" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- B upper lobe inner curve detail -->
+  <path d="M156 72 C162 70 175 70 185 76 C196 83 200 95 196 107 C192 118 180 124 168 125 C161 126 155 124 153 121"
+    fill="none" stroke="#111" stroke-width="5" stroke-linecap="round" opacity="0.35"/>
+
+  <!-- B lower lobe inner curve detail -->
+  <path d="M155 153 C163 151 180 151 193 158 C208 167 214 183 210 200 C206 218 192 228 175 230 C164 232 155 229 152 225"
+    fill="none" stroke="#111" stroke-width="5" stroke-linecap="round" opacity="0.35"/>
+</svg>

@@ -445,7 +445,7 @@ export async function GET() {
   return NextResponse.json(response, {
     headers: {
       'X-Agent-Welcome': 'true',
-      'X-KB-Docs': 'https://katabased.vercel.app/llms.txt',
+      'X-KB-Docs': 'https://katabased.io/llms.txt',
       'X-Payment-Protocol': 'x402 (coming soon)',
     },
   });

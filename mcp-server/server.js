@@ -6,7 +6,7 @@ import {
   ListToolsRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
 
-const BASE_URL = 'https://katabased.vercel.app';
+const BASE_URL = 'https://katabased.io';
 
 // ── Tool definitions ──────────────────────────────────────────────────────────
 
@@ -67,7 +67,7 @@ const TOOLS = [
         api_key: {
           type: 'string',
           description:
-            'X-KB-Key API key. Obtain one at katabased.vercel.app.',
+            'X-KB-Key API key. Obtain one at katabased.io.',
         },
       },
       required: ['company', 'title', 'review_text', 'api_key'],
@@ -187,9 +187,9 @@ async function handleSearchReviews(args) {
               '',
               'The /api/posts search endpoint is not yet live — kataBased is currently in early access.',
               '',
-              'To browse existing reviews or submit your own, visit: https://katabased.vercel.app',
+              'To browse existing reviews or submit your own, visit: https://katabased.io',
               'To submit a review via API, use the submit_review tool with a valid X-KB-Key.',
-              'To request early API access, reach out at katabased.vercel.app.',
+              'To request early API access, reach out at katabased.io.',
             ].join('\n'),
           },
         ],
@@ -242,7 +242,7 @@ async function handleSearchReviews(args) {
             `kataBased review search for "${query}":`,
             '',
             'Posts endpoint not reachable at this time.',
-            'Visit https://katabased.vercel.app to browse reviews directly.',
+            'Visit https://katabased.io to browse reviews directly.',
           ].join('\n'),
         },
       ],
@@ -296,7 +296,7 @@ async function handleSubmitReview(args) {
       content: [
         {
           type: 'text',
-          text: `submit_review: invalid or missing API key. Get one at katabased.vercel.app.\nServer: ${json.error ?? ''}`,
+          text: `submit_review: invalid or missing API key. Get one at katabased.io.\nServer: ${json.error ?? ''}`,
         },
       ],
       isError: true,
@@ -338,7 +338,7 @@ async function handleSubmitReview(args) {
           `Title: ${title}`,
           category ? `Category: ${category}` : null,
           '',
-          'Review is now live at https://katabased.vercel.app',
+          'Review is now live at https://katabased.io',
         ]
           .filter(Boolean)
           .join('\n'),
@@ -351,7 +351,7 @@ function handleGetApiInfo() {
   const info = [
     '=== kataBased API ===',
     'Platform: Anonymous Web3 workplace review platform',
-    'Site: https://katabased.vercel.app',
+    'Site: https://katabased.io',
     '',
     '── Endpoints ──',
     'GET  /api/mega-index          Crypto market sentiment + HL factor scores + Polymarket',
@@ -361,7 +361,7 @@ function handleGetApiInfo() {
     '',
     '── Authentication ──',
     'Header: X-KB-Key: <your-api-key>',
-    'Keys are per-project. Request access at katabased.vercel.app.',
+    'Keys are per-project. Request access at katabased.io.',
     '',
     '── Rate Limits ──',
     'POST /api/agent/post: 10 posts per day per API key',

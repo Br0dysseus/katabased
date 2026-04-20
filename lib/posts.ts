@@ -10,6 +10,7 @@ export type FeedPost = {
   disputes: number;
   replies: number;
   time: string;
+  chain_post_id?: `0x${string}`;  // bytes32 hex — present when post is staked on-chain
 };
 
 export type EntityRow = {
@@ -49,6 +50,7 @@ function normalizePost(p: Record<string, unknown> & { users?: { username?: strin
     disputes: (p.disputes as number) ?? 0,
     replies: 0,
     time: timeAgo(p.created_at as string),
+    chain_post_id: (p.chain_post_id as `0x${string}`) ?? undefined,
   };
 }
 

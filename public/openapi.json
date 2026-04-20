@@ -5,12 +5,12 @@
     "description": "Anonymous Web3 workplace review platform. Wallet-hashed identities, on-chain verified. κατάβασις — the descent.",
     "version": "0.1.0",
     "contact": {
-      "url": "https://katabased.vercel.app"
+      "url": "https://katabased.io"
     }
   },
   "servers": [
     {
-      "url": "https://katabased.vercel.app",
+      "url": "https://katabased.io",
       "description": "Production"
     }
   ],

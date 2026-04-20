@@ -22,8 +22,8 @@ const sigRed  = '#D94030';    // dispute / risk
 const sigBlue = '#7AABCC';    // confirm / data — muted blue-grey
 const sigGold = '#C9A84C';    // caution / mid-tier
 const text1   = '#D8C4A0';    // warm parchment
-const text2   = 'rgba(216,196,160,0.70)';
-const text3   = 'rgba(216,196,160,0.50)';
+const text2   = 'rgba(216,196,160,0.85)';
+const text3   = 'rgba(216,196,160,0.82)';
 const bg      = '#0C0806';    // warm fired-clay black
 const bg2     = '#130C07';
 const bg3     = '#1C1108';
@@ -60,21 +60,39 @@ function friendlyError(err: unknown): string {
 }
 
 // ─── Mock data ────────────────────────────────────────────────────────────────
-const FEED = [
-  { id: 1, author: 'anon_19283746', entity: 'Coinbase',      title: 'they let 900 people go over Slack. no call. no warning.',              content: "HR sent a calendar block at 7am. meeting link didn't work for 400 of them. that's how they found out. comms team called it 'operational efficiency' in the all-hands three days later.",    confirms: 312, disputes: 14, replies: 56,  time: '2h'  },
-  { id: 2, author: 'anon_55839201', entity: 'Chainalysis',   title: 'promotion list decided in December. told in June. half get pulled.',    content: "My skip-level admitted the budget freezes every Q1. They tell you 'next cycle.' I've heard that for two years. There is no next cycle.",                                                  confirms: 167, disputes: 9,  replies: 28,  time: '5h'  },
-  { id: 3, author: 'anon_77201938', entity: 'OpenSea',       title: 'Seaport team and product team stopped talking. two companies now.',      content: "Protocol engineers route around leadership entirely. Product gets Figma updates instead of engineers. They stopped inviting each other to standups months ago.",                          confirms: 244, disputes: 41, replies: 73,  time: '8h'  },
-  { id: 4, author: 'anon_33018274', entity: 'Uniswap Labs',  title: 'turned down FAANG to stay here. still no regrets.',                     content: "Nobody asks permission to ship. If you're right, you're right. First place I've worked where the best engineers actually have power. The protocol doesn't lie.",                        confirms: 389, disputes: 7,  replies: 51,  time: '12h' },
-  { id: 5, author: 'anon_99182736', entity: 'Alchemy',       title: 'biggest enterprise client had 12h downtime. we blamed them publicly.',  content: "I was on that incident call. It was our infra. RCA got quietly buried. Sales is still using their logo on the pitch deck.",                                                         confirms: 201, disputes: 62, replies: 104, time: '1d'  },
-  { id: 6, author: 'anon_44102938', entity: 'Paradigm',      title: 'partner replied to my cold email in 6 minutes with actual code.',       content: "Not a form response. They'd read the paper. Pushed back on two assumptions. I've never felt more accurately seen by anyone in this industry.",                                         confirms: 571, disputes: 5,  replies: 130, time: '2d'  },
+// 14 seeded posts from the scheduler — keep in sync with sdk/post_scheduler.py POSTS.
+const FEED: FeedPost[] = [
+  { id: '1',  author: 'anon_19283746', entity: 'Kraken',                title: 'support staff recruited as social engineering bait. human layer problem.',       content: "leadership knew about the vector for months. shipped nothing. IPO roadshow is a shitshow, morale on the support floor is worse.",                                               confirms: 298, disputes: 22, replies: 61,  time: '1h'  },
+  { id: '2',  author: 'anon_55839201', entity: 'World Liberty Financial', title: 'depositors trapped. freeze controls known internally before they got exposed.', content: "the freeze logic lived in the contract for weeks before anyone outside the core team flagged it. compliance team saw it. nobody said anything.",                                  confirms: 412, disputes: 38, replies: 109, time: '2h'  },
+  { id: '3',  author: 'anon_77201938', entity: 'Drift',                 title: 'team wallet moved to Bybit during active DPRK incident. not after.',               content: "on the post-mortem call nobody had a straight answer for the timing. CEO asked us to take it off Slack and handle it verbally.",                                                  confirms: 284, disputes: 18, replies: 87,  time: '2h'  },
+  { id: '4',  author: 'anon_33018274', entity: 'Stripe / Bridge',       title: 'Bridge is a jurisdiction acquisition, not a product acquisition.',                content: "every MTL Stripe files is a door Circle can't close after them. nobody in crypto is watching this closely enough. the team that built Bridge knows exactly what it is.",          confirms: 196, disputes: 11, replies: 44,  time: '3h'  },
+  { id: '5',  author: 'anon_99182736', entity: 'Robinhood',             title: 'AML & fraud compliance hires are pure overhead. engineers coasting.',              content: "building on Arb was the wrong call and the people who made it are still there. the tokenization team is 6 PMs to 2 engineers.",                                                   confirms: 157, disputes: 44, replies: 82,  time: '4h'  },
+  { id: '6',  author: 'anon_44102938', entity: 'Coinbase',              title: 'institutional products bleeding senior engineers to competitors for three years.', content: "nobody left to build through all the bloat. half the prime brokerage code has one Slack handle attached to it and he left in Feb.",                                               confirms: 312, disputes: 14, replies: 56,  time: '5h'  },
+  { id: '7',  author: 'anon_22938461', entity: 'Fireblocks',            title: 'every TradFi firm going into tokenization ends up here. procurement owns roadmap.', content: "the integration takes longer than the deal, and nobody tells you in the interview that procurement sets the sprint priorities for the next 18 months.",                           confirms: 203, disputes: 29, replies: 62,  time: '7h'  },
+  { id: '8',  author: 'anon_10029384', entity: 'Ripple',                title: 'ZK move is media fluff. internal privacy rails half-baked and team knows it.',      content: "the public narrative is five months ahead of what the engineers have shipped. the ZK team is understaffed and the PM layer is papering over it.",                                 confirms: 168, disputes: 51, replies: 73,  time: '9h'  },
+  { id: '9',  author: 'anon_66720183', entity: 'TRM Labs',              title: 'paid by the exchanges we are supposed to flag. biggest contracts, most volume.',   content: "the enterprise pricing model creates a conflict of interest the comms team refuses to address. internal analysts flag it in reviews, it gets smoothed over.",                     confirms: 198, disputes: 12, replies: 49,  time: '11h' },
+  { id: '10', author: 'anon_30112847', entity: 'Polymarket',            title: 'Kalshi spends 3x on marketing. no KYC is the product. it keeps winning.',           content: "the offshore EV is the moat. the team knows this. Shayne knows this. the lawyers know this. the regulators know this. everyone is just waiting for the other shoe to drop.",    confirms: 341, disputes: 47, replies: 128, time: '14h' },
+  { id: '11', author: 'anon_51029384', entity: 'Paxos',                 title: 'PAXG audit cadence quarterly. gold market moves daily. trust the trust company.',   content: "you are trusting a regulated trust company to hold allocated bars in Brinks vaults and tell you about it four times a year. the retail pitch deck hides the attestation cadence.", confirms: 144, disputes: 19, replies: 38,  time: '17h' },
+  { id: '12', author: 'anon_80234719', entity: 'Hyperliquid',           title: '70% of onchain perps OI and that is not even the play.',                            content: "they are building data infrastructure that makes the exchange look like a front-end. the HIP-3 builder codes are being used as a distribution weapon and nobody has priced it.",   confirms: 489, disputes: 8,  replies: 142, time: '21h' },
+  { id: '13', author: 'anon_42018372', entity: 'JPMorgan / Kinexys',    title: 'rebrand from Onyx was supposed to signal independence. still on JPM ticketing.',    content: "internal pitch deck literally reuses Onyx slides with find-and-replace. more centralized than ever. the crypto-native hires are leaving one by one.",                             confirms: 172, disputes: 27, replies: 54,  time: '1d'  },
+  { id: '14', author: 'anon_91038475', entity: 'Wintermute',            title: 'market make your token while running prop on the same book.',                      content: "you don't know what they are doing with your liquidity and that is by design. the relationship manager memorized the compliance answer, they will not deviate from it.",        confirms: 356, disputes: 43, replies: 95,  time: '1d'  },
 ];
 
 const COS = [
-  { name: 'Coinbase',     count: 342, sent: 0.62 },
-  { name: 'Uniswap Labs', count: 189, sent: 0.84 },
-  { name: 'OpenSea',      count: 276, sent: 0.51 },
-  { name: 'Alchemy',      count: 134, sent: 0.45 },
-  { name: 'Chainalysis',  count: 98,  sent: 0.73 },
+  { name: 'Hyperliquid',             count: 489, sent: 0.88 },
+  { name: 'Coinbase',                count: 312, sent: 0.42 },
+  { name: 'World Liberty Financial', count: 412, sent: 0.18 },
+  { name: 'Wintermute',              count: 356, sent: 0.32 },
+  { name: 'Polymarket',              count: 341, sent: 0.72 },
+  { name: 'Kraken',                  count: 298, sent: 0.28 },
+  { name: 'Drift',                   count: 284, sent: 0.36 },
+  { name: 'Fireblocks',              count: 203, sent: 0.44 },
+  { name: 'TRM Labs',                count: 198, sent: 0.26 },
+  { name: 'Stripe / Bridge',         count: 196, sent: 0.78 },
+  { name: 'JPMorgan / Kinexys',      count: 172, sent: 0.41 },
+  { name: 'Ripple',                  count: 168, sent: 0.38 },
+  { name: 'Robinhood',               count: 157, sent: 0.31 },
+  { name: 'Paxos',                   count: 144, sent: 0.55 },
 ];
 
 const LEADERS = [
@@ -90,7 +108,7 @@ const LEADERS = [
 // ─── Section heading — minimal line rule ─────────────────────────────────────
 function SecHead({ label, mb = 20 }: { label: string; mb?: number }) {
   return (
-    <div style={{ fontFamily: mono, fontSize: 14, fontWeight: 600, letterSpacing: '0.28em', textTransform: 'uppercase', color: 'rgba(216,196,160,0.72)', marginBottom: mb, display: 'flex', alignItems: 'center', gap: 10 }}>
+    <div style={{ fontFamily: mono, fontSize: 14, fontWeight: 600, letterSpacing: '0.28em', textTransform: 'uppercase', color: 'rgba(216,196,160,0.86)', marginBottom: mb, display: 'flex', alignItems: 'center', gap: 10 }}>
       {'// '}{label}
       <div style={{ flex: 1, height: 1, background: `linear-gradient(90deg, ${border} 0%, transparent 100%)` }} />
     </div>
@@ -172,10 +190,10 @@ function FeedEntry({ p, votes, vote, index }: { p: FeedPost; votes: Record<strin
           {p.entity && p.entity !== '—' ? p.entity : '—'}
         </span>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span style={{ fontFamily: mono, fontSize: 14, color: 'rgba(216,196,160,0.28)', letterSpacing: '0.1em' }}>{p.time}</span>
+          <span style={{ fontFamily: mono, fontSize: 14, color: 'rgba(216,196,160,0.66)', letterSpacing: '0.1em' }}>{p.time}</span>
           <span style={{
             fontFamily: mono, fontSize: 13, letterSpacing: '0.18em',
-            color: signalHigh ? 'rgba(77,166,232,0.72)' : signalMed ? 'rgba(77,166,232,0.44)' : 'rgba(216,196,160,0.48)',
+            color: signalHigh ? 'rgba(77,166,232,0.72)' : signalMed ? 'rgba(77,166,232,0.44)' : 'rgba(216,196,160,0.80)',
           }}>
             {signalHigh ? '◆ HIGH' : signalMed ? '◈ MED' : '◻ LOW'}
           </span>
@@ -196,7 +214,7 @@ function FeedEntry({ p, votes, vote, index }: { p: FeedPost; votes: Record<strin
       {/* Body */}
       <div style={{
         fontFamily: sans, fontSize: 17, lineHeight: 1.82,
-        color: hovered ? 'rgba(216,196,160,0.72)' : 'rgba(216,196,160,0.55)',
+        color: hovered ? 'rgba(216,196,160,0.86)' : 'rgba(216,196,160,0.86)',
         fontWeight: 400, marginBottom: 14,
         transition: 'color 0.18s',
       }}>
@@ -328,9 +346,9 @@ function FeedPage({ feed, votes, vote, onCompose, selectedEntity, onClearEntity,
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <div style={{ width: 5, height: 5, borderRadius: '50%', background: celadon, boxShadow: `0 0 6px rgba(212,99,26,0.5)`, animation: 'pd 2s ease infinite', flexShrink: 0 }} />
-          <span style={{ fontFamily: mono, fontSize: 14, color: 'rgba(216,196,160,0.52)', letterSpacing: '0.14em' }}>{'// open secure channel…'}</span>
+          <span style={{ fontFamily: mono, fontSize: 14, color: 'rgba(216,196,160,0.82)', letterSpacing: '0.14em' }}>{'// open secure channel…'}</span>
         </div>
-        <span style={{ fontFamily: mono, fontSize: 14, color: 'rgba(216,196,160,0.45)', letterSpacing: '0.14em', border: `1px solid ${border}`, padding: '2px 6px', borderRadius: 1 }}>⌘K</span>
+        <span style={{ fontFamily: mono, fontSize: 14, color: 'rgba(216,196,160,0.78)', letterSpacing: '0.14em', border: `1px solid ${border}`, padding: '2px 6px', borderRadius: 1 }}>⌘K</span>
       </div>
 
       {/* Feed */}
@@ -359,7 +377,7 @@ interface MegaPolyItem { question: string; yes_prob: number; volume: number; }
 interface MegaData { updated_at: string; regime: string; dominant_sentiment: string; narratives: string[]; session_notes: string; entities: MegaEntity[]; top_long: string[]; top_short: string[]; news: MegaNewsItem[]; polymarket: MegaPolyItem[]; }
 
 const REGIME_COLOR: Record<string, string> = { trending: '#4ade80', choppy: '#facc15', 'mean-reversion': '#a78bfa', carry: '#38bdf8', breakout: '#f472b6', neutral: 'rgba(210,188,152,0.3)' };
-const SENT_COLOR: Record<string, string> = { bullish: '#4ade80', bearish: '#f87171', neutral: 'rgba(210,188,152,0.35)', mixed: '#facc15' };
+const SENT_COLOR: Record<string, string> = { bullish: '#4ade80', bearish: '#f87171', neutral: 'rgba(210,188,152,0.72)', mixed: '#facc15' };
 
 function MegaIndex() {
   const [data, setData] = useState<MegaData | null>(null);
@@ -441,7 +459,7 @@ function MegaIndex() {
           </div>
           <div style={{ display: 'flex', gap: 14 }}>
             <span style={{ fontFamily: mono, fontSize: 14, color: 'rgba(74,222,128,0.75)', letterSpacing: '0.06em' }}>{bullPct}% <span style={{ opacity: 0.5 }}>BULL</span></span>
-            <span style={{ fontFamily: mono, fontSize: 14, color: 'rgba(210,188,152,0.38)', letterSpacing: '0.06em' }}>{neutPct}% <span style={{ opacity: 0.5 }}>NEUT</span></span>
+            <span style={{ fontFamily: mono, fontSize: 14, color: 'rgba(210,188,152,0.74)', letterSpacing: '0.06em' }}>{neutPct}% <span style={{ opacity: 0.5 }}>NEUT</span></span>
             <span style={{ fontFamily: mono, fontSize: 14, color: 'rgba(248,113,113,0.7)', letterSpacing: '0.06em' }}>{bearPct}% <span style={{ opacity: 0.5 }}>BEAR</span></span>
           </div>
         </div>
@@ -499,7 +517,7 @@ function MegaIndex() {
         {data.session_notes && (
           <>
             {divider}
-            <div style={{ fontFamily: sans, fontSize: 16, lineHeight: 1.7, color: 'rgba(216,196,160,0.62)', fontStyle: 'italic', marginBottom: 4 }}>
+            <div style={{ fontFamily: sans, fontSize: 16, lineHeight: 1.7, color: 'rgba(216,196,160,0.78)', fontStyle: 'italic', marginBottom: 4 }}>
               {data.session_notes}
             </div>
           </>
@@ -515,10 +533,10 @@ function MegaIndex() {
                 const pYes = m.yes_prob;
                 const pNo = 100 - pYes;
                 const volK = m.volume >= 1000 ? `$${(m.volume / 1000).toFixed(0)}k` : `$${m.volume}`;
-                const yesBright = pYes > 65 ? 'rgba(74,222,128,0.88)' : pYes < 35 ? 'rgba(248,113,113,0.85)' : 'rgba(210,188,152,0.65)';
+                const yesBright = pYes > 65 ? 'rgba(74,222,128,0.88)' : pYes < 35 ? 'rgba(248,113,113,0.85)' : 'rgba(210,188,152,0.80)';
                 return (
                   <div key={i} style={{ marginBottom: 8 }}>
-                    <div style={{ fontFamily: sans, fontSize: 15, color: 'rgba(216,196,160,0.72)', letterSpacing: '0.01em', marginBottom: 5, lineHeight: 1.4, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const }}>
+                    <div style={{ fontFamily: sans, fontSize: 15, color: 'rgba(216,196,160,0.86)', letterSpacing: '0.01em', marginBottom: 5, lineHeight: 1.4, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const }}>
                       {m.question}
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -527,7 +545,7 @@ function MegaIndex() {
                         <div style={{ width: `${pNo}%`, background: 'rgba(248,113,113,0.35)', height: '100%' }} />
                       </div>
                       <span style={{ fontFamily: mono, fontSize: 14, fontWeight: 700, color: yesBright, flexShrink: 0 }}>{pYes}%</span>
-                      <span style={{ fontFamily: mono, fontSize: 13, color: 'rgba(210,188,152,0.35)', flexShrink: 0 }}>{volK}</span>
+                      <span style={{ fontFamily: mono, fontSize: 13, color: 'rgba(210,188,152,0.72)', flexShrink: 0 }}>{volK}</span>
                     </div>
                   </div>
                 );
@@ -567,7 +585,7 @@ function MegaIndex() {
 
         {divider}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ fontFamily: mono, fontSize: 14, color: 'rgba(210,188,152,0.22)', letterSpacing: '0.08em' }}>anjew · {total} entities</span>
+          <span style={{ fontFamily: mono, fontSize: 14, color: 'rgba(210,188,152,0.58)', letterSpacing: '0.08em' }}>anjew · {total} entities</span>
           <span style={{ fontFamily: mono, fontSize: 14, color: 'rgba(107,159,212,0.28)', letterSpacing: '0.06em' }}>
             {new Date(data.updated_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
           </span>
@@ -631,7 +649,7 @@ function ExploreRow({ c, pct, barCol, signalLabel }: { c: EntityRow; pct: number
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
           {/* Entity icon */}
-          <svg width="13" height="13" viewBox="0 0 14 14" fill="none" style={{ color: hovered ? celadon : 'rgba(216,196,160,0.22)', transition: 'color 0.14s', flexShrink: 0 }}>
+          <svg width="13" height="13" viewBox="0 0 14 14" fill="none" style={{ color: hovered ? celadon : 'rgba(216,196,160,0.58)', transition: 'color 0.14s', flexShrink: 0 }}>
             <rect x="1" y="1" width="5.2" height="5.2" rx="0.5" stroke="currentColor" strokeWidth="1.1"/>
             <rect x="7.8" y="1" width="5.2" height="5.2" rx="0.5" stroke="currentColor" strokeWidth="1.1"/>
             <rect x="1" y="7.8" width="5.2" height="5.2" rx="0.5" stroke="currentColor" strokeWidth="1.1"/>
@@ -645,7 +663,7 @@ function ExploreRow({ c, pct, barCol, signalLabel }: { c: EntityRow; pct: number
           }}>{c.name}</div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
-          <span style={{ fontFamily: mono, fontSize: 14, color: 'rgba(216,196,160,0.28)', letterSpacing: '0.06em' }}>{c.count} posts</span>
+          <span style={{ fontFamily: mono, fontSize: 14, color: 'rgba(216,196,160,0.66)', letterSpacing: '0.06em' }}>{c.count} posts</span>
           <span style={{ fontFamily: mono, fontSize: 16, fontWeight: 600, color: barCol }}>{pct}%</span>
         </div>
       </div>
@@ -701,8 +719,8 @@ function RanksPage({ leaders, username }: { leaders: LeaderRow[]; username: stri
                 {e.user}
                 {me && <span style={{ fontSize: 13, color: 'rgba(212,99,26,0.62)', letterSpacing: '0.16em', border: '1px solid rgba(212,99,26,0.2)', padding: '1px 5px', borderRadius: 1 }}>YOU</span>}
               </div>
-              <div style={{ fontFamily: mono, fontSize: 15, fontWeight: 600, color: me ? text1 : 'rgba(216,196,160,0.32)', textAlign: 'right', letterSpacing: '0.04em' }}>{e.karma.toLocaleString()}</div>
-              <div style={{ fontFamily: mono, fontSize: 14, color: 'rgba(216,196,160,0.52)', textAlign: 'right', letterSpacing: '0.04em' }}>{e.posts}</div>
+              <div style={{ fontFamily: mono, fontSize: 15, fontWeight: 600, color: me ? text1 : 'rgba(216,196,160,0.70)', textAlign: 'right', letterSpacing: '0.04em' }}>{e.karma.toLocaleString()}</div>
+              <div style={{ fontFamily: mono, fontSize: 14, color: 'rgba(216,196,160,0.82)', textAlign: 'right', letterSpacing: '0.04em' }}>{e.posts}</div>
             </div>
           </div>
         );
@@ -975,7 +993,7 @@ function OpsecPage() {
           onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.opacity = '1'; }}
           onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.opacity = '0.5'; }}
         >
-          <span style={{ fontFamily: mono, fontSize: 15, color: 'rgba(210,188,152,0.55)', letterSpacing: '0.12em' }}>← [GUIDE]</span>
+          <span style={{ fontFamily: mono, fontSize: 15, color: 'rgba(210,188,152,0.86)', letterSpacing: '0.12em' }}>← [GUIDE]</span>
         </button>
 
         {(() => {
@@ -1050,7 +1068,7 @@ function OpsecPage() {
     <div className="fi" style={{ animationDelay: '0.06s' }}>
       <SecHead label="OPSEC_GUIDE" />
 
-      <div style={{ fontFamily: sans, fontSize: 17, lineHeight: 1.7, color: 'rgba(216,196,160,0.62)', marginBottom: 28, fontWeight: 400 }}>
+      <div style={{ fontFamily: sans, fontSize: 17, lineHeight: 1.7, color: 'rgba(216,196,160,0.78)', marginBottom: 28, fontWeight: 400 }}>
         Anonymity is only as strong as the weakest step. Select a tier to view its setup guide.
       </div>
 
@@ -1070,8 +1088,8 @@ function OpsecPage() {
               onClick={() => { const n = new Set(checked); on ? n.delete(i) : n.add(i); setChecked(n); }}
               style={{ display: 'flex', gap: 10, alignItems: 'flex-start', cursor: 'pointer', padding: '6px 0', borderBottom: '1px solid rgba(255,255,255,0.03)', opacity: on ? 1 : 0.55, transition: 'opacity 0.12s' }}
             >
-              <span style={{ fontFamily: mono, fontSize: 16, color: on ? 'rgba(107,212,159,0.82)' : 'rgba(210,188,152,0.35)', flexShrink: 0, marginTop: 1, transition: 'color 0.12s' }}>{on ? '✓' : '○'}</span>
-              <span style={{ fontFamily: sans, fontSize: 17, lineHeight: 1.55, color: on ? 'rgba(210,188,152,0.52)' : 'rgba(216,196,160,0.72)', textDecoration: on ? 'line-through' : 'none', textDecorationColor: 'rgba(210,188,152,0.2)', transition: 'color 0.12s' }}>{item}</span>
+              <span style={{ fontFamily: mono, fontSize: 16, color: on ? 'rgba(107,212,159,0.82)' : 'rgba(210,188,152,0.72)', flexShrink: 0, marginTop: 1, transition: 'color 0.12s' }}>{on ? '✓' : '○'}</span>
+              <span style={{ fontFamily: sans, fontSize: 17, lineHeight: 1.55, color: on ? 'rgba(210,188,152,0.82)' : 'rgba(216,196,160,0.86)', textDecoration: on ? 'line-through' : 'none', textDecorationColor: 'rgba(210,188,152,0.2)', transition: 'color 0.12s' }}>{item}</span>
             </div>
           );
         })}
@@ -1122,7 +1140,7 @@ function OpsecPage() {
                 <span style={{ fontFamily: mono, fontSize: 13, letterSpacing: '0.1em', color: t.col, opacity: 0.72, border: `1px solid ${t.col}40`, padding: '2px 6px', borderRadius: 1 }}>{t.threat}</span>
                 {(t.id === 'T3' || t.id === 'T4') && <span style={{ fontFamily: mono, fontSize: 14, color: 'rgba(212,90,90,0.62)' }}>⚠</span>}
               </div>
-              <div style={{ fontFamily: sans, fontSize: 16, color: 'rgba(210,188,152,0.52)', fontStyle: 'italic', letterSpacing: '0.01em' }}>{t.sub}</div>
+              <div style={{ fontFamily: sans, fontSize: 16, color: 'rgba(210,188,152,0.82)', fontStyle: 'italic', letterSpacing: '0.01em' }}>{t.sub}</div>
             </div>
 
             <div style={{ fontFamily: mono, fontSize: 13, color: 'rgba(212,99,26,0.35)', flexShrink: 0, paddingTop: 2 }}>{t.steps.length} steps · {t.time} ›</div>
@@ -1216,42 +1234,41 @@ function SidebarRail({ page, switchPage, walletDisplay, username, postCount, kar
   const toggle = (id: string) => setOpen(prev => prev === id ? null : id);
 
   const IcoPerson = () => (
-    <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
-      <circle cx="8" cy="5" r="2.8" stroke="currentColor" strokeWidth="1.3"/>
-      <path d="M2.5 14c0-3.038 2.462-5.5 5.5-5.5s5.5 2.462 5.5 5.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+    <svg width="22" height="22" viewBox="0 0 16 16" fill="none">
+      <circle cx="8" cy="5" r="2.8" stroke="currentColor" strokeWidth="1.6"/>
+      <path d="M2.5 14c0-3.038 2.462-5.5 5.5-5.5s5.5 2.462 5.5 5.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
     </svg>
   );
   const IcoSignal = () => (
-    <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
-      <polyline points="1.5,12 4.5,8 7.5,10 10.5,5 13.5,7.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
-      <circle cx="13.5" cy="7.5" r="1.2" fill="currentColor"/>
+    <svg width="22" height="22" viewBox="0 0 16 16" fill="none">
+      <polyline points="1.5,12 4.5,8 7.5,10 10.5,5 13.5,7.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+      <circle cx="13.5" cy="7.5" r="1.4" fill="currentColor"/>
     </svg>
   );
   const IcoGrid = () => (
-    <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
-      <rect x="2" y="2" width="5" height="5" rx="0.6" stroke="currentColor" strokeWidth="1.2"/>
-      <rect x="9" y="2" width="5" height="5" rx="0.6" stroke="currentColor" strokeWidth="1.2"/>
-      <rect x="2" y="9" width="5" height="5" rx="0.6" stroke="currentColor" strokeWidth="1.2"/>
-      <rect x="9" y="9" width="5" height="5" rx="0.6" stroke="currentColor" strokeWidth="1.2"/>
+    <svg width="22" height="22" viewBox="0 0 16 16" fill="none">
+      <rect x="2" y="2" width="5" height="5" rx="0.6" stroke="currentColor" strokeWidth="1.5"/>
+      <rect x="9" y="2" width="5" height="5" rx="0.6" stroke="currentColor" strokeWidth="1.5"/>
+      <rect x="2" y="9" width="5" height="5" rx="0.6" stroke="currentColor" strokeWidth="1.5"/>
+      <rect x="9" y="9" width="5" height="5" rx="0.6" stroke="currentColor" strokeWidth="1.5"/>
     </svg>
   );
   const IcoShield = () => (
-    <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
-      <path d="M8 1.5L13.5 4V8c0 3.2-2.7 5.1-5.5 5.9C5.2 13.1 2.5 11.2 2.5 8V4L8 1.5Z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round"/>
-      <path d="M5.5 8l2 2 3-3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+    <svg width="22" height="22" viewBox="0 0 16 16" fill="none">
+      <path d="M8 1.5L13.5 4V8c0 3.2-2.7 5.1-5.5 5.9C5.2 13.1 2.5 11.2 2.5 8V4L8 1.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
+      <path d="M5.5 8l2 2 3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   );
   const IcoCompass = () => (
-    <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
-      <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.2"/>
-      <path d="M10 6l-1.5 3.5L5 10l1.5-3.5L10 6Z" stroke="currentColor" strokeWidth="1.1" strokeLinejoin="round"/>
+    <svg width="22" height="22" viewBox="0 0 16 16" fill="none">
+      <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.5"/>
+      <path d="M10 6l-1.5 3.5L5 10l1.5-3.5L10 6Z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/>
     </svg>
   );
-  // Basin icon: water drop / pool
   const IcoBasin = () => (
-    <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
-      <path d="M8 2C8 2 3 7.5 3 10.5a5 5 0 0 0 10 0C13 7.5 8 2 8 2Z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round"/>
-      <path d="M5.5 11.5c.5 1.2 1.5 1.8 2.5 1.8" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" opacity="0.5"/>
+    <svg width="22" height="22" viewBox="0 0 16 16" fill="none">
+      <path d="M8 2C8 2 3 7.5 3 10.5a5 5 0 0 0 10 0C13 7.5 8 2 8 2Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
+      <path d="M5.5 11.5c.5 1.2 1.5 1.8 2.5 1.8" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" opacity="0.6"/>
     </svg>
   );
 
@@ -1269,25 +1286,25 @@ function SidebarRail({ page, switchPage, walletDisplay, username, postCount, kar
   };
 
   const railBtn = (id: string): React.CSSProperties => ({
-    width: 36, height: 36,
+    width: 44, height: 44,
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     background: open === id ? 'rgba(212,99,26,0.09)' : 'transparent',
     border: `1px solid ${open === id ? 'rgba(212,99,26,0.28)' : 'rgba(216,196,160,0.07)'}`,
     borderRadius: 2,
     cursor: 'pointer',
-    color: open === id ? celadon : 'rgba(216,196,160,0.3)',
+    color: open === id ? celadon : 'rgba(216,196,160,0.78)',
     transition: 'all 0.14s',
     padding: 0,
   });
 
   const navBtn = (id: string): React.CSSProperties => ({
-    width: 36, height: 36,
+    width: 44, height: 44,
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     background: page === id ? 'rgba(212,99,26,0.06)' : 'transparent',
     border: `1px solid ${page === id ? 'rgba(212,99,26,0.22)' : 'rgba(216,196,160,0.07)'}`,
     borderRadius: 2,
     cursor: 'pointer',
-    color: page === id ? celadon : 'rgba(216,196,160,0.3)',
+    color: page === id ? celadon : 'rgba(216,196,160,0.78)',
     transition: 'all 0.14s',
     padding: 0,
   });
@@ -1296,12 +1313,12 @@ function SidebarRail({ page, switchPage, walletDisplay, username, postCount, kar
     if (active) return;
     const el = e.currentTarget as HTMLElement;
     el.style.borderColor = on ? 'rgba(216,196,160,0.16)' : 'rgba(216,196,160,0.07)';
-    el.style.color = on ? 'rgba(216,196,160,0.68)' : 'rgba(216,196,160,0.3)';
+    el.style.color = on ? 'rgba(216,196,160,0.82)' : 'rgba(216,196,160,0.3)';
   };
 
   const statCell = (label: string, val: string | number, col: string) => (
     <div key={label} style={{ padding: '8px 10px', background: 'rgba(216,196,160,0.02)', border: '1px solid rgba(216,196,160,0.05)', borderRadius: 1 }}>
-      <div style={{ fontFamily: mono, fontSize: 13, letterSpacing: '0.2em', color: 'rgba(216,196,160,0.28)', marginBottom: 4, textTransform: 'uppercase' }}>{label}</div>
+      <div style={{ fontFamily: mono, fontSize: 13, letterSpacing: '0.2em', color: 'rgba(216,196,160,0.66)', marginBottom: 4, textTransform: 'uppercase' }}>{label}</div>
       <div style={{ fontFamily: mono, fontSize: 17, fontWeight: 600, color: col }}>{val}</div>
     </div>
   );
@@ -1330,14 +1347,14 @@ function SidebarRail({ page, switchPage, walletDisplay, username, postCount, kar
               <div style={{ width: 28, height: 28, borderRadius: 2, background: 'rgba(212,99,26,0.07)', border: '1px solid rgba(212,99,26,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: serif, fontSize: 17, fontStyle: 'italic', color: celadon, flexShrink: 0 }}>κ</div>
               <div>
                 <div style={{ fontFamily: mono, fontSize: 15, color: celadon, letterSpacing: '0.05em' }}>{username || '—'}</div>
-                <div style={{ fontFamily: mono, fontSize: 14, color: 'rgba(216,196,160,0.26)', letterSpacing: '0.06em', marginTop: 2 }}>{walletDisplay}</div>
+                <div style={{ fontFamily: mono, fontSize: 14, color: 'rgba(216,196,160,0.62)', letterSpacing: '0.06em', marginTop: 2 }}>{walletDisplay}</div>
               </div>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
               {statCell('POSTS', postCount, text1)}
               {statCell('KARMA', karma.toLocaleString(), karma > 0 ? celadon : 'rgba(216,196,160,0.3)')}
               {statCell('SIGNAL_ACC', signalAcc > 0 ? `${signalAcc}%` : '—', sigBlue)}
-              {statCell('STANDING', karma > 500 ? 'HIGH' : karma > 100 ? 'MED' : 'NEW', karma > 500 ? celadon : karma > 100 ? sigGold : 'rgba(216,196,160,0.28)')}
+              {statCell('STANDING', karma > 500 ? 'HIGH' : karma > 100 ? 'MED' : 'NEW', karma > 500 ? celadon : karma > 100 ? sigGold : 'rgba(216,196,160,0.66)')}
             </div>
           </div>
         )}
@@ -1357,7 +1374,7 @@ function SidebarRail({ page, switchPage, walletDisplay, username, postCount, kar
             ) : (
               entities.slice(0, 7).map(e => {
                 const pct = Math.round(e.sent * 100);
-                const col = pct >= 60 ? sigBlue : pct < 40 ? sigRed : 'rgba(216,196,160,0.28)';
+                const col = pct >= 60 ? sigBlue : pct < 40 ? sigRed : 'rgba(216,196,160,0.66)';
                 const barCol = pct >= 60 ? 'rgba(77,166,232,0.4)' : 'rgba(229,90,0,0.35)';
                 return (
                   <div key={e.name} onClick={() => { onSelectEntity(e.name); setOpen(null); }}
@@ -1387,7 +1404,7 @@ function SidebarRail({ page, switchPage, walletDisplay, username, postCount, kar
         </button>
         {open === 'entities' && (
           <div style={{ ...panel, maxHeight: 420, display: 'flex', flexDirection: 'column' }}>
-            <div style={{ fontFamily: mono, fontSize: 13, fontWeight: 700, letterSpacing: '0.28em', color: 'rgba(216,196,160,0.35)', textTransform: 'uppercase', marginBottom: 8 }}>{'// ENTITIES'}</div>
+            <div style={{ fontFamily: mono, fontSize: 13, fontWeight: 700, letterSpacing: '0.28em', color: 'rgba(216,196,160,0.72)', textTransform: 'uppercase', marginBottom: 8 }}>{'// ENTITIES'}</div>
             <input
               value={entSearch}
               onChange={e => setEntSearch(e.target.value)}
@@ -1399,13 +1416,13 @@ function SidebarRail({ page, switchPage, walletDisplay, username, postCount, kar
             <div style={{ overflowY: 'auto', flex: 1 }}>
               {filtEnt.map(e => {
                 const pct = Math.round(e.sent * 100);
-                const col = pct >= 60 ? sigBlue : pct < 40 ? sigRed : 'rgba(216,196,160,0.28)';
+                const col = pct >= 60 ? sigBlue : pct < 40 ? sigRed : 'rgba(216,196,160,0.66)';
                 return (
                   <div key={e.name} onClick={() => { onSelectEntity(e.name); setOpen(null); }}
                     style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '7px 0', borderBottom: '1px solid rgba(216,196,160,0.04)', cursor: 'pointer', transition: 'opacity 0.12s' }}
                     onMouseEnter={el => { (el.currentTarget as HTMLElement).style.opacity = '0.7'; }}
                     onMouseLeave={el => { (el.currentTarget as HTMLElement).style.opacity = '1'; }}>
-                    <span style={{ fontFamily: mono, fontSize: 14, color: 'rgba(216,196,160,0.62)', letterSpacing: '0.03em' }}>{e.name}</span>
+                    <span style={{ fontFamily: mono, fontSize: 14, color: 'rgba(216,196,160,0.78)', letterSpacing: '0.03em' }}>{e.name}</span>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       <span style={{ fontFamily: mono, fontSize: 14, color: 'rgba(216,196,160,0.2)', letterSpacing: '0.04em' }}>{e.count}</span>
                       <span style={{ fontFamily: mono, fontSize: 14, fontWeight: 600, color: col }}>{pct}%</span>
@@ -1468,7 +1485,7 @@ export default function DashboardPage() {
   const [contentKey,      setContentKey]     = useState(0);
   const [showComposer,    setShowComposer]   = useState(false);
   const [selectedEntity,  setSelectedEntity]  = useState<string | null>(null);
-  const [feed,            setFeed]           = useState<FeedPost[]>([]);
+  const [feed,            setFeed]           = useState<FeedPost[]>(FEED);
   const [entities,        setEntities]       = useState<EntityRow[]>([]);
   const [leaders,         setLeaders]        = useState<LeaderRow[]>([]);
   const [postCount,       setPostCount]      = useState(0);
@@ -1674,9 +1691,9 @@ export default function DashboardPage() {
         <nav style={{
           position: 'sticky', top: 0, zIndex: 100,
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '0 28px', height: 52,
+          padding: '0 28px', height: 68,
           background: 'rgba(12,8,6,0.92)', backdropFilter: 'blur(24px)',
-          borderBottom: `1px solid ${navBorder ? 'rgba(200,140,60,0.12)' : 'transparent'}`,
+          borderBottom: `1px solid ${navBorder ? 'rgba(200,140,60,0.18)' : 'transparent'}`,
           transition: 'border-color 0.4s ease',
           overflow: 'hidden',
         }}>
@@ -1704,11 +1721,11 @@ export default function DashboardPage() {
                     boxShadow: isActive ? `inset 0 -2px 0 ${celadon}` : 'none',
                     transition: 'color 0.14s, box-shadow 0.14s',
                     background: 'transparent',
-                    color: isActive ? text1 : 'rgba(216,196,160,0.52)',
+                    color: isActive ? text1 : 'rgba(216,196,160,0.82)',
                     letterSpacing: '-0.005em',
                   }}
                   onMouseEnter={e => { if (!isActive) (e.currentTarget as HTMLElement).style.color = 'rgba(216,196,160,0.82)'; }}
-                  onMouseLeave={e => { if (!isActive) (e.currentTarget as HTMLElement).style.color = 'rgba(216,196,160,0.52)'; }}
+                  onMouseLeave={e => { if (!isActive) (e.currentTarget as HTMLElement).style.color = 'rgba(216,196,160,0.82)'; }}
                 >
                   {label}
                 </button>
@@ -1723,9 +1740,9 @@ export default function DashboardPage() {
             <div ref={wRef} style={{ position: 'relative' }}>
               <button
                 onClick={() => setWMenu(!wMenu)}
-                style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 11px', borderRadius: 1, border: `1px solid ${border}`, background: 'transparent', cursor: 'pointer', fontFamily: mono, fontSize: 13, color: 'rgba(216,196,160,0.38)', letterSpacing: '0.06em', transition: 'all 0.14s' }}
-                onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.borderColor = 'rgba(216,196,160,0.14)'; el.style.color = 'rgba(216,196,160,0.68)'; }}
-                onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.borderColor = border; el.style.color = 'rgba(216,196,160,0.38)'; }}
+                style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 11px', borderRadius: 1, border: `1px solid ${border}`, background: 'transparent', cursor: 'pointer', fontFamily: mono, fontSize: 13, color: 'rgba(216,196,160,0.74)', letterSpacing: '0.06em', transition: 'all 0.14s' }}
+                onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.borderColor = 'rgba(216,196,160,0.14)'; el.style.color = 'rgba(216,196,160,0.82)'; }}
+                onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.borderColor = border; el.style.color = 'rgba(216,196,160,0.74)'; }}
               >
                 <div style={{ width: 4, height: 4, borderRadius: '50%', background: celadon, boxShadow: `0 0 5px rgba(212,99,26,0.5)`, animation: 'pd 2s ease infinite', flexShrink: 0 }} />
                 {walletDisplay}
@@ -1784,7 +1801,7 @@ export default function DashboardPage() {
                     ) : (
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                         <span style={{ fontFamily: mono, fontSize: 14, color: celadon, letterSpacing: '0.06em' }}>{username}</span>
-                        <button onClick={() => { setDraft(username); setEditing(true); }} style={{ padding: '3px 8px', borderRadius: 1, border: `1px solid ${border}`, background: 'none', color: 'rgba(216,196,160,0.28)', fontSize: 13, cursor: 'pointer', fontFamily: mono, transition: 'all 0.14s' }}>Edit</button>
+                        <button onClick={() => { setDraft(username); setEditing(true); }} style={{ padding: '3px 8px', borderRadius: 1, border: `1px solid ${border}`, background: 'none', color: 'rgba(216,196,160,0.66)', fontSize: 13, cursor: 'pointer', fontFamily: mono, transition: 'all 0.14s' }}>Edit</button>
                       </div>
                     )}
                   </div>
@@ -1813,7 +1830,7 @@ export default function DashboardPage() {
                   <div style={{ fontFamily: serif, fontStyle: 'italic', fontSize: 33, color: 'rgba(224,210,185,0.85)', lineHeight: 1.25, marginBottom: 32, letterSpacing: '-0.01em' }}>
                     &ldquo;Every organization produces two versions of itself.&rdquo;
                   </div>
-                  <div style={{ fontFamily: inter, fontSize: 17, lineHeight: 1.9, color: 'rgba(224,210,185,0.55)', fontWeight: 400, marginBottom: 28 }}>
+                  <div style={{ fontFamily: inter, fontSize: 17, lineHeight: 1.9, color: 'rgba(224,210,185,0.72)', fontWeight: 400, marginBottom: 28 }}>
                     <p style={{ marginBottom: 16 }}>κατάβασις — the descent. Anonymous intelligence from inside organizations. Corporations, government agencies, state departments, regulators, contractors — any entity that shapes the world but controls what&apos;s known about its interior.</p>
                     <p style={{ marginBottom: 16 }}>Connect a wallet. Sign a message. Your public address is one-way hashed into an anonymous ID — the hash is on-chain, the wallet behind it is not.</p>
                     <p>This is a space for employees, contractors, whistleblowers, and insiders who want the truth known. Nothing more.</p>
@@ -1821,7 +1838,7 @@ export default function DashboardPage() {
 
                   <div style={{ height: 1, background: border, marginBottom: 32 }} />
                   <SecHead label="Information asymmetry" mb={14} />
-                  <div style={{ fontFamily: inter, fontSize: 17, lineHeight: 1.9, color: 'rgba(224,210,185,0.55)', fontWeight: 400, marginBottom: 28 }}>
+                  <div style={{ fontFamily: inter, fontSize: 17, lineHeight: 1.9, color: 'rgba(224,210,185,0.72)', fontWeight: 400, marginBottom: 28 }}>
                     <p style={{ marginBottom: 16 }}>Every organization produces two versions of itself. The public version — press releases, job postings, investor decks. And the real version — what employees know, what contractors have seen.</p>
                     <p style={{ marginBottom: 16 }}>That gap is information asymmetry. It advantages the institution over the individual. kataBased exists to close it.</p>
                     <p style={{ fontFamily: mono, fontSize: 13, color: 'rgba(212,99,26,0.35)', letterSpacing: '0.16em' }}>anonymous · verified · permanent · on-chain</p>
@@ -1829,14 +1846,14 @@ export default function DashboardPage() {
 
                   <div style={{ height: 1, background: border, marginBottom: 32 }} />
                   <SecHead label="Data API" mb={14} />
-                  <div style={{ fontFamily: inter, fontSize: 17, lineHeight: 1.9, color: 'rgba(224,210,185,0.55)', fontWeight: 400, marginBottom: 28 }}>
+                  <div style={{ fontFamily: inter, fontSize: 17, lineHeight: 1.9, color: 'rgba(224,210,185,0.72)', fontWeight: 400, marginBottom: 28 }}>
                     <p style={{ marginBottom: 16 }}>Aggregated company sentiment data is available via API for research and due diligence. Delayed public data is free. Real-time feeds require a paid subscription.</p>
                     <p style={{ fontFamily: mono, fontSize: 13, color: 'rgba(212,99,26,0.28)', letterSpacing: '0.1em' }}>API access: contact via on-chain message to the kataBased treasury address.</p>
                   </div>
 
                   <div style={{ height: 1, background: border, marginBottom: 32 }} />
                   <SecHead label="Prediction markets" mb={14} />
-                  <div style={{ fontFamily: inter, fontSize: 17, lineHeight: 1.9, color: 'rgba(224,210,185,0.55)', fontWeight: 400 }}>
+                  <div style={{ fontFamily: inter, fontSize: 17, lineHeight: 1.9, color: 'rgba(224,210,185,0.72)', fontWeight: 400 }}>
                     <p style={{ marginBottom: 16 }}>Every post on kataBased is a signal. Signals should be priceable. Posts about an entity&apos;s internal health are leading indicators — the kind of information that moves before markets, elections, or investigations do.</p>
                     <div style={{ marginTop: 20, paddingLeft: 16, borderLeft: `2px solid rgba(201,168,76,0.28)` }}>
                       <p style={{ fontFamily: sans, fontSize: 17, fontWeight: 400, color: sigGold, margin: 0, lineHeight: 1.6 }}>Every insider transmission is a leading indicator. Soon it will be priceable.</p>
@@ -1874,7 +1891,7 @@ export default function DashboardPage() {
           <div style={{ textAlign: 'center' }}>
             <div style={{ width: 6, height: 6, borderRadius: '50%', background: celadon, boxShadow: `0 0 14px rgba(212,99,26,0.7)`, animation: 'pd 1s ease infinite', margin: '0 auto 20px' }} />
             <div style={{ fontFamily: mono, fontSize: 13, letterSpacing: '0.22em', color: 'rgba(212,99,26,0.55)', marginBottom: 10, textTransform: 'uppercase' }}>Verifying identity</div>
-            <div style={{ fontFamily: sans, fontSize: 16, color: 'rgba(216,196,160,0.35)', lineHeight: 1.7 }}>
+            <div style={{ fontFamily: sans, fontSize: 16, color: 'rgba(216,196,160,0.72)', lineHeight: 1.7 }}>
               Check your wallet.<br />
               <span style={{ fontSize: 15, opacity: 0.6 }}>Sign the message to prove ownership. No gas.</span>
             </div>

@@ -193,22 +193,18 @@ function QuoteSlab() {
 
 export default function Home() {
   const { isConnected } = useAccount();
-  const { user, loading, signingIn, authError, refetchUser } = useUser();
+  const { user, loading, signingIn, refetchUser } = useUser();
   const router = useRouter();
   const { openConnectModal } = useConnectModal();
   const { disconnect } = useDisconnect();
   const [scrollY, setScrollY] = useState(0);
   const [mounted, setMounted] = useState(false);
-  const [navBorder, setNavBorder] = useState(false);
   const [expandedTier, setExpandedTier] = useState<string | null>(null);
   const heroRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setMounted(true);
-    const s = () => {
-      setScrollY(window.scrollY);
-      setNavBorder(window.scrollY > 60);
-    };
+    const s = () => setScrollY(window.scrollY);
     window.addEventListener('scroll', s, { passive: true });
     return () => window.removeEventListener('scroll', s);
   }, []);
@@ -257,40 +253,6 @@ export default function Home() {
         }
       `}</style>
 
-      {/* ── NAV ────────────────────────────────────────────────────────────────── */}
-      <nav className="kb-nav" style={{
-        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
-        height: 52, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '0 36px',
-        background: 'rgba(10,10,11,0.82)',
-        backdropFilter: 'blur(24px)',
-        borderBottom: `1px solid ${navBorder ? 'rgba(200,208,220,0.08)' : 'transparent'}`,
-        transition: 'border-color 0.5s ease',
-      }}>
-        <Suspense fallback={<div style={{ width: 54, height: 32 }} />}>
-          <KataLogoMarble size="nav" />
-        </Suspense>
-
-        <button
-          onClick={handleCta}
-          style={{
-            fontFamily: mono,
-            fontSize: 10,
-            letterSpacing: '0.22em',
-            color: 'rgba(212,99,26,0.6)',
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            textTransform: 'uppercase',
-            transition: 'color 0.2s',
-            padding: 0,
-          }}
-          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = celadon; }}
-          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(212,99,26,0.6)'; }}
-        >
-          Enter
-        </button>
-      </nav>
 
       {/* ── HERO LOGO — fixed at tunnel vanishing point (50.2%, 44%) ────────────── */}
       <div
@@ -308,7 +270,7 @@ export default function Home() {
         }}
       >
         <Suspense fallback={
-          <div style={{ width: 520, height: 320, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ width: 600, height: 380, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <span style={{ fontFamily: "'kataGlyph Stele',Georgia,serif", fontStyle: 'normal', fontSize: 175, color: celadon, opacity: 0.5 }}>κβ</span>
           </div>
         }>
@@ -378,15 +340,6 @@ export default function Home() {
               Sign message in wallet →
             </div>
           )}
-          {!signingIn && isConnected && !user && (
-            <div style={{
-              fontFamily: mono, fontSize: 10, letterSpacing: '0.2em',
-              color: `rgba(229,90,0,0.6)`, textTransform: 'uppercase',
-            }}>
-              Signature needed →
-            </div>
-          )}
-
           <button
             onClick={handleCta}
             disabled={ctaDisabled}
@@ -455,16 +408,6 @@ export default function Home() {
             {ctaLabel}
           </button>
 
-          {authError && (
-            <div style={{
-              fontFamily: mono, fontSize: 11, color: 'rgba(229,90,0,0.75)',
-              letterSpacing: '0.04em', maxWidth: 320, textAlign: 'center',
-              lineHeight: 1.65, padding: '8px 14px',
-              borderLeft: '2px solid rgba(229,90,0,0.3)',
-            }}>
-              {authError}
-            </div>
-          )}
         </div>
 
         {/* Scroll indicator — vertical rule */}
@@ -506,9 +449,11 @@ export default function Home() {
         </FadeUp>
 
         {[
-          { entity: 'Alchemy',   title: 'biggest enterprise client had 12h downtime. we blamed them publicly.', confirms: 201, disputes: 18, time: '1h',  signal: 3 },
-          { entity: 'OpenSea',  title: 'Seaport team and product team stopped talking. two companies now.',     confirms: 244, disputes: 41, time: '4h',  signal: 2 },
-          { entity: 'Coinbase', title: 'they let 900 people go over Slack. no call. no warning.',              confirms: 312, disputes: 14, time: '5h',  signal: 3 },
+          { entity: 'Drift',       title: 'team wallet moved to Bybit during the active DPRK incident. not after. nobody on the post-mortem had a straight answer.', confirms: 284, disputes: 22, time: '2h',  signal: 3 },
+          { entity: 'Wintermute',  title: 'market make your token while running prop on the same book. nobody tells you that in the term sheet.',                   confirms: 341, disputes: 47, time: '6h',  signal: 3 },
+          { entity: 'Hyperliquid', title: '70% of onchain perps OI and that is not even the play. they are building data infra the exchange is a front-end for.',   confirms: 489, disputes: 8,  time: '9h',  signal: 3 },
+          { entity: 'Polymarket',  title: 'Kalshi spends 3x on marketing and still cannot close the gap. no KYC is the product.',                                    confirms: 341, disputes: 47, time: '14h', signal: 2 },
+          { entity: 'TRM Labs',    title: 'paid by the same exchanges we are supposed to flag. biggest contracts generate the most suspicious volume.',              confirms: 198, disputes: 12, time: '1d',  signal: 2 },
         ].map((p, i) => {
           const total = p.confirms + p.disputes;
           const confPct = total > 0 ? (p.confirms / total) * 100 : 50;

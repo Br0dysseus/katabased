@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  kataBased — logo v2
+  Concept: geometric κ (kappa) + descent plumb element
+  Mark tells the full brand story: the letter, the descent, the anchor.
+  Colors: Aegean blue #6B9FD4 (mark) + terracotta #D4845A (descent)
+  Background: brand dark navy #04050C
+-->
+<svg xmlns="http://www.w3.org/2000/svg" width="520" height="520" viewBox="0 0 520 520">
+<defs>
+
+  <!-- Background -->
+  <radialGradient id="bg" cx="50%" cy="36%" r="68%">
+    <stop offset="0%"   stop-color="#0C1120"/>
+    <stop offset="100%" stop-color="#04050C"/>
+  </radialGradient>
+
+  <!-- κ fill — Aegean blue, diagonal light source top-left -->
+  <linearGradient id="k_grad" x1="141" y1="50" x2="372" y2="325"
+    gradientUnits="userSpaceOnUse">
+    <stop offset="0%"   stop-color="#C8E0F4"/>
+    <stop offset="18%"  stop-color="#9AC0E4"/>
+    <stop offset="55%"  stop-color="#6B9FD4"/>
+    <stop offset="100%" stop-color="#2A4E78"/>
+  </linearGradient>
+
+  <!-- Specular highlight on κ — thin bright band, top surfaces only -->
+  <linearGradient id="k_spec" x1="141" y1="50" x2="141" y2="190"
+    gradientUnits="userSpaceOnUse">
+    <stop offset="0%"   stop-color="#FFFFFF" stop-opacity="0.18"/>
+    <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
+  </linearGradient>
+
+  <!-- Descent element — terracotta -->
+  <linearGradient id="d_grad" x1="152" y1="330" x2="152" y2="408"
+    gradientUnits="userSpaceOnUse">
+    <stop offset="0%"   stop-color="#D4845A"/>
+    <stop offset="70%"  stop-color="#C06A3C"/>
+    <stop offset="100%" stop-color="#9A4A20"/>
+  </linearGradient>
+
+  <!-- κ ambient glow — Aegean blue -->
+  <filter id="k_glow" x="-22%" y="-18%" width="150%" height="140%">
+    <feGaussianBlur stdDeviation="11" result="b"/>
+    <feFlood flood-color="#4A80B8" flood-opacity="0.30" result="c"/>
+    <feComposite in="c" in2="b" operator="in" result="g"/>
+    <feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+
+  <!-- Descent element glow — terracotta -->
+  <filter id="d_glow" x="-80%" y="-40%" width="260%" height="180%">
+    <feGaussianBlur stdDeviation="7" result="b"/>
+    <feFlood flood-color="#D4845A" flood-opacity="0.50" result="c"/>
+    <feComposite in="c" in2="b" operator="in" result="g"/>
+    <feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+
+  <!-- Wordmark soft glow -->
+  <filter id="wm_glow">
+    <feGaussianBlur stdDeviation="4" result="b"/>
+    <feFlood flood-color="#6B9FD4" flood-opacity="0.20" result="c"/>
+    <feComposite in="c" in2="b" operator="in" result="g"/>
+    <feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+
+  <!-- Clip κ body for specular overlay -->
+  <clipPath id="k_clip">
+    <rect x="130" y="38" width="255" height="300"/>
+  </clipPath>
+
+</defs>
+
+<!-- ── Background ─────────────────────────────────── -->
+<rect width="520" height="520" fill="url(#bg)"/>
+
+<!-- ── κ mark — geometric construction ──────────────
+     Vertical stroke: x=141–163, y=50–325
+     Arms meet at junction: x=163, y=187
+     Arms terminate: x=372, y=50 (upper) and y=325 (lower)
+     Stroke-based: 22px, square linecap, miter join
+     Gradient spans entire κ bounding box in userSpaceOnUse
+──────────────────────────────────────────────────── -->
+<g filter="url(#k_glow)">
+
+  <!-- κ body — filled paths for unified gradient coverage -->
+  <!-- Vertical bar -->
+  <rect x="141" y="50" width="22" height="275" fill="url(#k_grad)"/>
+
+  <!-- Upper arm: (163,187) to (372,50), 22px thick -->
+  <!-- Direction vector: (209,−137). Perp unit: (137/249,209/249)=(0.550,0.839) -->
+  <!-- Offset ±11px perpendicular -->
+  <polygon
+    points="169.1,196.2  156.9,177.8  362.0,39.8  374.1,58.2"
+    fill="url(#k_grad)"/>
+
+  <!-- Lower arm: (163,187) to (372,325), 22px thick -->
+  <!-- Direction vector: (209,138). Perp unit: (−138/249,209/249)=(−0.554,0.839) -->
+  <polygon
+    points="156.9,196.2  169.1,177.8  374.1,313.8  362.0,332.2"
+    fill="url(#k_grad)"/>
+
+  <!-- Specular highlight — thin luminous overlay, clipped to mark -->
+  <rect x="141" y="50" width="233" height="150"
+    fill="url(#k_spec)" clip-path="url(#k_clip)" opacity="0.9"/>
+
+</g>
+
+<!-- ── Descent element ───────────────────────────────
+     Plumb line descending from base of vertical stroke.
+     Symbolises: κατάβασις — the descent to find truth.
+     Line → gap → plumb weight (teardrop)
+──────────────────────────────────────────────────── -->
+<g filter="url(#d_glow)">
+  <!-- Thin plumb line -->
+  <line x1="152" y1="325" x2="152" y2="368"
+    stroke="url(#d_grad)" stroke-width="2" stroke-linecap="butt"/>
+  <!-- Plumb weight — teardrop: circle + downward point -->
+  <circle cx="152" cy="381" r="9" fill="#D4845A" opacity="0.92"/>
+  <polygon points="143,381 161,381 152,403"
+    fill="#D4845A" opacity="0.80"/>
+</g>
+
+<!-- ── Wordmark zone ──────────────────────────────── -->
+
+<!-- Upper rule -->
+<line x1="106" y1="430" x2="414" y2="430"
+  stroke="#3A6A9A" stroke-width="0.75" opacity="0.35"/>
+
+<!-- "kataBased" in EB Garamond italic -->
+<text x="260" y="462"
+  font-family="EB Garamond, Garamond, Georgia, serif"
+  font-style="italic"
+  font-size="40"
+  fill="#CAC2AA"
+  opacity="0.94"
+  text-anchor="middle"
+  letter-spacing="2.5"
+  filter="url(#wm_glow)">kataBased</text>
+
+<!-- κατάβασις — subtitle, spaced small caps feel -->
+<text x="260" y="485"
+  font-family="EB Garamond, Garamond, Georgia, serif"
+  font-size="10"
+  fill="#6B9FD4"
+  opacity="0.38"
+  text-anchor="middle"
+  letter-spacing="6">κατάβασις</text>
+
+<!-- Lower rule -->
+<line x1="106" y1="500" x2="414" y2="500"
+  stroke="#3A6A9A" stroke-width="0.75" opacity="0.22"/>
+
+</svg>
