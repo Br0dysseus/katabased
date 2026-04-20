@@ -751,12 +751,13 @@ function ComposerModal({ sessionToken, onPostCreated, onClose }: { sessionToken:
 
   const submit = async () => {
     if (!sessionToken) { setError('identity not established — reconnect wallet'); return; }
-    if (!title.trim() || !body.trim()) { setError('HEADER* and TRANSMISSION* are required'); return; }
+    if (!body.trim()) { setError('Transmission required'); return; }
     if (submitRef.current) return;
     submitRef.current = true;
     setSubmitting(true); setError('');
     try {
-      const post = await createPost(sessionToken, title, body, company);
+      const autoTitle = body.trim().split(/\s+/).slice(0, 10).join(' ').slice(0, 110);
+      const post = await createPost(sessionToken, autoTitle, body, company);
       onPostCreated(post);
       onClose();
     } catch (e) {
@@ -821,24 +822,6 @@ function ComposerModal({ sessionToken, onPostCreated, onClose }: { sessionToken:
             onChange={e => setCompany((e.target as HTMLInputElement).value)}
             placeholder="Coinbase, Dept. of State…"
             style={fieldStyle({ fontSize: 18, fontWeight: 400, color: 'rgba(224,210,185,0.7)' })}
-            onFocus={e => { (e.target as HTMLInputElement).style.borderColor = 'rgba(212,99,26,0.32)'; }}
-            onBlur={e  => { (e.target as HTMLInputElement).style.borderColor = 'rgba(255,255,255,0.08)'; }}
-          />
-        </div>
-
-        {/* Title */}
-        <div style={{ marginBottom: 24 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-            <div style={{ fontFamily: mono, fontSize: 13, letterSpacing: '0.22em', color: 'rgba(224,210,185,0.35)', textTransform: 'uppercase' }}>
-              Headline <span style={{ color: amber, opacity: 0.7 }}>*</span>
-            </div>
-            <span style={{ fontFamily: mono, fontSize: 13, color: title.length > TITLE_MAX * 0.85 ? 'rgba(248,113,113,0.6)' : 'rgba(224,210,185,0.18)' }}>{title.length}/{TITLE_MAX}</span>
-          </div>
-          <input
-            value={title}
-            onChange={e => { if (e.target.value.length <= TITLE_MAX) setTitle(e.target.value); }}
-            placeholder="What needs to be known"
-            style={fieldStyle({ fontSize: 20, fontWeight: 500, color: 'rgba(224,210,185,0.9)' })}
             onFocus={e => { (e.target as HTMLInputElement).style.borderColor = 'rgba(212,99,26,0.32)'; }}
             onBlur={e  => { (e.target as HTMLInputElement).style.borderColor = 'rgba(255,255,255,0.08)'; }}
           />
@@ -1737,7 +1720,7 @@ export default function DashboardPage() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
 
             {/* Wallet */}
-            <div ref={wRef} style={{ position: 'relative' }}>
+            <div ref={wRef} style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 6 }}>
               <button
                 onClick={() => setWMenu(!wMenu)}
                 style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 11px', borderRadius: 1, border: `1px solid ${border}`, background: 'transparent', cursor: 'pointer', fontFamily: mono, fontSize: 13, color: 'rgba(216,196,160,0.74)', letterSpacing: '0.06em', transition: 'all 0.14s' }}
@@ -1747,23 +1730,15 @@ export default function DashboardPage() {
                 <div style={{ width: 4, height: 4, borderRadius: '50%', background: celadon, boxShadow: `0 0 5px rgba(212,99,26,0.5)`, animation: 'pd 2s ease infinite', flexShrink: 0 }} />
                 {walletDisplay}
               </button>
-              {wMenu && (
-                <div className="fi" style={{ ...dd, minWidth: 200 }}>
-                  <div style={{ padding: '10px 12px' }}>
-                    <div style={{ fontFamily: mono, fontSize: 14, fontWeight: 600, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(224,210,185,0.28)', marginBottom: 8 }}>Wallet</div>
-                    <div style={{ fontFamily: mono, fontSize: 14, color: 'rgba(224,210,185,0.5)', letterSpacing: '0.04em' }}>{walletDisplay}</div>
-                  </div>
-                  <div style={{ height: 1, background: border, margin: '3px 8px' }} />
-                  <button
-                    onClick={() => { disconnect(); setWMenu(false); }}
-                    style={{ display: 'block', width: '100%', padding: '8px 12px', borderRadius: 2, fontFamily: inter, fontSize: 16, color: 'rgba(248,113,113,0.6)', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', transition: 'background 0.15s' }}
-                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(248,113,113,0.06)'; }}
-                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'none'; }}
-                  >
-                    Disconnect
-                  </button>
-                </div>
-              )}
+              <button
+                onClick={() => disconnect()}
+                title="Disconnect wallet"
+                style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 1, border: '1px solid rgba(248,113,113,0.28)', background: 'rgba(248,113,113,0.04)', cursor: 'pointer', fontFamily: mono, fontSize: 12, color: 'rgba(248,113,113,0.72)', letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: 600, transition: 'all 0.14s' }}
+                onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.borderColor = 'rgba(248,113,113,0.55)'; el.style.background = 'rgba(248,113,113,0.1)'; el.style.color = 'rgba(248,113,113,0.95)'; }}
+                onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.borderColor = 'rgba(248,113,113,0.28)'; el.style.background = 'rgba(248,113,113,0.04)'; el.style.color = 'rgba(248,113,113,0.72)'; }}
+              >
+                Logout
+              </button>
             </div>
 
             {/* User */}
