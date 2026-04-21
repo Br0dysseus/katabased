@@ -118,13 +118,14 @@ export async function createPost(
     if (countError) return { error: `Rate-check failed: ${countError.message} (code ${countError.code})` };
     if ((count ?? 0) >= 5) return { error: 'Rate limit: max 5 transmissions per hour' };
 
+    // Note: omit `category` so Supabase uses the column default — the
+    // posts_category_check constraint rejected our prior 'transmission' literal.
     const { data, error } = await supabase
       .from('posts')
       .insert([{
         user_id: userId,
         title: trimmedTitle,
         content: trimmedContent,
-        category: 'transmission',
         company_name: trimmedEntity || null,
         confirms: 0,
         disputes: 0,
