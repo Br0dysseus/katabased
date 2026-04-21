@@ -749,9 +749,13 @@ function ComposerModal({ sessionToken, onPostCreated, onClose }: { sessionToken:
     setSubmitting(true); setError('');
     try {
       const autoTitle = body.trim().split(/\s+/).slice(0, 10).join(' ').slice(0, 110);
-      const post = await createPost(sessionToken, autoTitle, body, company);
-      onPostCreated(post);
-      onClose();
+      const result = await createPost(sessionToken, autoTitle, body, company);
+      if (result.error || !result.post) {
+        setError(friendlyError(new Error(result.error || 'Unknown error')));
+      } else {
+        onPostCreated(result.post);
+        onClose();
+      }
     } catch (e) {
       setError(friendlyError(e));
     } finally {

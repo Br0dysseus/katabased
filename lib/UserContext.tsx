@@ -53,10 +53,34 @@ export function UserProvider({ children }: { children: ReactNode }) {
       return;
     }
 
+    const addrLower = address.toLowerCase();
+
     // Already authenticated this address this session — user is in state, nothing to do
-    if (authedAddress.current === address.toLowerCase() && userRef.current && sessionTokenRef.current) {
+    if (authedAddress.current === addrLower && userRef.current && sessionTokenRef.current) {
       setLoading(false);
       return;
+    }
+
+    // Check localStorage for existing session — skip signature prompt if valid
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem(`kb:session:${addrLower}`);
+        if (stored) {
+          const parsed = JSON.parse(stored) as { user: User; token: string; exp: number };
+          if (parsed.exp > Date.now() && parsed.user && parsed.token) {
+            setUser(parsed.user);
+            setSessionToken(parsed.token);
+            userRef.current = parsed.user;
+            sessionTokenRef.current = parsed.token;
+            authedAddress.current = addrLower;
+            setLoading(false);
+            return;
+          }
+          localStorage.removeItem(`kb:session:${addrLower}`);
+        }
+      } catch {
+        // corrupt localStorage — ignore and re-sign
+      }
     }
 
     // New address this session — require wallet signature
@@ -73,7 +97,14 @@ export function UserProvider({ children }: { children: ReactNode }) {
       setSessionToken(token);
       userRef.current = userData;
       sessionTokenRef.current = token;
-      authedAddress.current = address.toLowerCase();
+      authedAddress.current = addrLower;
+
+      // Persist — 24h expiry matches server-side session TTL in auth.ts
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(`kb:session:${addrLower}`, JSON.stringify({
+          user: userData, token, exp: Date.now() + 24 * 60 * 60 * 1000,
+        }));
+      }
     } catch (error) {
       console.error('Sign-in failed:', error);
       setUser(null);

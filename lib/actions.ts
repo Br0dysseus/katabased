@@ -92,44 +92,50 @@ export async function createPost(
   title: string,
   content: string,
   entityName: string,
-): Promise<FeedPost> {
-  const userId = verifySession(sessionToken);
+): Promise<{ post?: FeedPost; error?: string }> {
+  // Server actions obscure raw error messages in prod (Next.js digest wrapping).
+  // Return errors as data so the client sees the actual blocker.
+  try {
+    const userId = verifySession(sessionToken);
 
-  const trimmedTitle = sanitizeContent(title);
-  const trimmedContent = sanitizeContent(content);
-  const trimmedEntity = sanitizeContent(entityName);
+    const trimmedTitle = sanitizeContent(title);
+    const trimmedContent = sanitizeContent(content);
+    const trimmedEntity = sanitizeContent(entityName);
 
-  if (!trimmedTitle || trimmedTitle.length > 120) throw new Error('Title must be 1–120 characters');
-  if (!trimmedContent || trimmedContent.length > 2000) throw new Error('Content must be 1–2000 characters');
-  if (trimmedEntity.length > 100) throw new Error('Entity name must be ≤ 100 characters');
+    if (!trimmedTitle || trimmedTitle.length > 120) return { error: 'Title must be 1–120 characters' };
+    if (!trimmedContent || trimmedContent.length > 2000) return { error: 'Content must be 1–2000 characters' };
+    if (trimmedEntity.length > 100) return { error: 'Entity name must be ≤ 100 characters' };
 
-  const supabase = serverSupabase();
+    const supabase = serverSupabase();
 
-  // Rate limit: max 5 posts per user per hour
-  const since = new Date(Date.now() - 3_600_000).toISOString();
-  const { count, error: countError } = await supabase
-    .from('posts')
-    .select('*', { count: 'exact', head: true })
-    .eq('user_id', userId)
-    .gte('created_at', since);
+    const since = new Date(Date.now() - 3_600_000).toISOString();
+    const { count, error: countError } = await supabase
+      .from('posts')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', userId)
+      .gte('created_at', since);
 
-  if (countError) throw countError;
-  if ((count ?? 0) >= 5) throw new Error('Rate limit: max 5 transmissions per hour');
+    if (countError) return { error: `Rate-check failed: ${countError.message} (code ${countError.code})` };
+    if ((count ?? 0) >= 5) return { error: 'Rate limit: max 5 transmissions per hour' };
 
-  const { data, error } = await supabase
-    .from('posts')
-    .insert([{
-      user_id: userId,
-      title: trimmedTitle,
-      content: trimmedContent,
-      category: 'transmission',
-      company_name: trimmedEntity || null,
-      confirms: 0,
-      disputes: 0,
-    }])
-    .select('*, users(username)')
-    .single();
+    const { data, error } = await supabase
+      .from('posts')
+      .insert([{
+        user_id: userId,
+        title: trimmedTitle,
+        content: trimmedContent,
+        category: 'transmission',
+        company_name: trimmedEntity || null,
+        confirms: 0,
+        disputes: 0,
+      }])
+      .select('*, users(username)')
+      .single();
 
-  if (error) throw error;
-  return normalizePost(data);
+    if (error) return { error: `DB insert failed: ${error.message} (code ${error.code})` };
+    return { post: normalizePost(data) };
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    return { error: msg };
+  }
 }
