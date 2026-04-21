@@ -56,7 +56,10 @@ const USER_ERRORS: Record<string, string> = {
 };
 function friendlyError(err: unknown): string {
   const msg = err instanceof Error ? err.message : String(err);
-  return USER_ERRORS[msg] ?? 'Something went wrong. Please try again.';
+  if (USER_ERRORS[msg]) return USER_ERRORS[msg];
+  // surface raw server error during debug so user sees actual blocker
+  if (msg && msg.length < 200) return msg;
+  return 'Something went wrong. Please try again.';
 }
 
 // ─── Mock data ────────────────────────────────────────────────────────────────
@@ -200,25 +203,14 @@ function FeedEntry({ p, votes, vote, index }: { p: FeedPost; votes: Record<strin
         </div>
       </div>
 
-      {/* Title */}
-      <div style={{
-        fontFamily: sans, fontSize: 19, fontWeight: 500,
-        color: hovered ? text1 : 'rgba(216,196,160,0.92)',
-        lineHeight: 1.45, marginBottom: 8,
-        letterSpacing: '-0.015em',
-        transition: 'color 0.18s',
-      }}>
-        {p.title}
-      </div>
-
-      {/* Body */}
+      {/* Body (title inlined as lead) */}
       <div style={{
         fontFamily: sans, fontSize: 17, lineHeight: 1.82,
-        color: hovered ? 'rgba(216,196,160,0.86)' : 'rgba(216,196,160,0.86)',
+        color: hovered ? 'rgba(216,196,160,0.92)' : 'rgba(216,196,160,0.86)',
         fontWeight: 400, marginBottom: 14,
         transition: 'color 0.18s',
       }}>
-        {p.content}
+        {p.title && p.title !== p.content ? `${p.title} ${p.content}` : p.content}
       </div>
 
       {/* Ratio bar + sign action */}
@@ -1678,7 +1670,7 @@ export default function DashboardPage() {
           background: 'rgba(12,8,6,0.92)', backdropFilter: 'blur(24px)',
           borderBottom: `1px solid ${navBorder ? 'rgba(200,140,60,0.18)' : 'transparent'}`,
           transition: 'border-color 0.4s ease',
-          overflow: 'hidden',
+          overflow: 'visible',
         }}>
 
           {/* Left: logo */}
